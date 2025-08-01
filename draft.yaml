@@ -1,0 +1,122 @@
+models:
+  # Plantas y Terminales
+  Location:
+    codigo: string:2
+    nombre: string
+    direccion: string
+    activo: boolean default:true
+
+  # Que usuarios pueden ver una planta o terminal
+  LocationUser:
+    location_id: foreign onDelete:cascade
+    user_id: foreign onDelete:cascade
+
+  # Sistemas Plantas y Terminales para clasificar activos
+  SystemsCatalog:
+    codigo: string:4 unique
+    nombre: string
+    orden: unsignedTinyInteger default:0
+    activo: boolean default:true
+
+  # Clasificación de Activos
+  AssetClassification:
+    nombre: string unique
+    descripcion: text nullable
+    orden: unsignedTinyInteger default:0
+    activo: boolean default:true
+
+  # Criticidad de Activos
+  AssetCriticality:
+    nombre: string unique
+    descripcion: text nullable
+    nivel: unsignedTinyInteger unique
+    activo: boolean default:true
+
+  # Estado de Activos
+  AssetState:
+    codigo: string:12 unique
+    nombre: string
+    orden: unsignedTinyInteger default:0
+    activo: boolean default:true
+
+  # Activos
+  Asset:
+    nombre: string
+    codigo: string unique
+    tag: string unique
+    descripcion: string nullable
+    modelo: string nullable
+    fabricante: string nullable
+    serie: string nullable
+    ubicacion: string nullable
+    fecha_adquisicion: date nullable
+    fecha_puesta_marcha: date nullable
+    foto: string nullable
+    activo: boolean default:true
+
+    location_id: foreign
+    systems_catalog_id: foreign
+    asset_classification_id: foreign
+    asset_criticality_id: foreign
+    asset_state_id: foreign onDelete:restrict
+    asset_parent_id: foreign:assets nullable onDelete:null
+
+    creado_por_id: foreign:users onDelete:restrict
+    actualizado_por_id: foreign:users onDelete:restrict
+
+  # Reportes de Fallas - Estados
+  ReportStatus:
+    clave: string unique
+    nombre: string
+    color: string nullable
+    orden: unsignedTinyInteger default:0
+    activo: boolean default:true
+
+  # Reportes de Fallas - Seguimiento
+  ReportFollowup:
+    clave: string unique
+    nombre: string
+    color: string nullable
+    orden: unsignedTinyInteger default:0
+    activo: boolean default:true
+
+  # Reportes de Fallas - Correlativo
+  FailureReportSequence:
+    location_id: foreign onDelete:cascade
+    anio: year
+    correlativo_actual: unsignedInteger default:0
+    
+  # Reportes de Fallas
+  FailureReport:
+    numero_reporte: string unique
+    fecha_ocurrencia: datetime
+    datos_generales: text
+    descripcion_corta: string
+    personal_detector: text
+    descripcion_detallada: text 
+    causas_probables: text 
+    acciones_realizadas: text 
+    afecta_operaciones: boolean default:false
+    afecta_medio_ambiente: boolean default:false
+    apoyo_adicional: text 
+    observaciones: text nullable
+
+    asset_id: foreign
+    asset_parent_id: foreign:assets nullable onDelete:null
+    asset_state_id: foreign
+    report_status_id: foreign onDelete:restrict
+    report_followup_id: foreign onDelete:restrict
+
+    creado_por_id: foreign:users onDelete:restrict
+    reportado_por_id: foreign:users nullable onDelete:restrict
+    reportado_en: datetime nullable
+    aprobado_por_id: foreign:users nullable onDelete:restrict
+    aprobado_en: datetime nullable
+    ejecutado_por_id: foreign:users nullable onDelete:restrict
+    actualizado_por_id: foreign:users nullable onDelete:restrict
+
+    
+
+  
+
+  
