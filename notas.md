@@ -8,3 +8,10 @@ Se instalo Laravel-permission (Para el UI se planea agregar Plugin Filament Spat
   - composer require spatie/laravel-permission
 Se instalo Laravel Activity Log
 Se instalo Laravel-medialibrary
+
+
+
+
+Cambiar .env 
+  QUEUE_CONNECTION=sync #La cola de trabajos se ejecuta de forma síncrona
+# QUEUE_CONNECTION=database Se activa la cola de trabajos

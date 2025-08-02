@@ -22,6 +22,7 @@ return new class extends Migration
             $table->boolean('password_change_required')->default(false);
             $table->boolean('activo')->default(true);
             $table->rememberToken();
+            $table->softDeletes();
             $table->timestamps();
         });
 
