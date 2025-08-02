@@ -1,4 +1,6 @@
-Se instalo blueprint
+Si se clona desde github ejecutar composer install - y copiar archivo env
+
+Se instalo blueprint  
 Se instalo filament
   - Se agrego paneles
   - Se agrego usuario
