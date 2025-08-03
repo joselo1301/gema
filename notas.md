@@ -15,3 +15,7 @@ Se instalo Laravel-medialibrary
 Cambiar .env 
   QUEUE_CONNECTION=sync #La cola de trabajos se ejecuta de forma síncrona
 # QUEUE_CONNECTION=database Se activa la cola de trabajos
+
+agrege FILAMENT_SHIELD_PANEL=gema a env
+
+Cada ves que ejecuto migrate_refreh se debe actualizar Shield  php artisan shield:generate, php artisan shield:install gema, php artisan shield:super-admin --user=1 --panel=gema

@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\AssetClassificationResource\Pages;
-use App\Filament\Resources\AssetClassificationResource\RelationManagers;
-use App\Models\AssetClassification;
+use App\Filament\Resources\AssetCriticalityResource\Pages;
+use App\Filament\Resources\AssetCriticalityResource\RelationManagers;
+use App\Models\AssetCriticality;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,22 +13,16 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class AssetClassificationResource extends Resource
+class AssetCriticalityResource extends Resource
 {
-    protected static ?string $model = AssetClassification::class;
+    protected static ?string $model = AssetCriticality::class;
 
-     // 1. Texto que aparece en el menú y breadcrumb
-    protected static ?string $navigationLabel = 'Clasificaciones';
-    // 2. Texto singular para el modelo (usado en botones, formularios, etc.)
-    protected static ?string $modelLabel = 'Clasificación';
-    // 3. Texto plural para el modelo (usado en título de List, breadcrumb, etc.)
-    protected static ?string $pluralModelLabel = 'Clasificaciones';
-    // 4. (Opcional) Ícono y posición en el menú
     // protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    // protected static ?int $navigationSort = 2;
-    // 5. Grupo de navegación
-    protected static ?string $navigationGroup = 'Activos';
 
+    protected static ?string $navigationGroup = 'Activos';
+    protected static ?string $navigationLabel = 'Criticidades';
+    protected static ?string $modelLabel = 'Criticidad';
+    protected static ?string $pluralModelLabel = 'Criticidades';
 
     public static function form(Form $form): Form
     {
@@ -39,10 +33,9 @@ class AssetClassificationResource extends Resource
                     ->maxLength(255),
                 Forms\Components\Textarea::make('descripcion')
                     ->columnSpanFull(),
-                Forms\Components\TextInput::make('orden')
+                Forms\Components\TextInput::make('nivel')
                     ->required()
-                    ->numeric()
-                    ->default(0),
+                    ->numeric(),
                 Forms\Components\Toggle::make('activo')
                     ->required(),
             ]);
@@ -54,7 +47,7 @@ class AssetClassificationResource extends Resource
             ->columns([
                 Tables\Columns\TextColumn::make('nombre')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('orden')
+                Tables\Columns\TextColumn::make('nivel')
                     ->numeric()
                     ->sortable(),
                 Tables\Columns\IconColumn::make('activo')
@@ -91,9 +84,9 @@ class AssetClassificationResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListAssetClassifications::route('/'),
-            'create' => Pages\CreateAssetClassification::route('/create'),
-            'edit' => Pages\EditAssetClassification::route('/{record}/edit'),
+            'index' => Pages\ListAssetCriticalities::route('/'),
+            'create' => Pages\CreateAssetCriticality::route('/create'),
+            'edit' => Pages\EditAssetCriticality::route('/{record}/edit'),
         ];
     }
 }

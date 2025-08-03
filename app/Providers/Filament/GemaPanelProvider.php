@@ -14,6 +14,8 @@ use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentView;
 use Filament\Widgets;
 use Filament\Navigation\MenuItem;
+use Filament\Navigation\NavigationGroup;
+use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -30,12 +32,11 @@ class GemaPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-            
+            ->default()
             ->id('gema')
             ->path('')
             ->login()
             ->passwordReset()
-            ->emailVerification()
             ->authPasswordBroker('users')
             ->brandName('GEMA')
             ->colors([
@@ -47,7 +48,7 @@ class GemaPanelProvider extends PanelProvider
                     'warning' => Color::Rose,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')
+            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')            
             ->pages([
                 Pages\Dashboard::class,
             ])
@@ -67,12 +68,48 @@ class GemaPanelProvider extends PanelProvider
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
             ])
-            ->plugins([
-                FilamentShieldPlugin::make(),
+           ->plugins([
+                FilamentShieldPlugin::make()
+                    ->gridColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 3
+                    ])
+                    ->sectionColumnSpan(1)
+                    ->checkboxListColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                        'lg' => 4,
+                    ])
+                    ->resourceCheckboxListColumns([
+                        'default' => 1,
+                        'sm' => 2,
+                    ]),
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+                EnsureEmailIsVerified::class,
+            ])
+            ->navigationGroups([
+                NavigationGroup::make()
+                    ->label('Roles y usuarios')
+                    ->icon('heroicon-o-user-group')
+                    ->collapsed(false),
+                NavigationGroup::make()
+                    ->label('Plantas y Terminales')
+                    // ->icon('heroicon-o-clipboard-document')
+                    ->collapsed(false), 
+                NavigationGroup::make()
+                    ->label('Activos')
+                    ->icon('heroicon-o-puzzle-piece')
+                    ->collapsed(false),
+                NavigationGroup::make()
+                    ->label('Reportes')
+                    ->icon('heroicon-o-clipboard-document')
+                    ->collapsed(false),     
+                            
+            ])
+            ;
     }
 
     public function register(): void

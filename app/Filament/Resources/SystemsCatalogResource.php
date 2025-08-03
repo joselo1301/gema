@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\AssetClassificationResource\Pages;
-use App\Filament\Resources\AssetClassificationResource\RelationManagers;
-use App\Models\AssetClassification;
+use App\Filament\Resources\SystemsCatalogResource\Pages;
+use App\Filament\Resources\SystemsCatalogResource\RelationManagers;
+use App\Models\SystemsCatalog;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,32 +13,27 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class AssetClassificationResource extends Resource
+class SystemsCatalogResource extends Resource
 {
-    protected static ?string $model = AssetClassification::class;
+    protected static ?string $model = SystemsCatalog::class;
 
-     // 1. Texto que aparece en el menú y breadcrumb
-    protected static ?string $navigationLabel = 'Clasificaciones';
-    // 2. Texto singular para el modelo (usado en botones, formularios, etc.)
-    protected static ?string $modelLabel = 'Clasificación';
-    // 3. Texto plural para el modelo (usado en título de List, breadcrumb, etc.)
-    protected static ?string $pluralModelLabel = 'Clasificaciones';
-    // 4. (Opcional) Ícono y posición en el menú
     // protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-    // protected static ?int $navigationSort = 2;
-    // 5. Grupo de navegación
-    protected static ?string $navigationGroup = 'Activos';
 
+    protected static ?string $navigationGroup = 'Activos';
+    protected static ?string $navigationLabel = 'Sistemas';
+    protected static ?string $modelLabel = 'Sistema';
+    protected static ?string $pluralModelLabel = 'Sistemas';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
+                Forms\Components\TextInput::make('codigo')
+                    ->required()
+                    ->maxLength(4),
                 Forms\Components\TextInput::make('nombre')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\Textarea::make('descripcion')
-                    ->columnSpanFull(),
                 Forms\Components\TextInput::make('orden')
                     ->required()
                     ->numeric()
@@ -52,6 +47,8 @@ class AssetClassificationResource extends Resource
     {
         return $table
             ->columns([
+                Tables\Columns\TextColumn::make('codigo')
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('nombre')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('orden')
@@ -91,9 +88,9 @@ class AssetClassificationResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListAssetClassifications::route('/'),
-            'create' => Pages\CreateAssetClassification::route('/create'),
-            'edit' => Pages\EditAssetClassification::route('/{record}/edit'),
+            'index' => Pages\ListSystemsCatalogs::route('/'),
+            'create' => Pages\CreateSystemsCatalog::route('/create'),
+            'edit' => Pages\EditSystemsCatalog::route('/{record}/edit'),
         ];
     }
 }

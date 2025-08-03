@@ -24,7 +24,6 @@ class DatabaseSeeder extends Seeder
         ]);
         $this->call([
             LocationSeeder::class,
-            // RolesAndPermissionsSeeder::class,
             ReportStatusSeeder::class,
             ReportFollowupSeeder::class,
             SystemsCatalogSeeder::class,
@@ -32,8 +31,8 @@ class DatabaseSeeder extends Seeder
             AssetClassificationSeeder::class,
             AssetStateSeeder::class,
             AssetSeeder::class,
-            SuperAdminSeeder::class,
-            
+            ShieldSeeder::class
+
         ]);
     }
 }
