@@ -19,6 +19,7 @@ class AssetClassificationSeeder extends Seeder
                 'descripcion' => 'Elementos estructurales o fijos que permiten el soporte general de la operación.',
                 'orden' => 1,
                 'activo' => true,
+                'color' => '#1E3A8A', // Default color set to white
                 'created_at' => now(),
                 'updated_at' => now(),
             ],
@@ -26,6 +27,7 @@ class AssetClassificationSeeder extends Seeder
                 'nombre' => 'Utilidades',
                 'descripcion' => 'Sistemas de soporte como energía, aire, agua, etc. necesarios para la operación del proceso.',
                 'orden' => 2,
+                'color' => '#10B981', // Default color set to white
                 'activo' => true,
                 'created_at' => now(),
                 'updated_at' => now(),
@@ -34,6 +36,7 @@ class AssetClassificationSeeder extends Seeder
                 'nombre' => 'Proceso',
                 'descripcion' => 'Equipos directamente involucrados en la producción o proceso operativo.',
                 'orden' => 3,
+                'color' => '#DC2626', // Default color set to white
                 'activo' => true,
                 'created_at' => now(),
                 'updated_at' => now(),

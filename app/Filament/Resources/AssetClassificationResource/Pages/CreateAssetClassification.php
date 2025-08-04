@@ -9,4 +9,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateAssetClassification extends CreateRecord
 {
     protected static string $resource = AssetClassificationResource::class;
+
+     protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

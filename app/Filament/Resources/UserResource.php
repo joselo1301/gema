@@ -84,7 +84,11 @@ class UserResource extends Resource
                         ->schema([
                             Forms\Components\CheckboxList::make('locations')
                                 ->label('Plantas o Terminales')
-                                ->relationship('locations', 'nombre') // Asumiendo que el modelo User tiene una relación 'locations' y el campo visible es 'nombre'
+                                ->relationship(
+                                    name: 'locations',
+                                    titleAttribute: 'nombre',
+                                    modifyQueryUsing: fn ($query) => $query->where('activo', true),
+                                ) // Relación con el modelo Location solo muestra activos
                                 ->required()
                                 ->columns(2)
                                 ->helperText('Selecciona uno o varios centros de trabajo a los que puede pertenecer el usuario'),
@@ -98,17 +102,7 @@ class UserResource extends Resource
                                 ->searchable(),
                         ]),
                     ]),
-
-
-
-                
-                
-                    
-                
-                
-
-
-               
+  
             ]);
     }
 
@@ -180,4 +174,6 @@ class UserResource extends Resource
                 SoftDeletingScope::class,
             ]);
     }
+
+     
 }

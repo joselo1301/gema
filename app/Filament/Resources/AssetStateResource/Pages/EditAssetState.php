@@ -16,4 +16,10 @@ class EditAssetState extends EditRecord
             Actions\DeleteAction::make(),
         ];
     }
+
+    //Retorna al URL de listado
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

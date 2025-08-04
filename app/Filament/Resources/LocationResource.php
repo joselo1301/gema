@@ -17,10 +17,10 @@ class LocationResource extends Resource
 {
     protected static ?string $model = Location::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
+    // protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     // protected static ?string $navigationGroup = 'Activos';
-    protected static ?string $navigationGroup = 'Plantas y Terminales';
+    protected static ?string $navigationGroup = 'Locaciones';
     protected static ?string $navigationLabel = 'Plantas y Terminales';
     protected static ?string $modelLabel = 'Planta o Terminal';
     protected static ?string $pluralModelLabel = 'Plantas y Terminales';
@@ -55,8 +55,12 @@ class LocationResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('direccion')
                     ->searchable(),
-                Tables\Columns\IconColumn::make('activo')
-                    ->boolean(),
+                Tables\Columns\ToggleColumn::make('activo') //Edita desde vista de tabla
+                    ->label('Activo')
+                    ->sortable()
+                    ->beforeStateUpdated(function ($record, $state) {
+                        // Aquí puedes agregar lógica adicional si deseas (ej. validar)
+                    }),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()

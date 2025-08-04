@@ -37,7 +37,12 @@ class AssetCriticalityResource extends Resource
                     ->required()
                     ->numeric(),
                 Forms\Components\Toggle::make('activo')
+                    ->helperText('Al desactivar esta opción, no será posible registrar nuevos elementos; sin embargo, los registros existentes permanecerán disponibles para su visualización.')
+                    ->default(true)
                     ->required(),
+                Forms\Components\ColorPicker::make('color')
+                    ->regex('/^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})\b$/')
+                    ->default('#3B82F6'), // Default color set to white
             ]);
     }
 
@@ -50,6 +55,7 @@ class AssetCriticalityResource extends Resource
                 Tables\Columns\TextColumn::make('nivel')
                     ->numeric()
                     ->sortable(),
+                Tables\Columns\ColorColumn::make('color'),
                 Tables\Columns\IconColumn::make('activo')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')

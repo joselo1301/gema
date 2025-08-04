@@ -9,4 +9,9 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateAssetCriticality extends CreateRecord
 {
     protected static string $resource = AssetCriticalityResource::class;
+
+     protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }

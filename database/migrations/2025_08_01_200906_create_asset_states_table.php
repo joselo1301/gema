@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('codigo', 12)->unique();
             $table->string('nombre');
+            $table->string('color')->nullable();
             $table->unsignedTinyInteger('orden')->default(0);
             $table->boolean('activo')->default(true);
             $table->timestamps();

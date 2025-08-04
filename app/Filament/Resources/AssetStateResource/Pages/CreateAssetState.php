@@ -9,4 +9,12 @@ use Filament\Resources\Pages\CreateRecord;
 class CreateAssetState extends CreateRecord
 {
     protected static string $resource = AssetStateResource::class;
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('index');
+    }
 }
+
+
+

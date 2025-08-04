@@ -17,6 +17,7 @@ return new class extends Migration
             $table->id();
             $table->string('nombre')->unique();
             $table->text('descripcion')->nullable();
+            $table->string('color')->nullable();
             $table->unsignedTinyInteger('nivel')->unique();
             $table->boolean('activo')->default(true);
             $table->timestamps();

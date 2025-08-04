@@ -29,6 +29,7 @@ use Illuminate\View\Middleware\ShareErrorsFromSession;
 
 class GemaPanelProvider extends PanelProvider
 {
+
     public function panel(Panel $panel): Panel
     {
         return $panel
@@ -91,14 +92,11 @@ class GemaPanelProvider extends PanelProvider
                 EnsureEmailIsVerified::class,
             ])
             ->navigationGroups([
+                
                 NavigationGroup::make()
-                    ->label('Roles y usuarios')
-                    ->icon('heroicon-o-user-group')
+                    ->label('Locaciones')
+                    ->icon('heroicon-o-building-office-2')
                     ->collapsed(false),
-                NavigationGroup::make()
-                    ->label('Plantas y Terminales')
-                    // ->icon('heroicon-o-clipboard-document')
-                    ->collapsed(false), 
                 NavigationGroup::make()
                     ->label('Activos')
                     ->icon('heroicon-o-puzzle-piece')
@@ -107,7 +105,10 @@ class GemaPanelProvider extends PanelProvider
                     ->label('Reportes')
                     ->icon('heroicon-o-clipboard-document')
                     ->collapsed(false),     
-                            
+                NavigationGroup::make()
+                    ->label('Roles y usuarios')
+                    ->icon('heroicon-o-user-group')
+                    ->collapsed(false),
             ])
             ;
     }
