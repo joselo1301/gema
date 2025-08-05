@@ -76,6 +76,7 @@ class UserResource extends Resource
                                         ->required()
                                         ->default(true),
                                     Forms\Components\Toggle::make('activo')
+                                        ->onColor('success')
                                         ->required()
                                         ->default(false),
                                 ]),
@@ -122,7 +123,7 @@ class UserResource extends Resource
                 Tables\Columns\TextColumn::make('empresa')
                     ->searchable(),
                 Tables\Columns\IconColumn::make('activo')
-                    ->boolean(),
+                    ->boolean(),                    
                 Tables\Columns\TextColumn::make('deleted_at')
                     ->dateTime()
                     ->sortable()

@@ -3,17 +3,19 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\AssetResource\Pages;
-use App\Filament\Resources\AssetResource\RelationManagers;
 use App\Models\Asset;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
-use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Forms\Components\{Grid, Group, Section, TextInput, DatePicker, Toggle, Select, Textarea};
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use Filament\Forms\Get;
+use Filament\Support\Enums\FontWeight;
+use Filament\Tables\Columns\ImageColumn;
+
 
 class AssetResource extends Resource
 {
@@ -27,56 +29,173 @@ class AssetResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
+
+         ->schema([
+        Grid::make()
+            ->columns([
+                'default' => 12,
+                'md' => 12,
+                'lg' => 12,
+                'xl' => 12,
+            ])
             ->schema([
-                Forms\Components\TextInput::make('nombre')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('codigo')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('tag')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('descripcion')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('modelo')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('fabricante')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('serie')
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('ubicacion')
-                    ->maxLength(255),
-                Forms\Components\DatePicker::make('fecha_adquisicion'),
-                Forms\Components\DatePicker::make('fecha_puesta_marcha'),
-                Forms\Components\TextInput::make('foto')
-                    ->maxLength(255),
-                Forms\Components\Toggle::make('activo')
-                    ->required(),
-                Forms\Components\Select::make('location_id')
-                    ->relationship('location', 'id')
-                    ->required(),
-                Forms\Components\Select::make('systems_catalog_id')
-                    ->relationship('systemsCatalog', 'id')
-                    ->required(),
-                Forms\Components\Select::make('asset_classification_id')
-                    ->relationship('assetClassification', 'id')
-                    ->required(),
-                Forms\Components\Select::make('asset_criticality_id')
-                    ->relationship('assetCriticality', 'id')
-                    ->required(),
-                Forms\Components\Select::make('asset_state_id')
-                    ->relationship('assetState', 'id')
-                    ->required(),
-                Forms\Components\Select::make('asset_parent_id')
-                    ->relationship('assetParent', 'id'),
-                Forms\Components\Select::make('creado_por_id')
-                    ->relationship('creadoPor', 'name')
-                    ->required(),
-                Forms\Components\Select::make('actualizado_por_id')
-                    ->relationship('actualizadoPor', 'name')
-                    ->required(),
+
+                // 📸 Columna izquierda: imagen + estado
+                Group::make()
+                    ->columnSpan(3)
+                    ->schema([
+                        SpatieMediaLibraryFileUpload::make('foto')
+                            ->collection('assets')
+                            ->maxSize(2048) 
+                            ->imageEditor()
+                            ->previewable()
+                            ->image() 
+                            ->maxFiles(1)
+                            ->columnSpanFull(),
+
+                        Toggle::make('activo')
+                            ->label('Habilitado')
+                            ->default(true)
+                            ->inline(false)
+                            ->onColor('success'),
+                    ]),
+
+                // 📋 Columna derecha: datos principales
+                Group::make()
+                    ->columnSpan(9)
+                    ->schema([
+                        Grid::make(3)
+                            ->schema([
+                                TextInput::make('nombre')
+                                    ->label('Nombre del Activo')
+                                    ->required(),
+
+                                TextInput::make('codigo')
+                                    ->label('Código')
+                                    ->required(),
+
+                                TextInput::make('tag')
+                                    ->label('Tag')
+                                    ->required(),
+                            ]),
+
+                        Grid::make(3)
+                            ->schema([
+                                TextInput::make('modelo')
+                                    ->label('Modelo'),
+
+                                TextInput::make('fabricante')
+                                    ->label('Fabricante'),
+
+                                TextInput::make('serie')
+                                    ->label('N° de Serie'),
+                            ]),
+
+                        Grid::make(3)
+                            ->schema([
+                                Textarea::make('ubicacion')
+                                    ->label('Referencia de Ubicación'),
+
+                                DatePicker::make('fecha_adquisicion')
+                                    ->label('Fecha de Adquisición'),
+
+                                DatePicker::make('fecha_puesta_marcha')
+                                    ->label('Fecha de Puesta en Marcha'),
+                            ]),
+                    ]),
+            ]),
+
+            // 📦 Sección inferior con relaciones
+            Section::make('Clasificación Técnica')
+                ->columns(3)
+                ->schema([
+                    Toggle::make('es_activo_hijo')
+                        ->label('¿Es activo hijo?')
+                        ->afterStateHydrated(function (callable $set, $state, Get $get) {
+                            // Si está en modo edición y tiene un padre, marcar como activo hijo
+                            if (filled($get('asset_parent_id'))) {
+                                $set('es_activo_hijo', true);
+                            }
+                        })
+                        ->dehydrated(false)
+                        ->reactive(),
+
+                    Select::make('asset_parent_id')
+                        ->label('Activo Padre')
+                        ->relationship('assetParent', 'nombre')
+                        ->searchable()
+                        ->visible(fn (Get $get) => $get('es_activo_hijo'))
+                        ->required(fn (Get $get) => $get('es_activo_hijo'))
+                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
+                            $parent = Asset::find($state);
+
+                            if ($parent) {
+                                $set('location_id', $parent->location_id);
+                                $set('systems_catalog_id', $parent->systems_catalog_id);
+                                $set('asset_classification_id', $parent->asset_classification_id);
+                                $set('asset_criticality_id', $parent->asset_criticality_id);
+                            }
+                        }),
+
+                    Select::make('location_id')
+                        ->label('Centro')
+                        ->relationship('location', 'nombre')
+                        ->visible(fn (Get $get) => !$get('es_activo_hijo'))
+                        ->dehydrated(fn (Get $get) => !$get('es_activo_hijo'))
+                        ->required(),
+                        
+                    Select::make('systems_catalog_id')
+                        ->label('Sistema')
+                        ->relationship('systemsCatalog', 'nombre')
+                        ->visible(fn (Get $get) => !$get('es_activo_hijo'))
+                        ->dehydrated(fn (Get $get) => !$get('es_activo_hijo'))
+                        ->preload()
+                        ->searchable()
+                        ->required(),
+
+                    Select::make('asset_classification_id')
+                        ->label('Clasificación')
+                        ->relationship('assetClassification', 'nombre')
+                        ->visible(fn (Get $get) => !$get('es_activo_hijo')) // Desactiva si es hijo
+                        ->dehydrated(fn (Get $get) => !$get('es_activo_hijo'))
+                        ->required(),
+
+                    Select::make('asset_criticality_id')
+                        ->label('Criticidad')
+                        ->relationship('assetCriticality', 'nombre')
+                        ->visible(fn (Get $get) => !$get('es_activo_hijo')) // Desactiva si es hijo
+                        ->dehydrated(fn (Get $get) => !$get('es_activo_hijo'))
+                        ->required(),
+
+                    Select::make('asset_state_id')
+                        ->label('Estado')
+                        ->relationship('assetState', 'nombre')
+                        ->required(),
+
+                    
+                ]),
+
+            Section::make('Auditoría')
+                ->columns(2)
+                ->visibleOn('edit')
+                ->schema([
+                    Select::make('creado_por_id')
+                        ->label('Creado por')
+                        ->relationship('creadoPor', 'name')
+                        ->dehydrated(false)
+                        ->disabled(),
+
+                    Select::make('actualizado_por_id')
+                        ->label('Actualizado por')
+                        ->relationship('actualizadoPor', 'name')
+                        ->dehydrated(false)
+                        ->disabled(),
+                ]),
+
+                
             ]);
+
+           
     }
 
     public static function table(Table $table): Table
@@ -84,36 +203,51 @@ class AssetResource extends Resource
         return $table
             ->paginationPageOptions([9, 25, 50, 100])
             ->columns([
-              
-                Tables\Columns\TextColumn::make('location.nombre')
-                    ->label('Centro')
-                    ->alignment('right')
-                    ->sortable(),
+
+                // 1. Miniatura principal (parte superior de la tarjeta)
+                ImageColumn::make('foto')
+                    ->getStateUsing(fn ($record) => $record->getFirstMediaUrl('assets', 'thumb') ?: null)
+                    ->circular() // o ->square()
+                    ->height(80)
+                    ->width(80),
                 
-                Tables\Columns\TextColumn::make('nombre')
-                    ->searchable(),
-
-                Tables\Columns\TextColumn::make('assetState.nombre')
-                    ->label('Estado')
-                    ->sortable()
-                    ->formatStateUsing(fn ($state) => $state ? "Estado {$state}" : '-')
-                    ->color(fn ($record) => $record->assetState->color ?? 'gray'),
-
+                // 2. Nombre + Estado destacado
                 Stack::make([
+                    Tables\Columns\TextColumn::make('nombre')
+                        ->searchable()
+                        ->weight(FontWeight::Bold),
+
+                    Tables\Columns\TextColumn::make('assetState.nombre')
+                        ->label('Estado')
+                        ->sortable()
+                        ->color(fn ($record) => $record->assetState->color ?? 'gray')
+                        ->formatStateUsing(fn ($state) => $state ? "Estado {$state}" : '-')
+                        ->size('sm'),
+                ]),
+
+                // 3. Código, tag y activo
+                Stack::make([
+                    Tables\Columns\TextColumn::make('codigo')
+                        ->searchable()
+                        ->label('Código'),
+
                     Tables\Columns\TextColumn::make('tag')
                         ->searchable()
                         ->icon('heroicon-m-tag'),
-                    
-                    Tables\Columns\TextColumn::make('codigo')
-                        ->searchable(),
-                    
+
+                    Tables\Columns\IconColumn::make('activo')
+                        ->label('Activo')
+                        ->boolean()
+                        ->alignment('right'),
+                ]),
+
+                // 4. Clasificación y Criticidad con color
+                Stack::make([
                     Tables\Columns\TextColumn::make('assetClassification.nombre')
                         ->label('Clasificación')
                         ->sortable()
-                        ->alignment('right')
                         ->size('xs')
                         ->html()
-                        ->wrap(false)
                         ->formatStateUsing(function ($state, $record) {
                             $hexColor = $record->assetClassification->color ?? '#000000';
                             return "<span style='color: {$hexColor}'>{$state}</span>";
@@ -122,28 +256,56 @@ class AssetResource extends Resource
                     Tables\Columns\TextColumn::make('assetCriticality.nombre')
                         ->label('Criticidad')
                         ->sortable()
-                        ->alignment('right')
                         ->size('xs')
                         ->html()
-                        ->wrap(false)
                         ->formatStateUsing(function ($state, $record) {
                             $hexColor = $record->assetCriticality->color ?? '#000000';
                             return "<span style='color: {$hexColor}'>{$state}</span>";
                         }),
 
-                    Tables\Columns\TextColumn::make('assetParent.nombre')
-                        ->label('Activo Padre')
-                        ->sortable()
-                        ->formatStateUsing(fn ($state) => $state ? "Padre: {$state}" : '-'),
+                    // 5. Ubicación y jerarquía
+                    Stack::make([
+                        Tables\Columns\TextColumn::make('location.nombre')
+                            ->label('Centro')
+                            ->alignment('right')
+                            ->sortable(),
+
+                        Tables\Columns\TextColumn::make('assetParent.nombre')
+                            ->label('Activo Padre')
+                            ->sortable()
+                            ->formatStateUsing(fn ($state) => $state ? "Vinculado a: {$state}" : '-'),
+                    ]),
+
                     
-                    Tables\Columns\IconColumn::make('activo')
-                        ->alignment('right')
-                        ->boolean(),
-                    ])
+                ]),
+        
+
+                
             ])
             ->filters([
-                 
-            ])
+                // Filtro por Ubicación
+                Tables\Filters\SelectFilter::make('location_id')
+                    ->label('Planta o Terminal')
+                    ->relationship('location', 'nombre'),
+                // Filtro por Sistema
+                Tables\Filters\SelectFilter::make('systems_catalog_id')
+                    ->label('Sistema')
+                    ->relationship('systemsCatalog', 'nombre'),
+                // Filtro por Clasificación
+                Tables\Filters\SelectFilter::make('asset_classification_id')
+                    ->label('Clasificación')
+                    ->relationship('assetClassification', 'nombre'),
+
+                // Filtro por Criticidad
+                Tables\Filters\SelectFilter::make('asset_criticality_id')
+                    ->label('Criticidad')
+                    ->relationship('assetCriticality', 'nombre'),
+
+                // Filtro por Estado
+                Tables\Filters\SelectFilter::make('asset_state_id')
+                    ->label('Estado')
+                    ->relationship('assetState', 'nombre'),
+                        ])
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])

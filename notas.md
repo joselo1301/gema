@@ -19,3 +19,5 @@ Cambiar .env
 agrege FILAMENT_SHIELD_PANEL=gema a env
 
 Cada ves que ejecuto migrate_refreh se debe actualizar Shield  php artisan shield:generate, php artisan shield:install gema, php artisan shield:super-admin --user=1 --panel=gema
+
+para ver imagenes despues de guardar ejecutar:  php artisan storage:link

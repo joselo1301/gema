@@ -39,6 +39,7 @@ class SystemsCatalogResource extends Resource
                     ->numeric()
                     ->default(0),
                 Forms\Components\Toggle::make('activo')
+                    ->onColor('success')                    
                     ->required(),
             ]);
     }
