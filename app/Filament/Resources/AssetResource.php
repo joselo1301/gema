@@ -9,6 +9,7 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\Layout\Stack;
+use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Table;
 use Filament\Forms\Components\{Grid, Group, Section, TextInput, DatePicker, Toggle, Select, Textarea};
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
@@ -204,47 +205,45 @@ class AssetResource extends Resource
             ->paginationPageOptions([9, 25, 50, 100])
             ->columns([
 
-                // 1. Miniatura principal (parte superior de la tarjeta)
+                
+                    
+                
+                
+                Split::make([
                 ImageColumn::make('foto')
                     ->getStateUsing(fn ($record) => $record->getFirstMediaUrl('assets', 'thumb') ?: null)
                     ->circular() // o ->square()
                     ->height(80)
-                    ->width(80),
-                
-                // 2. Nombre + Estado destacado
-                Stack::make([
-                    Tables\Columns\TextColumn::make('nombre')
-                        ->searchable()
-                        ->weight(FontWeight::Bold),
+                    ->width(80)
+                    ->defaultImageUrl(function ($record) {
+                        return 'https://ui-avatars.com/api/?background=0D8ABC&color=fff&name=' . urlencode($record->nombre) . '&size=80';
+                    }),
 
-                    Tables\Columns\TextColumn::make('assetState.nombre')
-                        ->label('Estado')
-                        ->sortable()
-                        ->color(fn ($record) => $record->assetState->color ?? 'gray')
-                        ->formatStateUsing(fn ($state) => $state ? "Estado {$state}" : '-')
-                        ->size('sm'),
+                    Stack::make([
+                        
+                        
+                        Tables\Columns\TextColumn::make('nombre')
+                            ->searchable()
+                            ->weight(FontWeight::Bold),
+                    ]),
                 ]),
-
-                // 3. Código, tag y activo
-                Stack::make([
-                    Tables\Columns\TextColumn::make('codigo')
-                        ->searchable()
-                        ->label('Código'),
-
+                
+                Split::make([
                     Tables\Columns\TextColumn::make('tag')
                         ->searchable()
                         ->icon('heroicon-m-tag'),
-
-                    Tables\Columns\IconColumn::make('activo')
-                        ->label('Activo')
-                        ->boolean()
-                        ->alignment('right'),
+                    
+                   
                 ]),
 
-                // 4. Clasificación y Criticidad con color
-                Stack::make([
+                Split::make([
+                    Stack::make([
                     Tables\Columns\TextColumn::make('assetClassification.nombre')
                         ->label('Clasificación')
+                        ->tooltip(function ($record) {
+                            return $record->assetClassification->descripcion ?? '';
+                                
+                        })
                         ->sortable()
                         ->size('xs')
                         ->html()
@@ -255,6 +254,9 @@ class AssetResource extends Resource
 
                     Tables\Columns\TextColumn::make('assetCriticality.nombre')
                         ->label('Criticidad')
+                        ->tooltip(function ($record) {
+                            return $record->assetCriticality->descripcion ?? '';
+                        })
                         ->sortable()
                         ->size('xs')
                         ->html()
@@ -262,22 +264,56 @@ class AssetResource extends Resource
                             $hexColor = $record->assetCriticality->color ?? '#000000';
                             return "<span style='color: {$hexColor}'>{$state}</span>";
                         }),
+                    ]),
 
-                    // 5. Ubicación y jerarquía
-                    Stack::make([
-                        Tables\Columns\TextColumn::make('location.nombre')
-                            ->label('Centro')
+                    Tables\Columns\IconColumn::make('activo')
+                        ->label('Activo')
+                        ->alignment('right')
+                        ->boolean()                        
+                        ->tooltip(function ($state) {
+                            return $state ? 'Activo' : 'Inactivo';
+                        }),
+                    
+
+                ]),
+                
+                
+                    
+                Split::make([
+                
+
+                    Tables\Columns\TextColumn::make('assetState.nombre')
+                    ->label('Estado')
+                    ->sortable()
+                    ->color(fn ($record) => $record->assetState->color ?? 'gray')
+                    ->formatStateUsing(fn ($state) => $state ? "Estado {$state}" : '-')
+                    ->size('sm'),
+
+                    Tables\Columns\TextColumn::make('location.nombre')
+                            ->tooltip('Centro')
                             ->alignment('right')
                             ->sortable(),
 
-                        Tables\Columns\TextColumn::make('assetParent.nombre')
-                            ->label('Activo Padre')
-                            ->sortable()
-                            ->formatStateUsing(fn ($state) => $state ? "Vinculado a: {$state}" : '-'),
-                    ]),
-
-                    
+                ]), 
+                
+                Stack::make([
+                    Tables\Columns\TextColumn::make('assetParent.nombre')
+                        
+                        ->alignCenter()
+                        ->sortable()
+                        ->formatStateUsing(fn ($state) => $state ? "Activo Padre: {$state}" : '-')
+                        ->tooltip(fn ($state) => $state ? "{$state}" : null)
+                        ->size('xs')
+                        ->weight(FontWeight::Bold)
+                        ->extraAttributes(fn ($state) => [
+                            'class' => $state
+                                ? 'border border-gray-300 rounded-md px-2 py-1'
+                                : '',
+                        ]),
+                        
                 ]),
+                    
+                
         
 
                 
@@ -307,7 +343,7 @@ class AssetResource extends Resource
                     ->relationship('assetState', 'nombre'),
                         ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
