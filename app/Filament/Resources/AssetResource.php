@@ -4,16 +4,14 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\AssetResource\Pages;
 use App\Models\Asset;
-use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Table;
-use Filament\Forms\Components\{Grid, Group, Section, TextInput, DatePicker, Toggle, Select, Textarea};
-use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
-use Filament\Forms\Get;
+use Filament\Infolists\Infolist;
+use Filament\Infolists\Components\{Grid, Section, Split as SplitInfo, ImageEntry, TextEntry, IconEntry, ColorEntry, Fieldset, Tabs};
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Columns\ImageColumn;
 
@@ -31,171 +29,7 @@ class AssetResource extends Resource
     {
         return $form
 
-         ->schema([
-        Grid::make()
-            ->columns([
-                'default' => 12,
-                'md' => 12,
-                'lg' => 12,
-                'xl' => 12,
-            ])
-            ->schema([
-
-                // 📸 Columna izquierda: imagen + estado
-                Group::make()
-                    ->columnSpan(3)
-                    ->schema([
-                        SpatieMediaLibraryFileUpload::make('foto')
-                            ->collection('assets')
-                            ->maxSize(2048) 
-                            ->imageEditor()
-                            ->previewable()
-                            ->image() 
-                            ->maxFiles(1)
-                            ->columnSpanFull(),
-
-                        Toggle::make('activo')
-                            ->label('Habilitado')
-                            ->default(true)
-                            ->inline(false)
-                            ->onColor('success'),
-                    ]),
-
-                // 📋 Columna derecha: datos principales
-                Group::make()
-                    ->columnSpan(9)
-                    ->schema([
-                        Grid::make(3)
-                            ->schema([
-                                TextInput::make('nombre')
-                                    ->label('Nombre del Activo')
-                                    ->required(),
-
-                                TextInput::make('codigo')
-                                    ->label('Código')
-                                    ->required(),
-
-                                TextInput::make('tag')
-                                    ->label('Tag')
-                                    ->required(),
-                            ]),
-
-                        Grid::make(3)
-                            ->schema([
-                                TextInput::make('modelo')
-                                    ->label('Modelo'),
-
-                                TextInput::make('fabricante')
-                                    ->label('Fabricante'),
-
-                                TextInput::make('serie')
-                                    ->label('N° de Serie'),
-                            ]),
-
-                        Grid::make(3)
-                            ->schema([
-                                Textarea::make('ubicacion')
-                                    ->label('Referencia de Ubicación'),
-
-                                DatePicker::make('fecha_adquisicion')
-                                    ->label('Fecha de Adquisición'),
-
-                                DatePicker::make('fecha_puesta_marcha')
-                                    ->label('Fecha de Puesta en Marcha'),
-                            ]),
-                    ]),
-            ]),
-
-            // 📦 Sección inferior con relaciones
-            Section::make('Clasificación Técnica')
-                ->columns(3)
-                ->schema([
-                    Toggle::make('es_activo_hijo')
-                        ->label('¿Es activo hijo?')
-                        ->afterStateHydrated(function (callable $set, $state, Get $get) {
-                            // Si está en modo edición y tiene un padre, marcar como activo hijo
-                            if (filled($get('asset_parent_id'))) {
-                                $set('es_activo_hijo', true);
-                            }
-                        })
-                        ->dehydrated(false)
-                        ->reactive(),
-
-                    Select::make('asset_parent_id')
-                        ->label('Activo Padre')
-                        ->relationship('assetParent', 'nombre')
-                        ->searchable()
-                        ->visible(fn (Get $get) => $get('es_activo_hijo'))
-                        ->required(fn (Get $get) => $get('es_activo_hijo'))
-                        ->afterStateUpdated(function ($state, callable $set, callable $get) {
-                            $parent = Asset::find($state);
-
-                            if ($parent) {
-                                $set('location_id', $parent->location_id);
-                                $set('systems_catalog_id', $parent->systems_catalog_id);
-                                $set('asset_classification_id', $parent->asset_classification_id);
-                                $set('asset_criticality_id', $parent->asset_criticality_id);
-                            }
-                        }),
-
-                    Select::make('location_id')
-                        ->label('Centro')
-                        ->relationship('location', 'nombre')
-                        ->visible(fn (Get $get) => !$get('es_activo_hijo'))
-                        ->dehydrated(fn (Get $get) => !$get('es_activo_hijo'))
-                        ->required(),
-                        
-                    Select::make('systems_catalog_id')
-                        ->label('Sistema')
-                        ->relationship('systemsCatalog', 'nombre')
-                        ->visible(fn (Get $get) => !$get('es_activo_hijo'))
-                        ->dehydrated(fn (Get $get) => !$get('es_activo_hijo'))
-                        ->preload()
-                        ->searchable()
-                        ->required(),
-
-                    Select::make('asset_classification_id')
-                        ->label('Clasificación')
-                        ->relationship('assetClassification', 'nombre')
-                        ->visible(fn (Get $get) => !$get('es_activo_hijo')) // Desactiva si es hijo
-                        ->dehydrated(fn (Get $get) => !$get('es_activo_hijo'))
-                        ->required(),
-
-                    Select::make('asset_criticality_id')
-                        ->label('Criticidad')
-                        ->relationship('assetCriticality', 'nombre')
-                        ->visible(fn (Get $get) => !$get('es_activo_hijo')) // Desactiva si es hijo
-                        ->dehydrated(fn (Get $get) => !$get('es_activo_hijo'))
-                        ->required(),
-
-                    Select::make('asset_state_id')
-                        ->label('Estado')
-                        ->relationship('assetState', 'nombre')
-                        ->required(),
-
-                    
-                ]),
-
-            Section::make('Auditoría')
-                ->columns(2)
-                ->visibleOn('edit')
-                ->schema([
-                    Select::make('creado_por_id')
-                        ->label('Creado por')
-                        ->relationship('creadoPor', 'name')
-                        ->dehydrated(false)
-                        ->disabled(),
-
-                    Select::make('actualizado_por_id')
-                        ->label('Actualizado por')
-                        ->relationship('actualizadoPor', 'name')
-                        ->dehydrated(false)
-                        ->disabled(),
-                ]),
-
-                
-            ]);
-
+            ->schema(Asset::getForm());       
            
     }
 
@@ -205,10 +39,6 @@ class AssetResource extends Resource
             ->paginationPageOptions([9, 25, 50, 100])
             ->columns([
 
-                
-                    
-                
-                
                 Split::make([
                 ImageColumn::make('foto')
                     ->getStateUsing(fn ($record) => $record->getFirstMediaUrl('assets', 'thumb') ?: null)
@@ -277,12 +107,11 @@ class AssetResource extends Resource
 
                 ]),
                 
-                
-                    
-                Split::make([
+                 Split::make([
                 
 
                     Tables\Columns\TextColumn::make('assetState.nombre')
+                    ->badge()
                     ->label('Estado')
                     ->sortable()
                     ->color(fn ($record) => $record->assetState->color ?? 'gray')
@@ -313,10 +142,6 @@ class AssetResource extends Resource
                         
                 ]),
                     
-                
-        
-
-                
             ])
             ->filters([
                 // Filtro por Ubicación
@@ -343,7 +168,8 @@ class AssetResource extends Resource
                     ->relationship('assetState', 'nombre'),
                         ])
             ->actions([
-                
+                Tables\Actions\ViewAction::make(),
+                    
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -354,7 +180,198 @@ class AssetResource extends Resource
             'md' => 2,
             'xl' => 3,
             ]); 
-}
+    }
+
+    public static function infolist(Infolist $infolist): Infolist
+    {
+        return parent::infolist($infolist)
+
+            
+            ->schema([
+                
+                Tabs::make('Tabs')
+                ->columnSpanFull()                
+                ->tabs([
+                    
+                    Tabs\Tab::make('Datos Generales')
+                        ->columns([
+                                    'default' => 12,
+                                    'md' => 12,
+                                    'lg' => 12,
+                                    'xl' => 12,
+                                ])
+                        ->schema([
+                            
+                            Grid::make()
+                                ->columns(2)
+                                ->schema([
+
+                                    TextEntry::make('nombre')
+                                        ->size('lg')
+                                        ->label('')
+                                        ->state(fn ($record) => $record->nombre),
+
+                                     TextEntry::make('locacion.nombre')
+                                        ->alignRight()
+                                        ->label('')
+                                        ->state(fn ($record) => $record->location->nombre ?? '-'),
+
+                                    
+
+                                    
+                                        
+                                ]),
+                              
+                                        Section::make()
+                                        ->columnSpan(3)
+                                        ->extraAttributes(['class' => '!gap-y-1']) 
+                                        ->schema([
+                                            
+                                            ImageEntry::make('foto')
+                                                ->size(100)
+                                                ->alignCenter()
+                                                ->square()
+                                                ->label('')
+                                                ->state(fn ($record) => $record->getFirstMediaUrl('assets'))
+                                                ->hidden(fn ($record) => blank($record->getFirstMediaUrl('assets'))),
+
+                                            TextEntry::make('foto')
+                                                ->label('')
+                                                ->badge()
+                                                ->icon('heroicon-o-photo')
+                                                ->alignCenter()
+                                                ->url(fn ($record) => $record->getFirstMediaUrl('assets'))
+                                                ->state('Ver Imagen')
+                                                ->openUrlInNewTab()
+                                                ->hidden(fn ($record) => blank($record->getFirstMediaUrl('assets'))),
+
+                                            TextEntry::make('tag')
+                                                ->alignCenter()
+                                                ->size('xs')
+                                                ->label('')
+                                                ->state(fn ($record) => 'Tag: ' . $record->tag),
+                                                    
+                                            TextEntry::make('systemsCatalog.nombre')
+                                                ->alignCenter()
+                                                ->badge()
+                                                ->color('info')
+                                                ->label('')
+                                                ->state(fn ($record) => $record->systemsCatalog->nombre ?? '-'),
+                                              
+                                            TextEntry::make('assetClassification.nombre')
+                                                ->alignCenter()
+                                                ->label('')
+                                                ->state(fn ($record) => $record->assetClassification->nombre ?? '-')
+                                                ->formatStateUsing(function ($state, $record) {
+                                                    $hexColor = $record->assetClassification->color ?? '#000000';
+                                                    return "<span style='color: {$hexColor}'>{$state}</span>";
+                                                })
+                                                ->html(),
+                                                                        
+
+                                            TextEntry::make('assetCriticality.nombre')
+                                                ->alignCenter()
+                                                ->label('')
+                                                ->state(fn ($record) => $record->assetCriticality->nombre ?? '-')
+                                                ->formatStateUsing(function ($state, $record) {
+                                                    $hexColor = $record->assetCriticality->color ?? '#000000';
+                                                    return "<span style='color: {$hexColor}'>{$state}</span>";
+                                                })
+                                                ->html(),
+
+                                            TextEntry::make('assetState.nombre')
+                                                ->alignCenter()
+                                                ->badge()
+                                                ->color(fn ($record) => $record->assetState->color ?? '-')
+                                                ->label('')
+                                                ->state(fn ($record) => $record->assetState->nombre ?? '-'),
+                                           
+
+                                            
+                                            
+                                        ]),
+                                        
+                                    Section::make()
+                                        ->columnSpan(9)
+                                        ->columns(3)
+                                        ->schema([
+                                            
+                                            TextEntry::make('fecha_adquisicion')
+                                                ->label('Adquisición')
+                                                ->state(fn ($record) => $record->fecha_adquisicion ? $record->fecha_adquisicion->translatedFormat('d, M Y'): '-'),
+
+                                            TextEntry::make('fecha_puesta_marcha')
+                                                ->label('Puesta en Marcha')
+                                                ->state(fn ($record) => $record->fecha_puesta_marcha ? $record->fecha_puesta_marcha->translatedFormat('d, M Y'): '-'),
+
+                                            TextEntry::make('codigo')
+                                                ->label('Código')
+                                                ->state(fn ($record) => $record->codigo),
+
+                                            TextEntry::make('modelo')
+                                                ->label('Modelo')
+                                                ->state(fn ($record) => $record->modelo),
+
+                                            TextEntry::make('fabricante')
+                                                ->label('Fabricante')
+                                                ->state(fn ($record) => $record->fabricante),
+
+                                            TextEntry::make('serie')
+                                                ->label('N° de Serie')
+                                                ->state(fn ($record) => $record->serie),
+                                            
+                                            TextEntry::make('ubicacion')
+                                                ->columnSpanFull()
+                                                ->label('Ubicación')
+                                                ->state(fn ($record) => $record->ubicacion),
+                                            
+                                            TextEntry::make('descripcion')
+                                            ->html()
+                                                ->columnSpanFull()
+                                                ->label('Descripción')
+                                                ->state(fn ($record) => $record->descripcion),
+
+                                        ]),
+                                    
+                                    
+                                    Section::make()
+                                        ->columnSpanFull()
+                                        ->columns(2)
+                                        ->schema([
+                                            TextEntry::make('creado_por')
+                                                ->size('xs')
+                                                ->label('')
+                                                ->state(fn ($record) => 
+                                                    'Creado por ' .
+                                                    ($record->creadoPor->name ?? '-') . 
+                                                    ' el ' . 
+                                                    ($record->created_at ? $record->created_at->translatedFormat('d, M Y H:i') : '-')
+                                                ),
+                                            TextEntry::make('actualizado_por')
+                                                ->size('xs')
+                                                ->label('')
+                                                ->state(fn ($record) => 
+                                                    'Actualizado por ' .
+                                                    ($record->actualizadoPor->name ?? '-') . 
+                                                    ' el ' . 
+                                                    ($record->updated_at ? $record->updated_at->translatedFormat('d, M Y H:i') : '-')
+                                                ),
+                                        
+                                        ]),
+                    ]),
+                    Tabs\Tab::make('Historial')
+                        ->schema([
+                            // ...
+                        ]),
+                    Tabs\Tab::make('Reportes')
+                        ->schema([
+                            // ...
+                        ]),
+                    ]),
+
+
+            ]);
+    }
 
     public static function getRelations(): array
     {
@@ -369,6 +386,7 @@ class AssetResource extends Resource
             'index' => Pages\ListAssets::route('/'),
             'create' => Pages\CreateAsset::route('/create'),
             'edit' => Pages\EditAsset::route('/{record}/edit'),
+            'view' => Pages\ViewAsset::route('/{record}'),
         ];
     }
 }

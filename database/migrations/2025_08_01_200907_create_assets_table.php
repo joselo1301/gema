@@ -18,11 +18,11 @@ return new class extends Migration
             $table->string('nombre');
             $table->string('codigo')->unique();
             $table->string('tag')->unique();
-            $table->string('descripcion')->nullable();
+            $table->text('descripcion')->nullable();
             $table->string('modelo')->nullable();
             $table->string('fabricante')->nullable();
             $table->string('serie')->nullable();
-            $table->string('ubicacion')->nullable();
+            $table->text('ubicacion')->nullable();
             $table->date('fecha_adquisicion')->nullable();
             $table->date('fecha_puesta_marcha')->nullable();
             $table->string('foto')->nullable();
