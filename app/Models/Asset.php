@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Testing\Fluent\Concerns\Has;
 use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
@@ -104,9 +105,36 @@ class Asset extends Model implements HasMedia
         return $this->belongsTo(AssetState::class);
     }
 
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(Asset::class, 'asset_parent_id');
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(Asset::class, 'asset_parent_id');
+    }
+
+    public function allChildren(): HasMany
+    {
+        return $this->children()->with('allChildren');
+    }
+
+    // Scope para obtener solo los activos raíz (sin parent)
+    public function scopeRoots($query)
+    {
+        return $query->whereNull('asset_parent_id');
+    }
+
+    // Método para verificar si tiene hijos
+    public function hasChildren(): bool
+    {
+        return $this->children()->exists();
+    }
+
     public function assetParent(): BelongsTo
     {
-        return $this->belongsTo(Asset::class);
+        return $this->belongsTo(Asset::class, 'asset_parent_id');
     }
 
     public function creadoPor(): BelongsTo
