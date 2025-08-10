@@ -1,15 +1,19 @@
-{{-- Nodo de catálogo de sistemas (SystemsCatalog) --}}
-{{-- Cada catálogo contiene activos padre (raíz) --}}
+{{-- Nuevo nodo de catálogo de sistemas (SystemsCatalog) - Estructura corregida --}}
+{{-- Cada catálogo muestra activos de una ubicación específica --}}
 <div class="tree-node py-2">
     <div class="flex items-center">
+        @php
+            $assets = $this->getAssetsForLocationAndCatalog($location, $catalog->id);
+        @endphp
+        
         {{-- Botón para expandir/colapsar el catálogo --}}
         <button 
-            wire:click="toggleNode('system_{{ $catalog->id }}')"
+            wire:click="toggleNode('system_{{ $catalog->id }}_location_{{ $location->id }}')"
             class="flex items-center w-full text-left font-medium text-gray-600 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 node-content"
         >
             {{-- Icono de expand/collapse --}}
-            @if($catalog->rootAssets->isNotEmpty())
-                @if($this->isExpanded("system_{$catalog->id}"))
+            @if($assets->isNotEmpty())
+                @if($this->isExpanded("system_{$catalog->id}_location_{$location->id}"))
                     <svg class="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                     </svg>
@@ -49,12 +53,12 @@
                         @endif
                     </div>
                     
-                    {{-- Contador de activos en este catálogo --}}
+                    {{-- Contador de activos en este catálogo para esta ubicación --}}
                     <div class="flex items-center space-x-1 text-xs text-gray-500">
                         <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path>
                         </svg>
-                        <span>{{ $this->getCatalogAssetCount($catalog) }} activos</span>
+                        <span>{{ $this->getCatalogAssetCountForLocation($catalog, $location) }} activos</span>
                     </div>
                 </div>
             </div>
@@ -62,18 +66,18 @@
     </div>
 
     {{-- Lista de activos padre/raíz (solo se muestra si el catálogo está expandido) --}}
-    @if($this->isExpanded("system_{$catalog->id}") && $catalog->rootAssets->isNotEmpty())
+    @if($this->isExpanded("system_{$catalog->id}_location_{$location->id}") && $assets->isNotEmpty())
         <div class="ml-6 border-l-2 border-gray-200 dark:border-gray-600 mt-2">
-            @foreach($catalog->rootAssets as $asset)
+            @foreach($assets as $asset)
                 @include('filament.pages.partials.asset-node', ['asset' => $asset, 'level' => 0])
             @endforeach
         </div>
     @endif
     
-    {{-- Mensaje cuando no hay activos en el catálogo --}}
-    @if($this->isExpanded("system_{$catalog->id}") && $catalog->rootAssets->isEmpty())
+    {{-- Mensaje cuando no hay activos en el catálogo para esta ubicación --}}
+    @if($this->isExpanded("system_{$catalog->id}_location_{$location->id}") && $assets->isEmpty())
         <div class="ml-6 py-2 text-sm text-gray-500 italic">
-            No hay activos definidos para este catálogo de sistemas
+            No hay activos definidos para este catálogo en esta ubicación
         </div>
     @endif
 </div>

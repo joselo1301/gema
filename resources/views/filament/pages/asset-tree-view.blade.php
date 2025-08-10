@@ -4,9 +4,6 @@
     <div class="mb-6">
         <div class="flex justify-between items-center">
             <div>
-                <h1 class="text-2xl font-bold text-gray-900 dark:text-gray-100">
-                    Vista de Árbol de Activos
-                </h1>
                 <p class="text-sm text-gray-600 dark:text-gray-400 mt-1">
                     Explore la estructura jerárquica de sus activos organizados por ubicación y sistema
                 </p>
@@ -16,7 +13,7 @@
             <div class="flex space-x-2">
                 <button 
                     wire:click="expandAll"
-                    class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                    class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-gema-700 dark:text-gema-300 uppercase tracking-widest hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150"
                 >
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4"></path>
@@ -26,7 +23,7 @@
                 
                 <button 
                     wire:click="collapseAll"
-                    class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150"
+                    class="inline-flex items-center px-4 py-2 bg-gray-600 border border-transparent rounded-md font-semibold text-xs text-gema-700 dark:text-gema-300 uppercase tracking-widest hover:bg-gray-700 focus:bg-gray-700 active:bg-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 transition ease-in-out duration-150"
                 >
                     <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"></path>
@@ -36,7 +33,7 @@
                 
                 <button 
                     wire:click="refreshTree"
-                    class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150 disabled:opacity-50"
+                    class="inline-flex items-center px-4 py-2 bg-green-600 border border-transparent rounded-md font-semibold text-xs text-gema-700 dark:text-gema-300 uppercase tracking-widest hover:bg-green-700 focus:bg-green-700 active:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 transition ease-in-out duration-150 disabled:opacity-50"
                     wire:loading.attr="disabled"
                 >
                     <svg wire:loading.remove wire:target="refreshTree" class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -53,11 +50,12 @@
         </div>
     </div>
 
-    {{-- Barra de búsqueda y filtros --}}
+    {{-- Barra de búsqueda y filtros
     <div class="mb-4 bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-4">
-        <div class="flex flex-col md:flex-row gap-4">
+        <div class="flex flex-col md:flex-row gap-4"> --}}
             {{-- Campo de búsqueda --}}
-            <div class="flex-1">
+
+            {{-- <div class="flex-1">
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                         <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -81,10 +79,11 @@
                         </button>
                     @endif
                 </div>
-            </div>
+            </div> --}}
             
             {{-- Estadísticas rápidas --}}
-            <div class="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
+
+            {{-- <div class="flex items-center space-x-4 text-sm text-gray-600 dark:text-gray-400">
                 <div class="flex items-center space-x-1">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path>
@@ -99,7 +98,7 @@
                 @endif
             </div>
         </div>
-    </div>
+    </div> --}}
 
     {{-- Container principal del árbol --}}
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700">
@@ -129,7 +128,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z"></path>
                             </svg>
                             
-                            Ubicaciones ({{ $treeData->count() }})
+                            Plantas y Terminales ({{ $treeData->count() }})
                         </button>
                     </div>
 
@@ -137,7 +136,7 @@
                     @if($this->isExpanded('locations'))
                         <div class="ml-6 border-l-2 border-gray-200 dark:border-gray-600">
                             @foreach($treeData as $location)
-                                @include('filament.pages.partials.location-node-new', ['location' => $location])
+                                @include('filament.pages.partials.location-node', ['location' => $location])
                             @endforeach
                         </div>
                     @endif

@@ -1,14 +1,14 @@
-{{-- Nodo de ubicación (Location) --}}
-{{-- Cada ubicación contiene catálogos de sistemas --}}
+{{-- Nuevo nodo de ubicación (Location) - Estructura corregida --}}
+{{-- Cada ubicación contiene activos agrupados por catálogos de sistemas --}}
 <div class="tree-node py-2">
     <div class="flex items-center">
         {{-- Botón para expandir/colapsar la ubicación --}}
         <button 
             wire:click="toggleNode('location_{{ $location->id }}')"
-            class="flex items-center w-full text-left font-medium text-gray-700 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors duration-200 node-content"
+            class="flex items-center w-full text-left font-medium text-gema-700 dark:text-gema-300 hover:text-gema-600 dark:hover:text-gema-400 transition-colors duration-200 node-content"
         >
             {{-- Icono de expand/collapse --}}
-            @if($location->systemsCatalogs->isNotEmpty())
+            @if($location->rootAssets->isNotEmpty())
                 @if($this->isExpanded("location_{$location->id}"))
                     <svg class="w-4 h-4 mr-2 text-gray-500 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -19,7 +19,7 @@
                     </svg>
                 @endif
             @else
-                {{-- Espaciado para alinear con otros nodos cuando no hay hijos --}}
+                {{-- Espaciado para alinear con otros nodos cuando no hay activos --}}
                 <div class="w-4 h-4 mr-2 flex-shrink-0"></div>
             @endif
             
@@ -62,19 +62,32 @@
         </button>
     </div>
 
-    {{-- Lista de catálogos de sistemas (solo se muestra si la ubicación está expandida) --}}
-    @if($this->isExpanded("location_{$location->id}") && $location->systemsCatalogs->isNotEmpty())
+    {{-- Contenido de la ubicación expandida --}}
+    @if($this->isExpanded("location_{$location->id}"))
         <div class="ml-6 border-l-2 border-gray-200 dark:border-gray-600 mt-2">
-            @foreach($location->systemsCatalogs as $catalog)
-                @include('filament.pages.partials.catalog-node', ['catalog' => $catalog])
-            @endforeach
-        </div>
-    @endif
-    
-    {{-- Mensaje cuando no hay catálogos de sistemas --}}
-    @if($this->isExpanded("location_{$location->id}") && $location->systemsCatalogs->isEmpty())
-        <div class="ml-6 py-2 text-sm text-gray-500 italic">
-            No hay catálogos de sistemas definidos para esta ubicación
+            
+            {{-- Obtener catálogos de sistemas que tienen activos en esta ubicación --}}
+            @php
+                $systemsCatalogIds = $this->getSystemsCatalogsForLocation($location);
+                $systemsCatalogs = \App\Models\SystemsCatalog::whereIn('id', $systemsCatalogIds)
+                    ->where('activo', true)
+                    ->orderBy('orden')
+                    ->get();
+            @endphp
+
+            {{-- Mostrar activos agrupados por catálogo de sistemas --}}
+            @if($systemsCatalogs->isNotEmpty())
+                @foreach($systemsCatalogs as $catalog)
+                    @include('filament.pages.partials.catalog-node', [
+                        'catalog' => $catalog, 
+                        'location' => $location
+                    ])
+                @endforeach
+            @else
+                <div class="py-2 text-sm text-gray-500 italic">
+                    No hay activos definidos para esta ubicación
+                </div>
+            @endif
         </div>
     @endif
 </div>
