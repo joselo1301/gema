@@ -12,9 +12,11 @@ use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Table;
 use Filament\Infolists\Infolist;
 use Filament\Infolists\Components\{Grid, Section, Split as SplitInfo, ImageEntry, TextEntry, IconEntry, ColorEntry, Fieldset, Tabs};
+use Filament\Resources\RelationManagers\RelationGroup;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Columns\ImageColumn;
-
+use Rmsramos\Activitylog\Actions\ActivityLogTimelineTableAction;
+use Rmsramos\Activitylog\RelationManagers\ActivitylogRelationManager;
 
 class AssetResource extends Resource
 {
@@ -168,12 +170,25 @@ class AssetResource extends Resource
                     ->relationship('assetState', 'nombre'),
                         ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
-                    
+
+                ActivityLogTimelineTableAction::make('Historial')
+                    ->withRelations(['profile', 'address'])
+                    ->timelineIcons([
+                        'created' => 'heroicon-m-check-badge',
+                        'updated' => 'heroicon-m-pencil-square',
+                    ])
+                    ->timelineIconColors([
+                        'created' => 'success',
+                        'updated' => 'info',                       
+
+                    ])
+                    ->limit(10),
+
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
                     Tables\Actions\DeleteBulkAction::make(),
+                    
                 ]),
             ])
             ->contentGrid([
@@ -185,198 +200,187 @@ class AssetResource extends Resource
     public static function infolist(Infolist $infolist): Infolist
     {
         return parent::infolist($infolist)
-
             
-            ->schema([
-                
-                Tabs::make('Tabs')
-                ->columnSpanFull()                
-                ->tabs([
+
+        ->schema([
+            Grid::make()
+                ->columns([
+                            'default' => 12,
+                            'md' => 12,
+                            'lg' => 12,
+                            'xl' => 12,
+                        ])
+                ->schema([
+
+                Grid::make()
+                ->columns(2)
+                ->schema([
+
+                    TextEntry::make('nombre')
+                        ->size('lg')
+                        ->label('')
+                        ->state(fn ($record) => $record->nombre),
+
+                    TextEntry::make('locacion.nombre')
+                    ->alignRight()
+                    ->label('')
+                    ->state(fn ($record) => $record->location->nombre ?? '-'),
+
                     
-                    Tabs\Tab::make('Datos Generales')
-                        ->columns([
-                                    'default' => 12,
-                                    'md' => 12,
-                                    'lg' => 12,
-                                    'xl' => 12,
-                                ])
-                        ->schema([
+
+                    
+                        
+                ]),
+                        
+                Section::make()
+                ->columnSpan(3)
+                ->extraAttributes(['class' => '!gap-y-1']) 
+                ->schema([
+                    
+                    ImageEntry::make('foto')
+                        ->size(100)
+                        ->alignCenter()
+                        ->square()
+                        ->label('')
+                        ->state(fn ($record) => $record->getFirstMediaUrl('assets'))
+                        ->hidden(fn ($record) => blank($record->getFirstMediaUrl('assets'))),
+
+                    TextEntry::make('foto')
+                        ->label('')
+                        ->badge()
+                        ->icon('heroicon-o-photo')
+                        ->alignCenter()
+                        ->url(fn ($record) => $record->getFirstMediaUrl('assets'))
+                        ->state('Ver Imagen')
+                        ->openUrlInNewTab()
+                        ->hidden(fn ($record) => blank($record->getFirstMediaUrl('assets'))),
+
+                    TextEntry::make('tag')
+                        ->alignCenter()
+                        ->size('xs')
+                        ->label('')
+                        ->state(fn ($record) => 'Tag: ' . $record->tag),
                             
-                            Grid::make()
-                                ->columns(2)
-                                ->schema([
+                    TextEntry::make('systemsCatalog.nombre')
+                        ->alignCenter()
+                        ->badge()
+                        ->color('info')
+                        ->label('')
+                        ->state(fn ($record) => $record->systemsCatalog->nombre ?? '-'),
+                        
+                    TextEntry::make('assetClassification.nombre')
+                        ->alignCenter()
+                        ->label('')
+                        ->state(fn ($record) => $record->assetClassification->nombre ?? '-')
+                        ->formatStateUsing(function ($state, $record) {
+                            $hexColor = $record->assetClassification->color ?? '#000000';
+                            return "<span style='color: {$hexColor}'>{$state}</span>";
+                        })
+                        ->html(),
+                                                
 
-                                    TextEntry::make('nombre')
-                                        ->size('lg')
-                                        ->label('')
-                                        ->state(fn ($record) => $record->nombre),
+                    TextEntry::make('assetCriticality.nombre')
+                        ->alignCenter()
+                        ->label('')
+                        ->state(fn ($record) => $record->assetCriticality->nombre ?? '-')
+                        ->formatStateUsing(function ($state, $record) {
+                            $hexColor = $record->assetCriticality->color ?? '#000000';
+                            return "<span style='color: {$hexColor}'>{$state}</span>";
+                        })
+                        ->html(),
 
-                                     TextEntry::make('locacion.nombre')
-                                        ->alignRight()
-                                        ->label('')
-                                        ->state(fn ($record) => $record->location->nombre ?? '-'),
+                    TextEntry::make('assetState.nombre')
+                        ->alignCenter()
+                        ->badge()
+                        ->color(fn ($record) => $record->assetState->color ?? '-')
+                        ->label('')
+                        ->state(fn ($record) => $record->assetState->nombre ?? '-'),
+                    
 
-                                    
+                    
+                    
+                ]),
+                
+            Section::make()
+                ->columnSpan(9)
+                ->columns(3)
+                ->schema([
+                    
+                    TextEntry::make('fecha_adquisicion')
+                        ->label('Adquisición')
+                        ->state(fn ($record) => $record->fecha_adquisicion ? $record->fecha_adquisicion->translatedFormat('d, M Y'): '-'),
 
-                                    
-                                        
-                                ]),
-                              
-                                        Section::make()
-                                        ->columnSpan(3)
-                                        ->extraAttributes(['class' => '!gap-y-1']) 
-                                        ->schema([
-                                            
-                                            ImageEntry::make('foto')
-                                                ->size(100)
-                                                ->alignCenter()
-                                                ->square()
-                                                ->label('')
-                                                ->state(fn ($record) => $record->getFirstMediaUrl('assets'))
-                                                ->hidden(fn ($record) => blank($record->getFirstMediaUrl('assets'))),
+                    TextEntry::make('fecha_puesta_marcha')
+                        ->label('Puesta en Marcha')
+                        ->state(fn ($record) => $record->fecha_puesta_marcha ? $record->fecha_puesta_marcha->translatedFormat('d, M Y'): '-'),
 
-                                            TextEntry::make('foto')
-                                                ->label('')
-                                                ->badge()
-                                                ->icon('heroicon-o-photo')
-                                                ->alignCenter()
-                                                ->url(fn ($record) => $record->getFirstMediaUrl('assets'))
-                                                ->state('Ver Imagen')
-                                                ->openUrlInNewTab()
-                                                ->hidden(fn ($record) => blank($record->getFirstMediaUrl('assets'))),
+                    TextEntry::make('codigo')
+                        ->label('Código')
+                        ->state(fn ($record) => $record->codigo),
 
-                                            TextEntry::make('tag')
-                                                ->alignCenter()
-                                                ->size('xs')
-                                                ->label('')
-                                                ->state(fn ($record) => 'Tag: ' . $record->tag),
-                                                    
-                                            TextEntry::make('systemsCatalog.nombre')
-                                                ->alignCenter()
-                                                ->badge()
-                                                ->color('info')
-                                                ->label('')
-                                                ->state(fn ($record) => $record->systemsCatalog->nombre ?? '-'),
-                                              
-                                            TextEntry::make('assetClassification.nombre')
-                                                ->alignCenter()
-                                                ->label('')
-                                                ->state(fn ($record) => $record->assetClassification->nombre ?? '-')
-                                                ->formatStateUsing(function ($state, $record) {
-                                                    $hexColor = $record->assetClassification->color ?? '#000000';
-                                                    return "<span style='color: {$hexColor}'>{$state}</span>";
-                                                })
-                                                ->html(),
-                                                                        
+                    TextEntry::make('modelo')
+                        ->label('Modelo')
+                        ->state(fn ($record) => $record->modelo),
 
-                                            TextEntry::make('assetCriticality.nombre')
-                                                ->alignCenter()
-                                                ->label('')
-                                                ->state(fn ($record) => $record->assetCriticality->nombre ?? '-')
-                                                ->formatStateUsing(function ($state, $record) {
-                                                    $hexColor = $record->assetCriticality->color ?? '#000000';
-                                                    return "<span style='color: {$hexColor}'>{$state}</span>";
-                                                })
-                                                ->html(),
+                    TextEntry::make('fabricante')
+                        ->label('Fabricante')
+                        ->state(fn ($record) => $record->fabricante),
 
-                                            TextEntry::make('assetState.nombre')
-                                                ->alignCenter()
-                                                ->badge()
-                                                ->color(fn ($record) => $record->assetState->color ?? '-')
-                                                ->label('')
-                                                ->state(fn ($record) => $record->assetState->nombre ?? '-'),
-                                           
+                    TextEntry::make('serie')
+                        ->label('N° de Serie')
+                        ->state(fn ($record) => $record->serie),
+                    
+                    TextEntry::make('ubicacion')
+                        ->columnSpanFull()
+                        ->label('Ubicación')
+                        ->state(fn ($record) => $record->ubicacion),
+                    
+                    TextEntry::make('descripcion')
+                    ->html()
+                        ->columnSpanFull()
+                        ->label('Descripción')
+                        ->state(fn ($record) => $record->descripcion),
 
-                                            
-                                            
-                                        ]),
-                                        
-                                    Section::make()
-                                        ->columnSpan(9)
-                                        ->columns(3)
-                                        ->schema([
-                                            
-                                            TextEntry::make('fecha_adquisicion')
-                                                ->label('Adquisición')
-                                                ->state(fn ($record) => $record->fecha_adquisicion ? $record->fecha_adquisicion->translatedFormat('d, M Y'): '-'),
-
-                                            TextEntry::make('fecha_puesta_marcha')
-                                                ->label('Puesta en Marcha')
-                                                ->state(fn ($record) => $record->fecha_puesta_marcha ? $record->fecha_puesta_marcha->translatedFormat('d, M Y'): '-'),
-
-                                            TextEntry::make('codigo')
-                                                ->label('Código')
-                                                ->state(fn ($record) => $record->codigo),
-
-                                            TextEntry::make('modelo')
-                                                ->label('Modelo')
-                                                ->state(fn ($record) => $record->modelo),
-
-                                            TextEntry::make('fabricante')
-                                                ->label('Fabricante')
-                                                ->state(fn ($record) => $record->fabricante),
-
-                                            TextEntry::make('serie')
-                                                ->label('N° de Serie')
-                                                ->state(fn ($record) => $record->serie),
-                                            
-                                            TextEntry::make('ubicacion')
-                                                ->columnSpanFull()
-                                                ->label('Ubicación')
-                                                ->state(fn ($record) => $record->ubicacion),
-                                            
-                                            TextEntry::make('descripcion')
-                                            ->html()
-                                                ->columnSpanFull()
-                                                ->label('Descripción')
-                                                ->state(fn ($record) => $record->descripcion),
-
-                                        ]),
-                                    
-                                    
-                                    Section::make()
-                                        ->columnSpanFull()
-                                        ->columns(2)
-                                        ->schema([
-                                            TextEntry::make('creado_por')
-                                                ->size('xs')
-                                                ->label('')
-                                                ->state(fn ($record) => 
-                                                    'Creado por ' .
-                                                    ($record->creadoPor->name ?? '-') . 
-                                                    ' el ' . 
-                                                    ($record->created_at ? $record->created_at->translatedFormat('d, M Y H:i') : '-')
-                                                ),
-                                            TextEntry::make('actualizado_por')
-                                                ->size('xs')
-                                                ->label('')
-                                                ->state(fn ($record) => 
-                                                    'Actualizado por ' .
-                                                    ($record->actualizadoPor->name ?? '-') . 
-                                                    ' el ' . 
-                                                    ($record->updated_at ? $record->updated_at->translatedFormat('d, M Y H:i') : '-')
-                                                ),
-                                        
-                                        ]),
-                    ]),
-                    Tabs\Tab::make('Historial')
-                        ->schema([
-                            // ...
-                        ]),
-                    Tabs\Tab::make('Reportes')
-                        ->schema([
-                            // ...
-                        ]),
-                    ]),
-
-
-            ]);
+                ]),
+            
+            
+            Section::make()
+                ->columnSpanFull()
+                ->columns(2)
+                ->schema([
+                    TextEntry::make('creado_por')
+                        ->size('xs')
+                        ->label('')
+                        ->state(fn ($record) => 
+                            'Creado por ' .
+                            ($record->creadoPor->name ?? '-') . 
+                            ' el ' . 
+                            ($record->created_at ? $record->created_at->translatedFormat('d, M Y H:i') : '-')
+                        ),
+                    TextEntry::make('actualizado_por')
+                        ->size('xs')
+                        ->label('')
+                        ->state(fn ($record) => 
+                            'Actualizado por ' .
+                            ($record->actualizadoPor->name ?? '-') . 
+                            ' el ' . 
+                            ($record->updated_at ? $record->updated_at->translatedFormat('d, M Y H:i') : '-')
+                        ),
+                
+                ]),
+            ]),
+        ]);
     }
 
     public static function getRelations(): array
     {
         return [
-            //
+            RelationGroup::make('Actividades', [
+                ActivitylogRelationManager::class,
+            ])
+            ->icon('heroicon-m-clock'), 
+            
+
         ];
     }
 
@@ -389,4 +393,7 @@ class AssetResource extends Resource
             'view' => Pages\ViewAsset::route('/{record}'),
         ];
     }
+
+    
+
 }

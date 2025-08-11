@@ -39,16 +39,16 @@
                         <span class="font-medium truncate">{{ $catalog->nombre }}</span>
                         
                         {{-- Badge con el código del catálogo --}}
-                        @if($catalog->codigo)
+                        {{-- @if($catalog->codigo)
                             <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-300">
                                 {{ $catalog->codigo }}
                             </span>
-                        @endif
+                        @endif --}}
                         
                         {{-- Badge con el orden si existe --}}
-                        @if($catalog->orden)
+                        @if($catalog->codigo)
                             <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-gray-100 text-gray-600 dark:bg-gray-700 dark:text-gray-400">
-                                #{{ $catalog->orden }}
+                                {{ $catalog->codigo }}
                             </span>
                         @endif
                     </div>

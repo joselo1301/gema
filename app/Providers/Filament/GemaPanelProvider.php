@@ -23,9 +23,7 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
-
-
-
+use Rmsramos\Activitylog\ActivitylogPlugin;
 
 class GemaPanelProvider extends PanelProvider
 {
@@ -46,7 +44,7 @@ class GemaPanelProvider extends PanelProvider
                     'info' => Color::Amber,
                     'primary' => Color::Sky,
                     'success' => Color::Emerald,
-                    'warning' => Color::Rose,
+                    'warning' => Color::Orange,
             ])
             ->discoverResources(in: app_path('Filament/Resources'), for: 'App\\Filament\\Resources')
             ->discoverPages(in: app_path('Filament/Pages'), for: 'App\\Filament\\Pages')            
@@ -86,6 +84,10 @@ class GemaPanelProvider extends PanelProvider
                         'default' => 1,
                         'sm' => 2,
                     ]),
+                ActivitylogPlugin::make()
+                    ->label('Actividad')
+                    ->pluralLabel('Actividades')
+                    ->navigationIcon('heroicon-o-eye'),
             ])
             ->authMiddleware([
                 Authenticate::class,

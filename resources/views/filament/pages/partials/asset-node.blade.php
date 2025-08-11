@@ -77,16 +77,14 @@
                             </span>
                             
                             {{-- Indicador temporal de nivel para debugging --}}
-                            <span class="inline-flex items-center px-1 py-0.5 rounded text-xs font-mono bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300">
-                                L{{ $level }}
-                            </span>
+                            
                             
                             {{-- Badge con el código del activo --}}
-                            @if($asset->codigo)
+                            {{-- @if($asset->codigo)
                                 <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300 flex-shrink-0">
                                     {{ $asset->codigo }}
                                 </span>
-                            @endif
+                            @endif --}}
                             
                             {{-- Badge con el TAG si existe --}}
                             @if($asset->tag)
@@ -94,6 +92,10 @@
                                     TAG: {{ $asset->tag }}
                                 </span>
                             @endif
+
+                            <span class="inline-flex items-center px-1 py-0.5 rounded text-xs font-mono bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300">
+                                N{{ $level }}
+                            </span>
                         </div>
                         
                         {{-- Información adicional y contador de hijos --}}

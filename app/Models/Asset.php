@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\ActivityLog\Pipes\RenameChangeKeyPipe;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -14,12 +15,14 @@ use Filament\Forms;
 use Filament\Forms\Components\{Grid, Group, Section, TextInput, DatePicker, RichEditor, Toggle, Select, Textarea};
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Get;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 
 
 
 class Asset extends Model implements HasMedia
 {
-    use HasFactory, InteractsWithMedia;
+    use HasFactory, InteractsWithMedia, LogsActivity;
 
     public function registerMediaConversions(?Media $media = null): void
     {
@@ -29,6 +32,19 @@ class Asset extends Model implements HasMedia
               ->sharpen(10);
     }
 
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('assets')                         // canal
+            ->logOnly(['nombre', 'tag', 'ubicacion', 'asset_state.nombre'])          // campos que SÍ auditas
+            ->logOnlyDirty()                               // solo si realmente cambiaron
+            ->dontLogIfAttributesChangedOnly(['updated_at']) // si SOLO cambió updated_at, no loguear
+            ->dontSubmitEmptyLogs();                       // no crear logs vacíos
+
+
+    }
+
+   
     /**
      * The attributes that are mass assignable.
      *

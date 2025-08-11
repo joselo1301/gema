@@ -6,6 +6,8 @@ use App\Filament\Resources\AssetResource;
 use App\Models\Asset;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
+use Filament\Resources\Pages\ContentTabPosition;
+
 
 class ViewAsset extends ViewRecord
 {
@@ -15,8 +17,26 @@ class ViewAsset extends ViewRecord
     {
         return [
             Actions\EditAction::make()
-                ->slideOver()
-                ->form(Asset::getForm()),            
-        ];
+                ->form(Asset::getForm()),
+            ];
+    }
+    public function hasCombinedRelationManagerTabsWithContent(): bool
+    {
+        return true; // Combina pestañas de relaciones con el contenido
+    }
+
+    public function getContentTabLabel(): ?string
+    {
+        return 'Datos'; // Renombra la pestaña del contenido
+    }
+
+    public function getContentTabIcon(): ?string
+    {
+        return 'heroicon-m-rectangle-stack'; // Icono opcional
+    }
+
+    public function getContentTabPosition(): ?ContentTabPosition
+    {
+        return ContentTabPosition::Before; // o ContentTabPosition::After
     }
 }
