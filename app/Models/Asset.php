@@ -35,8 +35,8 @@ class Asset extends Model implements HasMedia
     public function getActivitylogOptions(): LogOptions
     {
         return LogOptions::defaults()
-            ->useLogName('assets')                         // canal
-            ->logOnly(['nombre', 'tag', 'ubicacion', 'asset_state.nombre'])          // campos que SÍ auditas
+            ->useLogName('Activos')                         // canal
+            ->logOnly(['nombre', 'tag', 'ubicacion', 'assetState.nombre'])          // campos que SÍ auditas
             ->logOnlyDirty()                               // solo si realmente cambiaron
             ->dontLogIfAttributesChangedOnly(['updated_at']) // si SOLO cambió updated_at, no loguear
             ->dontSubmitEmptyLogs();                       // no crear logs vacíos

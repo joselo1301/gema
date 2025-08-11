@@ -87,7 +87,8 @@ class GemaPanelProvider extends PanelProvider
                 ActivitylogPlugin::make()
                     ->label('Actividad')
                     ->pluralLabel('Actividades')
-                    ->navigationIcon('heroicon-o-eye'),
+                    ->navigationIcon('heroicon-o-eye')
+                    ->translateSubject(fn($label) => __("registro ")),
             ])
             ->authMiddleware([
                 Authenticate::class,
