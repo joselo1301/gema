@@ -17,12 +17,13 @@ use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Forms\Get;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
+use Parallax\FilamentComments\Models\Traits\HasFilamentComments;
 
 
 
 class Asset extends Model implements HasMedia
 {
-    use HasFactory, InteractsWithMedia, LogsActivity;
+    use HasFactory, InteractsWithMedia, LogsActivity, HasFilamentComments;
 
     public function registerMediaConversions(?Media $media = null): void
     {

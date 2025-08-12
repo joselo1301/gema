@@ -17,6 +17,7 @@ use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Columns\ImageColumn;
 use Rmsramos\Activitylog\Actions\ActivityLogTimelineTableAction;
 use Rmsramos\Activitylog\RelationManagers\ActivitylogRelationManager;
+use Parallax\FilamentComments\Tables\Actions\CommentsAction;
 
 class AssetResource extends Resource
 {
@@ -173,16 +174,13 @@ class AssetResource extends Resource
 
                 ActivityLogTimelineTableAction::make('Historial')
                     ->withRelations(['profile', 'address'])
-                    ->timelineIcons([
-                        'created' => 'heroicon-m-check-badge',
-                        'updated' => 'heroicon-m-pencil-square',
-                    ])
                     ->timelineIconColors([
                         'created' => 'success',
                         'updated' => 'info',                       
-
                     ])
                     ->limit(10),
+
+                CommentsAction::make(),
 
             ])
             ->bulkActions([

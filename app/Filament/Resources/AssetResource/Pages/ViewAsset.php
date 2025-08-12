@@ -7,6 +7,7 @@ use App\Models\Asset;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
 use Filament\Resources\Pages\ContentTabPosition;
+use Parallax\FilamentComments\Actions\CommentsAction;
 
 
 class ViewAsset extends ViewRecord
@@ -18,7 +19,8 @@ class ViewAsset extends ViewRecord
         return [
             Actions\EditAction::make()
                 ->form(Asset::getForm()),
-            ];
+            CommentsAction::make(),
+        ];
     }
     public function hasCombinedRelationManagerTabsWithContent(): bool
     {
@@ -39,4 +41,6 @@ class ViewAsset extends ViewRecord
     {
         return ContentTabPosition::Before; // o ContentTabPosition::After
     }
+
+    
 }

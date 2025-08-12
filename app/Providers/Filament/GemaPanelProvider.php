@@ -85,9 +85,9 @@ class GemaPanelProvider extends PanelProvider
                         'sm' => 2,
                     ]),
                 ActivitylogPlugin::make()
-                    ->label('Actividad')
-                    ->pluralLabel('Actividades')
-                    ->navigationIcon('heroicon-o-eye')
+                    ->label('Historial de actividad')
+                    ->pluralLabel('Historial de actividades')
+                    ->navigationIcon('heroicon-o-clock')
                     ->translateSubject(fn($label) => __("registro ")),
             ])
             ->authMiddleware([
