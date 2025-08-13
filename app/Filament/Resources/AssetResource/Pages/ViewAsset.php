@@ -22,6 +22,8 @@ class ViewAsset extends ViewRecord
             CommentsAction::make(),
         ];
     }
+
+    
     public function hasCombinedRelationManagerTabsWithContent(): bool
     {
         return true; // Combina pestañas de relaciones con el contenido

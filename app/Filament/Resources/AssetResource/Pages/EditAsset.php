@@ -5,6 +5,7 @@ namespace App\Filament\Resources\AssetResource\Pages;
 use App\Filament\Resources\AssetResource;
 use App\Models\Asset;
 use Filament\Actions;
+use Filament\Resources\Pages\ContentTabPosition;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\Auth;
 
@@ -35,4 +36,7 @@ class EditAsset extends EditRecord
         $data['actualizado_por_id'] = Auth::id(); // asignar el usuario actual
         return $data;
     }
+
+    
+    
 }

@@ -88,7 +88,10 @@ class GemaPanelProvider extends PanelProvider
                     ->label('Historial de actividad')
                     ->pluralLabel('Historial de actividades')
                     ->navigationIcon('heroicon-o-clock')
-                    ->translateSubject(fn($label) => __("registro ")),
+                    ->translateSubject(fn($label) => __("registro "))
+                    ->isRestoreActionHidden(true)
+                    ->isResourceActionHidden(true)
+              ,
             ])
             ->authMiddleware([
                 Authenticate::class,

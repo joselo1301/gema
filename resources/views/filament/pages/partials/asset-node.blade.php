@@ -1,6 +1,6 @@
-{{-- Nodo de activo (Asset) - Recursivo para manejar jerarquía padre-hijos --}}
+{{-- Nodo de activo (Asset) - Recursivo para manejar jerarquía padre-dependientes --}}
 {{-- $asset: El activo actual --}}
-{{-- $level: Nivel de profundidad (0 = padre, 1+ = hijos) --}}
+{{-- $level: Nivel de profundidad (0 = padre, 1+ = dependientes) --}}
 @php
     // Calcular sangría en píxeles para este nodo según su nivel
     $indentPixels = $level * 24; // 0px, 24px, 48px, 72px, etc.
@@ -9,7 +9,7 @@
     <div class="flex items-center">
         {{-- Contenedor del activo con hover y click --}}
         <div class="flex items-center w-full group">
-            {{-- Botón para expandir/colapsar (solo si tiene hijos) --}}
+            {{-- Botón para expandir/colapsar (solo si tiene dependientes) --}}
             @if($asset->children->isNotEmpty())
                 <button 
                     wire:click="toggleNode('asset_{{ $asset->id }}')"
@@ -26,7 +26,7 @@
                     @endif
                 </button>
             @else
-                {{-- Espaciado cuando no hay hijos --}}
+                {{-- Espaciado cuando no hay dependientes --}}
                 <div class="w-6 h-6 flex-shrink-0"></div>
             @endif
             
@@ -98,7 +98,7 @@
                             </span>
                         </div>
                         
-                        {{-- Información adicional y contador de hijos --}}
+                        {{-- Información adicional y contador de dependientes --}}
                         <div class="flex items-center space-x-2 text-xs text-gray-500 flex-shrink-0">
                             {{-- Estado del activo --}}
                             @if($asset->assetState)
@@ -107,13 +107,13 @@
                                 </span>
                             @endif
                             
-                            {{-- Contador de hijos si los tiene --}}
+                            {{-- Contador de dependientes si los tiene --}}
                             @if($asset->children->isNotEmpty())
                                 <div class="flex items-center space-x-1">
                                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
                                     </svg>
-                                    <span>{{ $this->getAssetChildrenCount($asset) }} hijos</span>
+                                    <span>{{ $this->getAssetChildrenCount($asset) }} dependientes</span>
                                 </div>
                             @endif
                             
@@ -153,12 +153,12 @@
         </div>
     </div>
 
-    {{-- Lista de activos hijos (recursiva) - Solo se muestra si el activo está expandido --}}
+    {{-- Lista de activos dependientes (recursiva) - Solo se muestra si el activo está expandido --}}
     @if($this->isExpanded("asset_{$asset->id}") && $asset->children->isNotEmpty())
         {{-- Contenedor simple sin sangría adicional ya que cada hijo maneja su propia sangría --}}
         <div class="border-l-2 border-gray-200 dark:border-gray-600 ml-4 mt-1">
             @foreach($asset->children as $child)
-                {{-- Llamada recursiva para renderizar los activos hijos --}}
+                {{-- Llamada recursiva para renderizar los activos dependientes --}}
                 @include('filament.pages.partials.asset-node', ['asset' => $child, 'level' => $level + 1])
             @endforeach
         </div>

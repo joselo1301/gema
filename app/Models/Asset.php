@@ -251,23 +251,23 @@ class Asset extends Model implements HasMedia
             Section::make('Clasificación Técnica')
                 ->columns(3)
                 ->schema([
-                    Toggle::make('es_activo_hijo')
-                        ->label('¿Es activo hijo?')
+                    Toggle::make('es_activo_dependiente')
+                        ->label('¿Es un activo dependiente?')
                         ->afterStateHydrated(function (callable $set, $state, Get $get) {
-                            // Si está en modo edición y tiene un padre, marcar como activo hijo
+                            // Si está en modo edición y tiene un padre, marcar como activo dependiente
                             if (filled($get('asset_parent_id'))) {
-                                $set('es_activo_hijo', true);
+                                $set('es_activo_dependiente', true);
                             }
                         })
                         ->dehydrated(false)
                         ->reactive(),
 
                     Select::make('asset_parent_id')
-                        ->label('Activo Padre')
+                        ->label('Activo superior')  
                         ->relationship('assetParent', 'nombre')
                         ->searchable()
-                        ->visible(fn (Get $get) => $get('es_activo_hijo'))
-                        ->required(fn (Get $get) => $get('es_activo_hijo'))
+                        ->visible(fn (Get $get) => $get('es_activo_dependiente'))
+                        ->required(fn (Get $get) => $get('es_activo_dependiente'))
                         ->afterStateUpdated(function ($state, callable $set, callable $get) {
                             $parent = Asset::find($state);
 
@@ -282,15 +282,15 @@ class Asset extends Model implements HasMedia
                     Select::make('location_id')
                         ->label('Centro')
                         ->relationship('location', 'nombre')
-                        ->visible(fn (Get $get) => !$get('es_activo_hijo'))
-                        ->dehydrated(fn (Get $get) => !$get('es_activo_hijo'))
+                        ->visible(fn (Get $get) => !$get('es_activo_dependiente'))
+                        ->dehydrated(fn (Get $get) => !$get('es_activo_dependiente'))
                         ->required(),
                         
                     Select::make('systems_catalog_id')
                         ->label('Sistema')
                         ->relationship('systemsCatalog', 'nombre')
-                        ->visible(fn (Get $get) => !$get('es_activo_hijo'))
-                        ->dehydrated(fn (Get $get) => !$get('es_activo_hijo'))
+                        ->visible(fn (Get $get) => !$get('es_activo_dependiente'))
+                        ->dehydrated(fn (Get $get) => !$get('es_activo_dependiente'))
                         ->preload()
                         ->searchable()
                         ->required(),
@@ -298,15 +298,15 @@ class Asset extends Model implements HasMedia
                     Select::make('asset_classification_id')
                         ->label('Clasificación')
                         ->relationship('assetClassification', 'nombre')
-                        ->visible(fn (Get $get) => !$get('es_activo_hijo')) // Desactiva si es hijo
-                        ->dehydrated(fn (Get $get) => !$get('es_activo_hijo'))
+                        ->visible(fn (Get $get) => !$get('es_activo_dependiente')) // Desactiva si es dependiente
+                        ->dehydrated(fn (Get $get) => !$get('es_activo_dependiente'))
                         ->required(),
 
                     Select::make('asset_criticality_id')
                         ->label('Criticidad')
                         ->relationship('assetCriticality', 'nombre')
-                        ->visible(fn (Get $get) => !$get('es_activo_hijo')) // Desactiva si es hijo
-                        ->dehydrated(fn (Get $get) => !$get('es_activo_hijo'))
+                        ->visible(fn (Get $get) => !$get('es_activo_dependiente')) // Desactiva si es dependiente
+                        ->dehydrated(fn (Get $get) => !$get('es_activo_dependiente'))
                         ->required(),
 
                     Select::make('asset_state_id')

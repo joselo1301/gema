@@ -133,7 +133,7 @@ class AssetResource extends Resource
                         
                         ->alignCenter()
                         ->sortable()
-                        ->formatStateUsing(fn ($state) => $state ? "Activo Padre: {$state}" : '-')
+                        ->formatStateUsing(fn ($state) => $state ? "Activo superior: {$state}" : '-')
                         ->tooltip(fn ($state) => $state ? "{$state}" : null)
                         ->size('xs')
                         ->weight(FontWeight::Bold)
@@ -211,15 +211,25 @@ class AssetResource extends Resource
                 ->schema([
 
                 Grid::make()
-                ->columns(2)
+                ->columns(5)
                 ->schema([
 
                     TextEntry::make('nombre')
+                        ->columnSpan(4)
                         ->size('lg')
                         ->label('')
-                        ->state(fn ($record) => $record->nombre),
+                        ->html()
+                        ->state(function ($record) {
+                            $nombre = $record->nombre;
+                            $parent = $record->assetParent->nombre ?? null;
+                            if ($parent) {
+                                return "<span style='font-size: 0.8em; color: #888;'>Activo superior: {$parent}</span> <br> <span style='font-weight: bold;'>{$nombre}</span> ";
+                            }
+                            return "<span style='font-weight: bold;'>{$nombre}</span>";
+                        }),
 
                     TextEntry::make('locacion.nombre')
+                    ->columnSpan(1)
                     ->alignRight()
                     ->label('')
                     ->state(fn ($record) => $record->location->nombre ?? '-'),
@@ -236,7 +246,7 @@ class AssetResource extends Resource
                 ->schema([
                     
                     ImageEntry::make('foto')
-                        ->size(100)
+                        ->size(200)
                         ->alignCenter()
                         ->square()
                         ->label('')
@@ -341,32 +351,48 @@ class AssetResource extends Resource
 
                 ]),
             
-            
+            ]),
+
+            TextEntry::make('activo')
+                ->columnSpanFull()
+                ->alignEnd()
+                ->size('xs')
+                ->label('')
+                ->color('gray')
+                ->icon(fn ($record) => $record->activo ? 'heroicon-o-check-circle' : 'heroicon-o-x-circle')
+                ->iconColor(fn ($record) => $record->activo ? 'success' : 'danger') // icono verde o rojo
+                ->state(fn ($record) =>
+                    $record->activo
+                        ? 'El activo está habilitado'
+                        : 'El activo está deshabilitado'
+                ),
+
             Section::make()
                 ->columnSpanFull()
-                ->columns(2)
+                ->extraAttributes(['class' => '!gap-y-1'])
                 ->schema([
+
+                    
                     TextEntry::make('creado_por')
                         ->size('xs')
-                        ->label('')
-                        ->state(fn ($record) => 
-                            'Creado por ' .
-                            ($record->creadoPor->name ?? '-') . 
-                            ' el ' . 
+                        ->color('gray')
+                        ->state(fn ($record) =>
+                            
+                            ($record->creadoPor->name ?? '-') .
+                            ' el ' .
                             ($record->created_at ? $record->created_at->translatedFormat('d, M Y H:i') : '-')
                         ),
                     TextEntry::make('actualizado_por')
                         ->size('xs')
-                        ->label('')
-                        ->state(fn ($record) => 
-                            'Actualizado por ' .
-                            ($record->actualizadoPor->name ?? '-') . 
-                            ' el ' . 
+                        ->color('gray')
+                        ->state(fn ($record) =>
+                        
+                            ($record->actualizadoPor->name ?? '-') .
+                            ' el ' .
                             ($record->updated_at ? $record->updated_at->translatedFormat('d, M Y H:i') : '-')
                         ),
-                
+                    
                 ]),
-            ]),
         ]);
     }
 
@@ -376,11 +402,12 @@ class AssetResource extends Resource
             RelationGroup::make('Actividades', [
                 ActivitylogRelationManager::class,
             ])
-            ->icon('heroicon-m-clock'), 
-            
+            ->icon('heroicon-m-clock'),
 
-        ];
-    }
+           
+    ];  
+
+}
 
     public static function getPages(): array
     {
