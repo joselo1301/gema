@@ -37,6 +37,64 @@ class EditAsset extends EditRecord
         return $data;
     }
 
+    protected function handleRecordUpdate(\Illuminate\Database\Eloquent\Model $record, array $data): \Illuminate\Database\Eloquent\Model
+    {
+        $record->update($data);
+        
+        // Si este activo tiene hijos, propagar los cambios de herencia
+        if ($record->hasChildren()) {
+            $this->updateChildrenWithInheritedFields($record);
+        }
+
+        return $record;
+    }
+
+    
+
+    /**
+     * Actualiza los campos de herencia en todos los activos hijos
+     */
+    private function updateChildrenWithInheritedFields(Asset $record): void
+    {
+        $inheritableFields = [
+            'location_id',
+            'systems_catalog_id', 
+            'asset_classification_id',
+            'asset_criticality_id'
+        ];
+
+        $updateData = [];
+        foreach ($inheritableFields as $field) {
+            $updateData[$field] = $record->$field;
+        }
+        
+        // Agregar el usuario que actualiza
+        $updateData['actualizado_por_id'] = Auth::id();
+
+        // Actualizar todos los hijos directos
+        $record->children()->update($updateData);
+
+        // Recursivamente actualizar los nietos y descendientes
+        $this->updateDescendantsRecursively($record, $updateData);
+    }
+
+    /**
+     * Actualiza recursivamente todos los descendientes
+     */
+    private function updateDescendantsRecursively(Asset $parent, array $updateData): void
+    {
+        foreach ($parent->children as $child) {
+            if ($child->hasChildren()) {
+                $child->children()->update($updateData);
+                $this->updateDescendantsRecursively($child, $updateData);
+            }
+        }
+    }
+
+    protected function getRedirectUrl(): string
+    {
+        return $this->getResource()::getUrl('view', ['record' => $this->getRecord()]);
+    }
     
     
 }

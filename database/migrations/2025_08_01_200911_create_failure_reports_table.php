@@ -28,8 +28,6 @@ return new class extends Migration
             $table->text('apoyo_adicional');
             $table->text('observaciones')->nullable();
             $table->foreignId('asset_id')->constrained();
-            $table->foreignId('asset_parent_id')->nullable()->constrained('assets')->onDelete('set null');
-            $table->foreignId('asset_state_id')->constrained();
             $table->foreignId('report_status_id')->constrained()->onDelete('restrict');
             $table->foreignId('report_followup_id')->constrained()->onDelete('restrict');
             $table->foreignId('creado_por_id')->constrained('users')->onDelete('restrict');
@@ -39,6 +37,8 @@ return new class extends Migration
             $table->dateTime('aprobado_en')->nullable();
             $table->foreignId('ejecutado_por_id')->nullable()->constrained('users')->onDelete('restrict');
             $table->foreignId('actualizado_por_id')->nullable()->constrained('users')->onDelete('restrict');
+            $table->json('approved_snapshot')->nullable();  // payload con todo lo necesario
+            $table->string('approved_hash', 64)->nullable()->index(); // opcional para integridad
             $table->timestamps();
         });
 
