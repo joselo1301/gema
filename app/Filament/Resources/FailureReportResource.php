@@ -35,10 +35,13 @@ class FailureReportResource extends Resource
             ->schema([
             
             Wizard::make([
-            Step::make('Seleccionar activo')
+                Step::make('Contexto y Activo')
+                ->columns(3)
                 ->schema([
 
                     Forms\Components\Select::make('asset_id')
+                        ->columnSpan(2)
+                        ->label('Activo')
                         ->relationship('asset', 'nombre')
                         ->getOptionLabelFromRecordUsing(function ($record) {
                             $locationName = $record->location?->nombre ?? '';
@@ -46,11 +49,39 @@ class FailureReportResource extends Resource
                         })
                         ->searchable(['nombre', 'tag'])
                         ->noSearchResultsMessage('Activo no encontrado...')
+                        ->preload()
                         ->required(),
-                        
-                        
+
+                    Forms\Components\DateTimePicker::make('fecha_ocurrencia')
+                        ->columnSpan(1)
+                        ->label('Fecha y hora de ocurrencia')
+                        ->required(),
+
+                     Forms\Components\Textarea::make('datos_generales')
+                        ->columnSpanFull()
+                        ->required(),
+
+                    Forms\Components\Textarea::make('descripcion_corta')
+                        ->columnSpanFull()
+                        ->required(),
+
                 ]),
-            Step::make('Delivery')
+                Step::make('Descripción detallada')
+                ->schema([
+                    Forms\Components\Textarea::make('personal_detector')
+                        ->label('Personal que detectó la falla')
+                        ->required()
+                        ->columnSpanFull(),
+                    Forms\Components\Textarea::make('descripcion_detallada')
+                        ->required()
+                        ->columnSpanFull(),
+                    Forms\Components\Toggle::make('afecta_operaciones')
+                        ,
+                    Forms\Components\Toggle::make('afecta_medio_ambiente')
+                        ,
+
+                ]),
+                 Step::make('Billing')
                 ->schema([
                     Forms\Components\TextInput::make('numero_reporte')
                             ->required()
@@ -85,30 +116,17 @@ class FailureReportResource extends Resource
                                 //     // Formatear el número de reporte
                                 //     return 'RF-' . $codigoLocacion . '-' . str_pad($correlativo->correlativo, 4, '0', STR_PAD_LEFT) . '-' . $year;
                                 // }),
-                        Forms\Components\DateTimePicker::make('fecha_ocurrencia')
-                            ->required(),
-                        Forms\Components\Textarea::make('datos_generales')
-                            ->required()
-                            ->columnSpanFull(),
-                        Forms\Components\TextInput::make('descripcion_corta')
-                            ->required()
-                            ->maxLength(255),
-                        Forms\Components\Textarea::make('personal_detector')
-                            ->required()
-                            ->columnSpanFull(),
-                        Forms\Components\Textarea::make('descripcion_detallada')
-                            ->required()
-                            ->columnSpanFull(),
+                        
+                       
+                        
+                        
                         Forms\Components\Textarea::make('causas_probables')
                             ->required()
                             ->columnSpanFull(),
                         Forms\Components\Textarea::make('acciones_realizadas')
                             ->required()
                             ->columnSpanFull(),
-                        Forms\Components\Toggle::make('afecta_operaciones')
-                            ->required(),
-                        Forms\Components\Toggle::make('afecta_medio_ambiente')
-                            ->required(),
+                        
                         Forms\Components\Textarea::make('apoyo_adicional')
                             ->required()
                             ->columnSpanFull(),

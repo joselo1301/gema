@@ -20,19 +20,10 @@ class UserResource extends Resource
 {
     protected static ?string $model = User::class;
 
-    // protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
-
     protected static ?string $navigationGroup = 'Roles y usuarios';
     protected static ?string $navigationLabel = 'Usuarios';
     protected static ?string $modelLabel = 'Usuario';
     protected static ?string $pluralModelLabel = 'Usuarios';
-    
-
-
-    //  public static function canViewAny(): bool
-    // {
-    //     return true; // Temporalmente permitir a todos para debug
-    // }
 
     public static function form(Form $form): Form
     {
