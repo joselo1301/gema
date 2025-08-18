@@ -19,7 +19,6 @@ return new class extends Migration
             $table->dateTime('fecha_ocurrencia');
             $table->text('datos_generales');
             $table->string('descripcion_corta');
-            $table->text('personal_detector');
             $table->text('descripcion_detallada');
             $table->text('causas_probables');
             $table->text('acciones_realizadas');

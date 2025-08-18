@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
+
 class FailureReport extends Model
 {
     use HasFactory;
@@ -120,11 +121,8 @@ class FailureReport extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function people(): BelongsToMany
+    public function detectadoPor(): BelongsToMany
     {
-        return $this->belongsToMany(
-            \App\Models\People::class,
-            'failure_report_people' // tabla pivote
-        )->withTimestamps();
+        return $this->belongsToMany(People::class);
     }
 }
