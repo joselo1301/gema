@@ -68,10 +68,17 @@ class FailureReportResource extends Resource
                 ]),
                 Step::make('Descripción detallada')
                 ->schema([
-                    Forms\Components\Textarea::make('personal_detector')
-                        ->label('Personal que detectó la falla')
-                        ->required()
-                        ->columnSpanFull(),
+                    Forms\Components\CheckboxList::make('people')
+                                ->label('Personal que detecto la falla')
+                                ->relationship(
+                                    name: 'people',
+                                    titleAttribute: 'nombres' . ' apellidos' . ' cargo',
+                                    modifyQueryUsing: fn ($query) => $query->where('deleted_at', null),
+                                ) // Relación con el modelo Location solo muestra activos
+                                ->required()
+                                ->columns(2)
+                                ->helperText('Selecciona al personal que detectó la falla'),
+                        
                     Forms\Components\Textarea::make('descripcion_detallada')
                         ->required()
                         ->columnSpanFull(),

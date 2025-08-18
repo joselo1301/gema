@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 class FailureReport extends Model
 {
@@ -117,5 +118,13 @@ class FailureReport extends Model
     public function actualizadoPor(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function people(): BelongsToMany
+    {
+        return $this->belongsToMany(
+            \App\Models\People::class,
+            'failure_report_people' // tabla pivote
+        )->withTimestamps();
     }
 }
