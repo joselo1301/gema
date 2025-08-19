@@ -2,6 +2,8 @@
 
 namespace App\Models;
 
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Select;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -23,5 +25,31 @@ class People extends Model
         return $this->belongsToMany(FailureReport::class);
     }
 
-    
+    public function failureReports(): BelongsToMany
+    {
+        return $this->belongsToMany(FailureReport::class, 'failure_report_people')
+            ->withTimestamps();
+    }
+
+     public static function getForm(): array
+    {
+        return [
+             TextInput::make('nombres')
+                ->required()
+                ->maxLength(255),
+            TextInput::make('apellidos')
+                ->required()
+                ->maxLength(255),
+            TextInput::make('cargo')
+                ->required()    
+                ->maxLength(255),
+            TextInput::make('empresa')
+                ->required()
+                ->maxLength(255),
+            Select::make('location_id')
+                ->required()
+                ->label('Planta o Terminal')
+                ->relationship('location', 'nombre'),
+        ];
+    }
 }

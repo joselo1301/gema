@@ -25,24 +25,7 @@ class PeopleResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->schema([
-                Forms\Components\TextInput::make('nombres')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('apellidos')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('cargo')
-                    ->required()    
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('empresa')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\Select::make('location_id')
-                    ->required()
-                    ->label('Planta o Terminal')
-                    ->relationship('location', 'nombre'),
-            ]);
+            ->schema(People::getForm());
     }
 
     public static function table(Table $table): Table

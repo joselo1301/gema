@@ -4,18 +4,12 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\FailureReportResource\Pages;
 use App\Filament\Resources\FailureReportResource\RelationManagers;
-use App\Models\Asset;
 use App\Models\FailureReport;
-use App\Models\FailureReportSequence;
-use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Forms\Components\Wizard;
-use Filament\Forms\Components\Wizard\Step;
+
 
 class FailureReportResource extends Resource
 {
@@ -32,140 +26,7 @@ class FailureReportResource extends Resource
         return $form
 
             ->columns(1)
-            ->schema([
-            
-            Wizard::make([
-                Step::make('Contexto y Activo')
-                ->columns(3)
-                ->schema([
-
-                    Forms\Components\Select::make('asset_id')
-                        ->columnSpan(2)
-                        ->label('Activo')
-                        ->relationship('asset', 'nombre')
-                        ->getOptionLabelFromRecordUsing(function ($record) {
-                            $locationName = $record->location?->nombre ?? '';
-                            return "{$record->nombre} ({$record->tag}) - {$locationName}";
-                        })
-                        ->searchable(['nombre', 'tag'])
-                        ->noSearchResultsMessage('Activo no encontrado...')
-                        ->preload()
-                        ->required(),
-
-                    Forms\Components\DateTimePicker::make('fecha_ocurrencia')
-                        ->columnSpan(1)
-                        ->label('Fecha y hora de ocurrencia')
-                        ->required(),
-
-                     Forms\Components\Textarea::make('datos_generales')
-                        ->columnSpanFull()
-                        ->required(),
-
-                    Forms\Components\Textarea::make('descripcion_corta')
-                        ->columnSpanFull()
-                        ->required(),
-
-                ]),
-                Step::make('Descripción detallada')
-                ->schema([
-                    Forms\Components\CheckboxList::make('people')
-                                ->label('Personal que detecto la falla')
-                                ->relationship(
-                                    name: 'people',
-                                    titleAttribute: 'nombres' . ' apellidos' . ' cargo',
-                                    modifyQueryUsing: fn ($query) => $query->where('deleted_at', null),
-                                ) // Relación con el modelo Location solo muestra activos
-                                ->required()
-                                ->columns(2)
-                                ->helperText('Selecciona al personal que detectó la falla'),
-                        
-                    Forms\Components\Textarea::make('descripcion_detallada')
-                        ->required()
-                        ->columnSpanFull(),
-                    Forms\Components\Toggle::make('afecta_operaciones')
-                        ,
-                    Forms\Components\Toggle::make('afecta_medio_ambiente')
-                        ,
-
-                ]),
-                 Step::make('Billing')
-                ->schema([
-                    Forms\Components\TextInput::make('numero_reporte')
-                            ->required()
-                            ->maxLength(255),
-                                // ->default(function ($get) {
-                                //     // Obtener el asset_id para el código de locación
-                                //     $assetId = $get('asset_id');
-                                //     $codigoLocacion = '';
-
-                                //     if ($assetId) {
-                                //         $asset = Asset::with('location')->find($assetId);
-                                //         $codigoLocacion = $asset?->location?->codigo ?? ''; 
-                                //     }       
-
-                                //     // // Obtener el año actual
-                                //     // $year = date('Y');
-
-                                //     // // Buscar el correlativo actual en FailureReportSequence
-                                //     // $correlativo = FailureReportSequence::where('codigo_locacion', $codigoLocacion)
-                                //     //     ->where('year', $year)
-                                //     //     ->first();
-
-                                //     // if (!$correlativo) {
-                                //     //     // Si no existe, crear uno nuevo
-                                //     //     $correlativo = FailureReportSequence::create([
-                                //     //         'codigo_locacion' => $codigoLocacion,
-                                //     //         'year' => $year,
-                                //     //         'correlativo' => 1,
-                                //     //     ]);
-                                //     // }
-
-                                //     // Formatear el número de reporte
-                                //     return 'RF-' . $codigoLocacion . '-' . str_pad($correlativo->correlativo, 4, '0', STR_PAD_LEFT) . '-' . $year;
-                                // }),
-                        
-                       
-                        
-                        
-                        Forms\Components\Textarea::make('causas_probables')
-                            ->required()
-                            ->columnSpanFull(),
-                        Forms\Components\Textarea::make('acciones_realizadas')
-                            ->required()
-                            ->columnSpanFull(),
-                        
-                        Forms\Components\Textarea::make('apoyo_adicional')
-                            ->required()
-                            ->columnSpanFull(),
-                        Forms\Components\Textarea::make('observaciones')
-                            ->columnSpanFull(),
-                ]),
-            Step::make('Billing')
-                ->schema([
-                    
-                        Forms\Components\Select::make('report_status_id')
-                            ->relationship('reportStatus', 'id')
-                            ->required(),
-                        Forms\Components\Select::make('report_followup_id')
-                            ->relationship('reportFollowup', 'id')
-                            ->required(),
-                        Forms\Components\Select::make('creado_por_id')
-                            ->relationship('creadoPor', 'name')
-                            ->required(),
-                        Forms\Components\Select::make('reportado_por_id')
-                            ->relationship('reportadoPor', 'name'),
-                        Forms\Components\DateTimePicker::make('reportado_en'),
-                        Forms\Components\Select::make('aprobado_por_id')
-                            ->relationship('aprobadoPor', 'name'),
-                        Forms\Components\DateTimePicker::make('aprobado_en'),
-                        Forms\Components\Select::make('ejecutado_por_id')
-                            ->relationship('ejecutadoPor', 'name'),
-                        Forms\Components\Select::make('actualizado_por_id')
-                            ->relationship('actualizadoPor', 'name'),
-                ]),
-            ]),
-                
-        ]);
+            ->schema(FailureReport::getForm());
     }
 
     public static function table(Table $table): Table
