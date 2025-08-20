@@ -34,8 +34,7 @@ class ReportStatusResource extends Resource
                 Forms\Components\TextInput::make('nombre')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('color')
-                    ->maxLength(255),
+                Forms\Components\ColorPicker::make('color'),
                 Forms\Components\TextInput::make('orden')
                     ->required()
                     ->numeric()
@@ -53,8 +52,7 @@ class ReportStatusResource extends Resource
                     ->searchable(),
                 Tables\Columns\TextColumn::make('nombre')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('color')
-                    ->searchable(),
+                Tables\Columns\ColorColumn::make('color'),
                 Tables\Columns\TextColumn::make('orden')
                     ->numeric()
                     ->sortable(),
