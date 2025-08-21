@@ -15,10 +15,12 @@ return new class extends Migration
 
         Schema::create('failure_report_sequences', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('location_id')->constrained()->cascadeOnDelete();
-            $table->year('anio');
-            $table->unsignedInteger('correlativo_actual')->default(0);
+            $table->string('codigo_locacion');     // ej. "IL"
+            $table->unsignedSmallInteger('year');  // ej. 2025
+            $table->unsignedInteger('current')->default(0); // último correlativo usado
             $table->timestamps();
+
+            $table->unique(['codigo_locacion', 'year']); // clave única
         });
 
         Schema::enableForeignKeyConstraints();

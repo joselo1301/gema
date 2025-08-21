@@ -174,6 +174,7 @@ class FailureReport extends Model implements HasMedia
 
                     Textarea::make('descripcion_corta')
                         ->columnSpanFull()
+                        ->maxLength(150)
                         ->required(),
 
                     ]),
@@ -185,7 +186,8 @@ class FailureReport extends Model implements HasMedia
                         ->relationship('detectadoPor', 'cargo')
                         ->getOptionLabelFromRecordUsing(
                             fn (People $record) => "{$record->nombres} {$record->apellidos}" .
-                                ($record->cargo ? " — {$record->cargo}" : '')
+                                ($record->cargo ? " — {$record->cargo}" : '') .
+                                ($record->empresa ? " {$record->empresa}" : '')
                         )
                         ->createOptionForm(People::getForm())
                         ->preload()

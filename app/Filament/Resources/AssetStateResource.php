@@ -39,6 +39,7 @@ class AssetStateResource extends Resource
                     ->required()
                     ->numeric()
                     ->default(0),
+
                 Forms\Components\Toggle::make('activo')
                     ->helperText('Al desactivar esta opción, no será posible registrar nuevos elementos; sin embargo, los registros existentes permanecerán disponibles para su visualización.')
                     ->default(true)
@@ -95,13 +96,15 @@ class AssetStateResource extends Resource
                 Tables\Columns\TextColumn::make('codigo')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('nombre')
+                    ->badge()
+                    ->color(fn ($record) => $record->color)
                     ->searchable(),
                 Tables\Columns\TextColumn::make('orden')
                     ->numeric()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('color')
-                    ->badge()
-                    ->color(fn ($state) => $state), // Usa el valor guardado directamente
+                // Tables\Columns\TextColumn::make('color')
+                //     ->badge()
+                //     ->color(fn ($state) => $state), // Usa el valor guardado directamente
                 Tables\Columns\IconColumn::make('activo')
                     ->boolean(),
                 Tables\Columns\TextColumn::make('created_at')

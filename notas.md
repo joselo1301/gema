@@ -1,5 +1,5 @@
 Si se clona desde github ejecutar composer install - y copiar archivo env
-
+Se instalo Laravel Lang (traducion a español)
 Se instalo blueprint  
 Se instalo filament
   - Se agrego paneles

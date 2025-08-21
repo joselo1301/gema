@@ -34,7 +34,18 @@ class ReportStatusResource extends Resource
                 Forms\Components\TextInput::make('nombre')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\ColorPicker::make('color'),
+                Forms\Components\Select::make('color')
+                            ->options([
+                                'danger'  => 'Crítico (danger)',          // Casos de alto riesgo o falla grave
+                                'gray'    => 'Neutro (gray)',             // Sin relevancia especial o estado base
+                                'info'    => 'Informativo (info)',        // Estado con valor referencial
+                                'primary' => 'Principal (primary)',       // Valor estándar o resaltado general
+                                'success' => 'Correcto (success)',        // Algo que fue aprobado o exitoso
+                                'warning' => 'Advertencia (warning)',     // Algo que requiere atención pero no es crítico
+                            ])
+                            ->required()
+                            ->searchable()
+                            ->native(false),
                 Forms\Components\TextInput::make('orden')
                     ->required()
                     ->numeric()
@@ -48,11 +59,11 @@ class ReportStatusResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('clave')
-                    ->searchable(),
+                
                 Tables\Columns\TextColumn::make('nombre')
+                    ->badge()
+                    ->color(fn ($record) => $record->color)
                     ->searchable(),
-                Tables\Columns\ColorColumn::make('color'),
                 Tables\Columns\TextColumn::make('orden')
                     ->numeric()
                     ->sortable(),

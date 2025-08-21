@@ -34,8 +34,8 @@ class ReportFollowupResource extends Resource
                 Forms\Components\TextInput::make('nombre')
                     ->required()
                     ->maxLength(255),
-                Forms\Components\TextInput::make('color')
-                    ->maxLength(255),
+                Forms\Components\ColorPicker::make('color')
+                    ->regex('/^#([a-fA-F0-9]{6}|[a-fA-F0-9]{3})\b$/'),
                 Forms\Components\TextInput::make('orden')
                     ->required()
                     ->numeric()
@@ -49,11 +49,11 @@ class ReportFollowupResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('clave')
-                    ->searchable(),
+                // Tables\Columns\TextColumn::make('clave')
+                //     ->searchable(),
                 Tables\Columns\TextColumn::make('nombre')
                     ->searchable(),
-                Tables\Columns\TextColumn::make('color')
+                Tables\Columns\ColorColumn::make('color')
                     ->searchable(),
                 Tables\Columns\TextColumn::make('orden')
                     ->numeric()

@@ -38,38 +38,31 @@ class FailureReportResource extends Resource
                 Tables\Columns\TextColumn::make('fecha_ocurrencia')
                     ->dateTime()
                     ->sortable(),
-                Tables\Columns\TextColumn::make('descripcion_corta')
+                Tables\Columns\TextColumn::make('reportStatus.nombre')
+                    ->label('Estado')
+                    ->badge()
+                    ->color(fn ($record) => $record->reportStatus?->color)
                     ->searchable(),
-                Tables\Columns\IconColumn::make('afecta_operaciones')
-                    ->boolean(),
-                Tables\Columns\IconColumn::make('afecta_medio_ambiente')
-                    ->boolean(),
-                Tables\Columns\TextColumn::make('asset.id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('assetParent.id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('assetState.id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('reportStatus.id')
-                    ->numeric()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('reportFollowup.id')
-                    ->numeric()
-                    ->sortable(),
+                    
+                Tables\Columns\ColorColumn::make('reportFollowup.color')
+                    ->label('Seguimiento'),
+
+                Tables\Columns\TextColumn::make('reportFollowup.nombre')
+                    ->label('Seguimiento')
+                    ->icon('heroicon-s-bookmark')
+                    ->iconColor(fn ($record) => $record->reportFollowup?->color)
+                    ->searchable(),
+                    
                 Tables\Columns\TextColumn::make('creadoPor.name')
-                    ->numeric()
-                    ->sortable(),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('reportadoPor.name')
-                    ->numeric()
-                    ->sortable(),
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('reportado_en')
                     ->dateTime()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('aprobadoPor.name')
-                    ->numeric()
+                    ->searchable()
                     ->sortable(),
                 Tables\Columns\TextColumn::make('aprobado_en')
                     ->dateTime()

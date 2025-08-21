@@ -24,7 +24,7 @@ return new class extends Migration
             $table->text('acciones_realizadas');
             $table->boolean('afecta_operaciones')->default(false);
             $table->boolean('afecta_medio_ambiente')->default(false);
-            $table->text('apoyo_adicional');
+            $table->text('apoyo_adicional')->nullable();
             $table->text('observaciones')->nullable();
             $table->foreignId('asset_id')->constrained();
             $table->foreignId('report_status_id')->constrained()->onDelete('restrict');

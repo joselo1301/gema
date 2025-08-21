@@ -40,7 +40,7 @@ class GemaPanelProvider extends PanelProvider
             ->brandName('GEMA')
             ->colors([
                     'danger' => Color::Red,
-                    'gray' => Color::Neutral,
+                    'gray' => Color::Gray,
                     'info' => Color::Amber,
                     'primary' => Color::Sky,
                     'success' => Color::Emerald,
