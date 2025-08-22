@@ -22,6 +22,9 @@ class DatabaseSeeder extends Seeder
             'puesto' => 'Supervisor',
             'empresa' => 'PETROPERU SA'
         ]);
+
+        User::factory(5)->create();
+
         $this->call([
             LocationSeeder::class,
             ReportStatusSeeder::class,
@@ -31,6 +34,9 @@ class DatabaseSeeder extends Seeder
             AssetClassificationSeeder::class,
             AssetStateSeeder::class,
             AssetSeeder::class,
+            PeopleSeeder::class,
+            FailureReportSeeder::class,
+            // PivotTablesSeeder::class,
             ShieldSeeder::class
 
         ]);

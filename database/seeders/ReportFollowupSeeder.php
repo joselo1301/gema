@@ -15,22 +15,28 @@ class ReportFollowupSeeder extends Seeder
     {
        ReportFollowup::insert([
 
-            ['orden' => 1,  'nombre' => 'Ingresado',            'clave' => 'ingresado',        'color' => '#F94144', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
-            ['orden' => 2,  'nombre' => 'Reportado',            'clave' => 'reportado',        'color' => '#F94144', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
-            ['orden' => 3,  'nombre' => 'Notificado',           'clave' => 'notificado',       'color' => '#F94144', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
-            ['orden' => 4,  'nombre' => 'Por Revisar',          'clave' => 'por_revisar',      'color' => '#F94144', 'activo' => true, 'created_at' => now(), 'updated_at' => now()], // rojo
-            ['orden' => 5,  'nombre' => 'Revisión',             'clave' => 'revision',         'color' => '#F3722C', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
-            ['orden' => 6,  'nombre' => 'Gabinete',             'clave' => 'gabinete',         'color' => '#F8961E', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
-            ['orden' => 7,  'nombre' => 'CT / SOLPED',          'clave' => 'ct_solped',        'color' => '#F9844A', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
-            ['orden' => 8,  'nombre' => 'Contratación',         'clave' => 'contratacion',     'color' => '#F9C74F', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
-            ['orden' => 9,  'nombre' => 'En Planificación',     'clave' => 'planificacion',    'color' => '#90BE6D', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
-            ['orden' => 10, 'nombre' => 'A Programar',          'clave' => 'a_programar',      'color' => '#43AA8B', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
-            ['orden' => 11, 'nombre' => 'Programado',           'clave' => 'programado',       'color' => '#4D908E', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
-            ['orden' => 12, 'nombre' => 'En Ejecución',         'clave' => 'en_ejecucion',     'color' => '#577590', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
-            ['orden' => 13, 'nombre' => 'Ejecutado',            'clave' => 'ejecutado',        'color' => '#277DA1', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
-            ['orden' => 14, 'nombre' => 'Observado',            'clave' => 'observado',        'color' => '#003049', 'activo' => true, 'created_at' => now(), 'updated_at' => now()], // gris
-            ['orden' => 15, 'nombre' => 'No Corresponde',       'clave' => 'no_corresponde',   'color' => '#003049', 'activo' => true, 'created_at' => now(), 'updated_at' => now()], // gris claro
+        
+            ['orden' => 1,  'nombre' => 'Ingresado',        'clave' => 'ingresado',      'color' => '#ADB5BD', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
+            ['orden' => 2,  'nombre' => 'Reportado',        'clave' => 'reportado',      'color' => '#8D939E', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
+            ['orden' => 3,  'nombre' => 'Notificado',       'clave' => 'notificado',     'color' => '#71b39d', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
 
+            ['orden' => 4,  'nombre' => 'Por Revisar',      'clave' => 'por_revisar',    'color' => '#FCE83A', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
+            ['orden' => 5,  'nombre' => 'Revisión',         'clave' => 'revision',       'color' => '#FFD84D', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
+            ['orden' => 6,  'nombre' => 'Gabinete',         'clave' => 'gabinete',       'color' => '#FFE066', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
+
+            ['orden' => 7,  'nombre' => 'CT / SOLPED',      'clave' => 'ct_solped',      'color' => '#FFB302', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
+            ['orden' => 8,  'nombre' => 'Contratación',     'clave' => 'contratacion',   'color' => '#FF9800', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
+            ['orden' => 9,  'nombre' => 'En Planificación', 'clave' => 'planificacion',  'color' => '#FF8C42', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
+            ['orden' => 10, 'nombre' => 'A Programar',      'clave' => 'a_programar',    'color' => '#FF7043', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
+
+            ['orden' => 11, 'nombre' => 'Programado',       'clave' => 'programado',     'color' => '#2DCCFF', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
+            ['orden' => 12, 'nombre' => 'En Ejecución',     'clave' => 'en_ejecucion',   'color' => '#1DA2F2', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
+
+            ['orden' => 13, 'nombre' => 'Ejecutado',        'clave' => 'ejecutado',      'color' => '#198754', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
+
+            ['orden' => 14, 'nombre' => 'Observado',        'clave' => 'observado',      'color' => '#FF3838', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
+            ['orden' => 15, 'nombre' => 'No Corresponde',   'clave' => 'no_corresponde', 'color' => '#C82333', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
+        
 
         ]);
     }

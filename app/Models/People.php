@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
@@ -13,7 +14,7 @@ use Spatie\Permission\Traits\HasRoles;
 
 class People extends Model
 {
-    use HasRoles, SoftDeletes;
+    use HasRoles, HasFactory, SoftDeletes;
 
     public function location(): BelongsTo
     {

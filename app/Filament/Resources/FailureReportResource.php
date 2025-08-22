@@ -4,6 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\FailureReportResource\Pages;
 use App\Filament\Resources\FailureReportResource\RelationManagers;
+use App\Models\Asset;
 use App\Models\FailureReport;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -34,45 +35,61 @@ class FailureReportResource extends Resource
         return $table
             ->columns([
                 Tables\Columns\TextColumn::make('numero_reporte')
+                    ->label('N° Reporte')
+                    ->description(fn ($record): string => $record->asset?->nombre ?? '')
                     ->searchable(),
+
+                Tables\Columns\TextColumn::make('asset.nombre')
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable(),
+
                 Tables\Columns\TextColumn::make('fecha_ocurrencia')
                     ->dateTime()
                     ->sortable(),
+
+                Tables\Columns\TextColumn::make('descripcion_corta')
+                    ->label('Descripción Corta')
+                    ->wrap()
+                    ->lineClamp(2)
+                    
+                    ->searchable(),
+
                 Tables\Columns\TextColumn::make('reportStatus.nombre')
                     ->label('Estado')
+                    ->alignCenter()
+                    ->sortable()
                     ->badge()
                     ->color(fn ($record) => $record->reportStatus?->color)
                     ->searchable(),
                     
-                Tables\Columns\ColorColumn::make('reportFollowup.color')
-                    ->label('Seguimiento'),
-
                 Tables\Columns\TextColumn::make('reportFollowup.nombre')
-                    ->label('Seguimiento')
-                    ->icon('heroicon-s-bookmark')
-                    ->iconColor(fn ($record) => $record->reportFollowup?->color)
-                    ->searchable(),
+                    ->label('Etapa')
+                    ->alignCenter()
+                    ->sortable()
+                    ->searchable()
+                    ->html()
+                    ->formatStateUsing(function ($state, $record) {
+                        $hexColor = $record->reportFollowup->color ?? '#000000';
+                        return "<span style='color: {$hexColor}'>{$state}</span>";
+                    }),
+
+               
                     
                 Tables\Columns\TextColumn::make('creadoPor.name')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(),
                 Tables\Columns\TextColumn::make('reportadoPor.name')
+                    ->toggleable(isToggledHiddenByDefault: true)
                     ->searchable(),
-                Tables\Columns\TextColumn::make('reportado_en')
-                    ->dateTime()
-                    ->sortable(),
                 Tables\Columns\TextColumn::make('aprobadoPor.name')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('aprobado_en')
-                    ->dateTime()
-                    ->sortable(),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('ejecutadoPor.name')
-                    ->numeric()
-                    ->sortable(),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('actualizadoPor.name')
-                    ->numeric()
-                    ->sortable(),
+                    ->toggleable(isToggledHiddenByDefault: true)
+                    ->searchable(),
                 Tables\Columns\TextColumn::make('created_at')
                     ->dateTime()
                     ->sortable()
@@ -83,14 +100,22 @@ class FailureReportResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('reportStatus_id')
+                    ->label('Estado de reporte')
+                    ->relationship('reportStatus', 'nombre'),
+                // Filtro por Sistema
+                Tables\Filters\SelectFilter::make('reportFollowup_id')
+                    ->label('Etapa de Reporte')
+                    ->relationship('reportFollowup', 'nombre'),
+                
+                
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                // Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
+                    // Tables\Actions\DeleteBulkAction::make(),
                 ]),
             ]);
     }

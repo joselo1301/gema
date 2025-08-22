@@ -13,9 +13,9 @@ class ReportStatusSeeder extends Seeder
     public function run(): void
     {
         ReportStatus::insert([
-            ['orden' => 1,  'nombre' => 'Pendiente',    'clave' => 'pendiente',     'color' => 'success', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
+            ['orden' => 1,  'nombre' => 'Pendiente',    'clave' => 'pendiente',     'color' => 'danger', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
             ['orden' => 2,  'nombre' => 'En proceso',   'clave' => 'en_proceso',    'color' => 'info', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
-            ['orden' => 3,  'nombre' => 'Cerrado',      'clave' => 'cerrado',       'color' => 'danger', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
+            ['orden' => 3,  'nombre' => 'Cerrado',      'clave' => 'cerrado',       'color' => 'success', 'activo' => true, 'created_at' => now(), 'updated_at' => now()],
         ]);
     }
 }

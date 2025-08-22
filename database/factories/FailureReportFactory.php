@@ -5,7 +5,6 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 use App\Models\Asset;
-use App\Models\AssetState;
 use App\Models\FailureReport;
 use App\Models\ReportFollowup;
 use App\Models\ReportStatus;
@@ -26,30 +25,27 @@ class FailureReportFactory extends Factory
     public function definition(): array
     {
         return [
-            'numero_reporte' => fake()->word(),
-            'fecha_ocurrencia' => fake()->dateTime(),
-            'datos_generales' => fake()->text(),
-            'descripcion_corta' => fake()->word(),
-            'personal_detector' => fake()->text(),
-            'descripcion_detallada' => fake()->text(),
-            'causas_probables' => fake()->text(),
-            'acciones_realizadas' => fake()->text(),
-            'afecta_operaciones' => fake()->boolean(),
-            'afecta_medio_ambiente' => fake()->boolean(),
-            'apoyo_adicional' => fake()->text(),
-            'observaciones' => fake()->text(),
-            'asset_id' => Asset::factory(),
-            'asset_parent_id' => Asset::factory()->create()->parent_id,
-            'asset_state_id' => AssetState::factory(),
-            'report_status_id' => ReportStatus::factory(),
-            'report_followup_id' => ReportFollowup::factory(),
-            'creado_por_id' => User::factory(),
-            'reportado_por_id' => User::factory(),
-            'reportado_en' => fake()->dateTime(),
-            'aprobado_por_id' => User::factory(),
-            'aprobado_en' => fake()->dateTime(),
-            'ejecutado_por_id' => User::factory(),
-            'actualizado_por_id' => User::factory(),
+            'numero_reporte' => $this->faker->unique()->regexify('[A-Z]{3}-[0-9]{4}-[20-25]{2}'),
+            'fecha_ocurrencia' => $this->faker->dateTimeBetween('-1 year', 'now'),
+            'datos_generales' => $this->faker->text(200),
+            'descripcion_corta' => $this->faker->sentence(),
+            'descripcion_detallada' => $this->faker->text(500),
+            'causas_probables' => $this->faker->text(300),
+            'acciones_realizadas' => $this->faker->text(300),
+            'afecta_operaciones' => $this->faker->boolean(30),
+            'afecta_medio_ambiente' => $this->faker->boolean(20),
+            'apoyo_adicional' => $this->faker->optional()->text(200),
+            'observaciones' => $this->faker->optional()->text(200),
+            'asset_id' => $this->faker->randomElement(Asset::pluck('id')->toArray()),
+            'report_status_id' => $this->faker->randomElement(ReportStatus::pluck('id')->toArray()),
+            'report_followup_id' => $this->faker->randomElement(ReportFollowup::pluck('id')->toArray()),
+            'creado_por_id' => $this->faker->randomElement(User::pluck('id')->toArray()),
+            'reportado_por_id' => $this->faker->optional()->randomElement(User::pluck('id')->toArray()),
+            'reportado_en' => $this->faker->optional()->dateTimeBetween('-6 months', 'now'),
+            'aprobado_por_id' => $this->faker->optional()->randomElement(User::pluck('id')->toArray()),
+            'aprobado_en' => $this->faker->optional()->dateTimeBetween('-3 months', 'now'),
+            'ejecutado_por_id' => $this->faker->optional()->randomElement(User::pluck('id')->toArray()),
+            'actualizado_por_id' => $this->faker->optional()->randomElement(User::pluck('id')->toArray()),
         ];
     }
 }

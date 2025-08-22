@@ -20,9 +20,9 @@ class ReportFollowupResource extends Resource
     // protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
     protected static ?string $navigationGroup = 'Reportes';
-    protected static ?string $navigationLabel = 'Seguimientos';
-    protected static ?string $modelLabel = 'Seguimiento';
-    protected static ?string $pluralModelLabel = 'Seguimientos';
+    protected static ?string $navigationLabel = 'Etapas';
+    protected static ?string $modelLabel = 'Etapa';
+    protected static ?string $pluralModelLabel = 'Etapas';
 
     public static function form(Form $form): Form
     {

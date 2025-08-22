@@ -4,15 +4,15 @@ namespace Database\Factories;
 
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
-use App\Models\Location;
-use App\Models\User;
+use App\Models\FailureReport;
+use App\Models\People;
 
-class LocationUserFactory extends Factory
+class FailureReportPeopleFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      * For pivot tables, we don't typically need a dedicated model
-     * but we can define the table structure here.
+     * but we need to configure the table name.
      *
      * @var string
      */
@@ -20,12 +20,14 @@ class LocationUserFactory extends Factory
 
     /**
      * Define the model's default state.
+     *
+     * @return array<string, mixed>
      */
     public function definition(): array
     {
         return [
-            'location_id' => Location::inRandomOrder()->first()->id,
-            'user_id' => User::inRandomOrder()->first()->id,
+            'failure_report_id' => FailureReport::inRandomOrder()->first()->id,
+            'people_id' => People::inRandomOrder()->first()->id,
             'created_at' => now(),
             'updated_at' => now(),
         ];

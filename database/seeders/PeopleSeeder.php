@@ -2,21 +2,17 @@
 
 namespace Database\Seeders;
 
-use App\Models\asset;
-use App\Models\Location;
-use App\Models\systems_catalog;
-use App\Models\SystemsCatalog;
+use App\Models\People;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Str;
 
-class AssetSeeder extends Seeder
+class PeopleSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-        Asset::factory(200)->create();
+        People::factory(8)->create();
     }
 }

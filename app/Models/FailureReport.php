@@ -173,6 +173,7 @@ class FailureReport extends Model implements HasMedia
                         ->required(),
 
                     Textarea::make('descripcion_corta')
+                        ->label('Descripción corta')
                         ->columnSpanFull()
                         ->maxLength(150)
                         ->required(),
@@ -195,11 +196,13 @@ class FailureReport extends Model implements HasMedia
                         ->required(),
                         
                     Textarea::make('descripcion_detallada')
+                        ->label('Descripción detallada')
                         ->required()
                         ->rows(3)
                         ->columnSpanFull(),
 
                     Textarea::make('acciones_realizadas')
+                        ->label('Acciones realizadas')
                         ->rows(4)
                         ->required()
                         ->columnSpanFull()
@@ -228,6 +231,7 @@ class FailureReport extends Model implements HasMedia
                     ->columns(2)                
                     ->schema([
                         Textarea::make('causas_probables')
+                            ->label('Causas probables')
                             ->rows(4)
                             ->required()
                             ->columnSpanFull()
@@ -275,32 +279,7 @@ class FailureReport extends Model implements HasMedia
                             
 
                         ]),
-                // Step::make('Billing')
-                //     ->schema([
-                        
-                //         TextInput::make('numero_reporte')
-                //                     ->required()
-                //                     ->maxLength(255),
-                //         Select::make('report_status_id')
-                //             ->relationship('reportStatus', 'id')
-                //             ->required(),
-                //         Select::make('report_followup_id')
-                //             ->relationship('reportFollowup', 'id')
-                //             ->required(),
-                //         Select::make('creado_por_id')
-                //             ->relationship('creadoPor', 'name')
-                //             ->required(),
-                //         Select::make('reportado_por_id')
-                //             ->relationship('reportadoPor', 'name'),
-                //         DateTimePicker::make('reportado_en'),
-                //         Select::make('aprobado_por_id')
-                //             ->relationship('aprobadoPor', 'name'),
-                //         DateTimePicker::make('aprobado_en'),
-                //         Select::make('ejecutado_por_id')
-                //             ->relationship('ejecutadoPor', 'name'),
-                //         Select::make('actualizado_por_id')
-                //             ->relationship('actualizadoPor', 'name'),
-                //         ]),
+                
             ])
         ];
     }
