@@ -18,6 +18,7 @@ use Filament\Forms\Get;
 use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Parallax\FilamentComments\Models\Traits\HasFilamentComments;
+use Illuminate\Support\Facades\Auth;
 
 
 
@@ -280,11 +281,14 @@ class Asset extends Model implements HasMedia
                         }),
 
                     Select::make('location_id')
-                        ->label('Centro')
-                        ->relationship('location', 'nombre')
+                        ->relationship('location', 'nombre', fn ($query) => $query->whereIn('id', Auth::user()->locations->pluck('id')))
                         ->visible(fn (Get $get) => !$get('es_activo_dependiente'))
                         ->dehydrated(fn (Get $get) => !$get('es_activo_dependiente'))
-                        ->required(),
+                        ->required()
+                        ->default(function () {
+                            $locations = Auth::user()->locations;
+                            return $locations->count() === 1 ? $locations->first()->id : null;
+                        }),
                         
                     Select::make('systems_catalog_id')
                         ->label('Sistema')

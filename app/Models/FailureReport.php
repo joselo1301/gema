@@ -135,10 +135,10 @@ class FailureReport extends Model implements HasMedia
         return $this->belongsTo(User::class);
     }
 
-   public function detectadoPor(): BelongsToMany
+    public function people()
     {
-        return $this->belongsToMany(People::class, 'failure_report_people')
-            ->withTimestamps();
+        return $this->belongsToMany(Person::class); // al ser estándar NO pasas nombre de tabla
+        // ->withTimestamps(); // solo si agregaste timestamps en la pivot
     }
     
 
@@ -184,13 +184,21 @@ class FailureReport extends Model implements HasMedia
                     Select::make('personal_detector')
                         ->label('¿Quién detectó la falla?')
                         ->multiple()
-                        ->relationship('detectadoPor', 'cargo')
+                        ->relationship('people', 'id', function ($query, $state, $get) {
+                            $assetId = $get('asset_id');
+                            if ($assetId) {
+                                $asset = Asset::find($assetId);
+                                if ($asset && $asset->location_id) {
+                                    $query->where('location_id', $asset->location_id);
+                                }
+                            }
+                        })
                         ->getOptionLabelFromRecordUsing(
-                            fn (People $record) => "{$record->nombres} {$record->apellidos}" .
+                            fn (Person $record) => "{$record->nombres} {$record->apellidos}" .
                                 ($record->cargo ? " — {$record->cargo}" : '') .
-                                ($record->empresa ? " {$record->empresa}" : '')
+                                ($record->empresa ? " ({$record->empresa})" : '')
                         )
-                        ->createOptionForm(People::getForm())
+                        ->createOptionForm(fn ($get) => Person::getForm($get('asset_id') ? Asset::find($get('asset_id'))->location_id : null))
                         ->preload()
                         ->searchable()
                         ->required(),

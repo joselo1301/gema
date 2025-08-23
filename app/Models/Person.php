@@ -2,18 +2,18 @@
 
 namespace App\Models;
 
-use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Permission\Traits\HasRoles;
 
-class People extends Model
+class Person extends Model
 {
+    /** @use HasFactory<\Database\Factories\PersonFactory> */
     use HasRoles, HasFactory, SoftDeletes;
 
     public function location(): BelongsTo
@@ -21,21 +21,16 @@ class People extends Model
         return $this->belongsTo(Location::class);
     }
 
-    public function failureReport(): BelongsToMany
+    public function failureReports()
     {
         return $this->belongsToMany(FailureReport::class);
+        // ->withTimestamps();
     }
 
-    public function failureReports(): BelongsToMany
-    {
-        return $this->belongsToMany(FailureReport::class, 'failure_report_people')
-            ->withTimestamps();
-    }
-
-     public static function getForm(): array
+    public static function getForm($location_id = null): array
     {
         return [
-             TextInput::make('nombres')
+            TextInput::make('nombres')
                 ->required()
                 ->maxLength(255),
             TextInput::make('apellidos')
@@ -50,7 +45,10 @@ class People extends Model
             Select::make('location_id')
                 ->required()
                 ->label('Planta o Terminal')
-                ->relationship('location', 'nombre'),
+                ->relationship('location', 'nombre')
+                ->default($location_id)
+                ->disabled($location_id !== null),
         ];
-    }
+    }    
+
 }

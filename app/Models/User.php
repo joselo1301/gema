@@ -60,6 +60,22 @@ class User extends Authenticatable implements CanResetPasswordContract
                     ->withTimestamps();
     }
 
+    /**
+     * Verificar si el usuario tiene acceso a un asset basado en su locación
+     */
+    public function canAccessAsset(Asset $asset): bool
+    {
+        return $this->locations()->where('location_id', $asset->location_id)->exists();
+    }
+
+    /**
+     * Obtener los IDs de las locaciones asignadas al usuario
+     */
+    public function getLocationIds(): array
+    {
+        return $this->locations->pluck('id')->toArray();
+    }
+
     
 }
 

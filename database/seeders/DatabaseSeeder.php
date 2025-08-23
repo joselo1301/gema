@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Person;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
@@ -13,8 +14,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
         User::factory()->create([
             'name' => 'Joselo Del Carpio',
             'email' => 'joselo1301@hotmail.com',
@@ -34,11 +33,13 @@ class DatabaseSeeder extends Seeder
             AssetClassificationSeeder::class,
             AssetStateSeeder::class,
             AssetSeeder::class,
-            PeopleSeeder::class,
+            PersonSeeder::class,
             FailureReportSeeder::class,
-            // PivotTablesSeeder::class,
-            ShieldSeeder::class
+            LocationUserSeeder::class,
 
+            ShieldSeeder::class
         ]);
+
+        
     }
 }

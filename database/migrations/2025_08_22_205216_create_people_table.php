@@ -21,21 +21,6 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
         });
-    
-
-        Schema::create('failure_report_people', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('failure_report_id')
-                ->constrained()
-                ->cascadeOnDelete();
-
-            $table->foreignId('people_id')
-                ->constrained()
-                ->cascadeOnDelete();
-            $table->unique(['failure_report_id', 'people_id']);
-            $table->timestamps();
-
-        });
     }
 
     /**
@@ -44,6 +29,5 @@ return new class extends Migration
     public function down(): void
     {
         Schema::dropIfExists('people');
-        Schema::dropIfExists('failure_report_people');
     }
 };

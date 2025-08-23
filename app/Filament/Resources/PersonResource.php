@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\PeopleResource\Pages;
-use App\Filament\Resources\PeopleResource\RelationManagers;
-use App\Models\People;
+use App\Filament\Resources\PersonResource\Pages;
+use App\Filament\Resources\PersonResource\RelationManagers;
+use App\Models\Person;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -13,9 +13,9 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 
-class PeopleResource extends Resource
+class PersonResource extends Resource
 {
-    protected static ?string $model = People::class;
+    protected static ?string $model = Person::class;
 
     protected static ?string $navigationGroup = 'Locaciones';
     protected static ?string $navigationLabel = 'Personas';
@@ -25,7 +25,7 @@ class PeopleResource extends Resource
     public static function form(Form $form): Form
     {
         return $form
-            ->schema(People::getForm());
+            ->schema(Person::getForm());
     }
 
     public static function table(Table $table): Table
@@ -82,8 +82,8 @@ class PeopleResource extends Resource
     {
         return [
             'index' => Pages\ListPeople::route('/'),
-            'create' => Pages\CreatePeople::route('/create'),
-            'edit' => Pages\EditPeople::route('/{record}/edit'),
+            'create' => Pages\CreatePerson::route('/create'),
+            'edit' => Pages\EditPerson::route('/{record}/edit'),
         ];
     }
 

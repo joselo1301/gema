@@ -18,6 +18,8 @@ use Filament\Tables\Columns\ImageColumn;
 use Rmsramos\Activitylog\Actions\ActivityLogTimelineTableAction;
 use Rmsramos\Activitylog\RelationManagers\ActivitylogRelationManager;
 use Parallax\FilamentComments\Tables\Actions\CommentsAction;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Facades\Filament;
 
 class AssetResource extends Resource
 {
@@ -405,9 +407,9 @@ class AssetResource extends Resource
             ->icon('heroicon-m-clock'),
 
            
-    ];  
+        ];  
 
-}
+    }
 
     public static function getPages(): array
     {
@@ -419,6 +421,12 @@ class AssetResource extends Resource
         ];
     }
 
-    
+    public static function getEloquentQuery(): Builder
+    {
+        $user = Filament::auth()->user();
+
+        return parent::getEloquentQuery()
+            ->whereIn('location_id', $user->locations->pluck('id'));
+    }
 
 }

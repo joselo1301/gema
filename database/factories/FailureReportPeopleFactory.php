@@ -5,7 +5,7 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 use App\Models\FailureReport;
-use App\Models\People;
+use App\Models\Person;
 
 class FailureReportPeopleFactory extends Factory
 {
@@ -27,7 +27,7 @@ class FailureReportPeopleFactory extends Factory
     {
         return [
             'failure_report_id' => FailureReport::inRandomOrder()->first()->id,
-            'people_id' => People::inRandomOrder()->first()->id,
+            'people_id' => Person::inRandomOrder()->first()->id,
             'created_at' => now(),
             'updated_at' => now(),
         ];

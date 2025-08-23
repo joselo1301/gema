@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 use App\Models\Asset;
 use App\Models\FailureReport;
+use App\Models\Person;
 use App\Models\ReportFollowup;
 use App\Models\ReportStatus;
 use App\Models\User;
@@ -47,5 +48,21 @@ class FailureReportFactory extends Factory
             'ejecutado_por_id' => $this->faker->optional()->randomElement(User::pluck('id')->toArray()),
             'actualizado_por_id' => $this->faker->optional()->randomElement(User::pluck('id')->toArray()),
         ];
+    }
+
+    public function configure(): static
+    {
+        return $this->afterCreating(function (FailureReport $report) {
+            // Toma 1 a 3 personas al azar (creadas por su propio factory)
+            $people = Person::factory()->count(rand(1, 3))->create();
+
+            // Adjunta al pivot (sin atributos extra)
+            $report->people()->attach($people->pluck('id')->all());
+
+            // Si tu pivot tiene columnas extra, puedes pasarlas así:
+            // $report->people()->attach($people->pluck('id')->mapWithKeys(fn ($id) => [
+            //     $id => ['rol' => 'notificado'] // ejemplo de columna extra en pivot
+            // ])->all());
+        });
     }
 }
