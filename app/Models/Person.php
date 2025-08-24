@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+// use App\Models\Concerns\BelongsToUserLocations;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -10,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Spatie\Permission\Traits\HasRoles;
+use Illuminate\Support\Facades\Auth;
 
 class Person extends Model
 {
@@ -45,9 +47,10 @@ class Person extends Model
             Select::make('location_id')
                 ->required()
                 ->label('Planta o Terminal')
-                ->relationship('location', 'nombre')
+                ->relationship('location', 'nombre', fn ($query) => $query->whereIn('id', Auth::user()->locations->pluck('id')))
                 ->default($location_id)
-                ->disabled($location_id !== null),
+                ->disabled($location_id !== null)
+                ->dehydrated(true),
         ];
     }    
 
