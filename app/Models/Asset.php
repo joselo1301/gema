@@ -19,7 +19,6 @@ use Spatie\Activitylog\Traits\LogsActivity;
 use Spatie\Activitylog\LogOptions;
 use Parallax\FilamentComments\Models\Traits\HasFilamentComments;
 use Illuminate\Support\Facades\Auth;
-// use App\Models\Concerns\BelongsToUserLocations;
 
 
 
@@ -282,7 +281,7 @@ class Asset extends Model implements HasMedia
                         }),
 
                     Select::make('location_id')
-                        ->relationship('location', 'nombre')
+                        ->relationship('location', 'nombre', fn ($query) => $query->whereIn('id', Auth::user()->locations->pluck('id')))
                         ->visible(fn (Get $get) => !$get('es_activo_dependiente'))
                         ->dehydrated(fn (Get $get) => !$get('es_activo_dependiente'))
                         ->required()

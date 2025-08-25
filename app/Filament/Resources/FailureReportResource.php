@@ -10,8 +10,6 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Filament\Facades\Filament;
 
 
 class FailureReportResource extends Resource
@@ -53,22 +51,17 @@ class FailureReportResource extends Resource
                     ->label('Descripción Corta')
                     ->wrap()
                     ->lineClamp(2)
-                    ->searchable(),
-
-                Tables\Columns\TextColumn::make('asset.location.nombre')
-                    ->label('Ubicación')
-                    ->alignCenter()
-                    ->sortable()
+                    
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('reportStatus.nombre')
                     ->label('Estado')
-                    ->badge()
-                    ->color(fn ($record) => $record->reportStatus->color ?? 'gray')
                     ->alignCenter()
                     ->sortable()
+                    ->badge()
+                    ->color(fn ($record) => $record->reportStatus?->color)
                     ->searchable(),
-
+                    
                 Tables\Columns\TextColumn::make('reportFollowup.nombre')
                     ->label('Etapa')
                     ->alignCenter()
@@ -107,12 +100,6 @@ class FailureReportResource extends Resource
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->filters([
-
-                Tables\Filters\SelectFilter::make('asset.location_id')
-                    ->label('Ubicación')
-                    ->relationship('asset.location', 'nombre'),
-                
-
                 Tables\Filters\SelectFilter::make('reportStatus_id')
                     ->label('Estado de reporte')
                     ->relationship('reportStatus', 'nombre'),
@@ -147,16 +134,5 @@ class FailureReportResource extends Resource
             'create' => Pages\CreateFailureReport::route('/create'),
             'edit' => Pages\EditFailureReport::route('/{record}/edit'),
         ];
-    }
-
-    public static function getEloquentQuery(): Builder
-    {
-        $user = Filament::auth()->user();
-
-        // Solo mostrar reportes de activos cuya locación esté vinculada al usuario
-        return parent::getEloquentQuery()
-            ->whereHas('asset', function ($query) use ($user) {
-                $query->whereIn('location_id', $user->locations->pluck('id'));
-            });
     }
 }

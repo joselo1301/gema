@@ -34,7 +34,6 @@ class GemaPanelProvider extends PanelProvider
             ->default()
             ->id('gema')
             ->path('')
-            ->sidebarCollapsibleOnDesktop()
             ->login()
             ->passwordReset()
             ->authPasswordBroker('users')

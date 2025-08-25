@@ -421,12 +421,12 @@ class AssetResource extends Resource
         ];
     }
 
-    // public static function getEloquentQuery(): Builder
-    // {
-    //     $user = Filament::auth()->user();
+    public static function getEloquentQuery(): Builder
+    {
+        $user = Filament::auth()->user();
 
-    //     return parent::getEloquentQuery()
-    //         ->whereIn('location_id', $user->locations->pluck('id'));
-    // }
+        return parent::getEloquentQuery()
+            ->whereIn('location_id', $user->locations->pluck('id'));
+    }
 
 }
