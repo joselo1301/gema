@@ -10,6 +10,8 @@ use Filament\Forms\Form;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Filament\Facades\Filament;
 
 
 class FailureReportResource extends Resource
@@ -52,6 +54,11 @@ class FailureReportResource extends Resource
                     ->wrap()
                     ->lineClamp(2)
                     
+                    ->searchable(),
+
+                Tables\Columns\TextColumn::make('location.nombre')
+                    ->label('Ubicación')
+                    ->sortable()
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('reportStatus.nombre')
@@ -107,7 +114,10 @@ class FailureReportResource extends Resource
                 Tables\Filters\SelectFilter::make('reportFollowup_id')
                     ->label('Etapa de Reporte')
                     ->relationship('reportFollowup', 'nombre'),
-                
+                Tables\Filters\SelectFilter::make('location_id')
+                    ->label('Ubicación')
+                    ->relationship('location', 'nombre')                    
+                    ->visible(fn () => Filament::auth()->user()->locations->count() > 1),
                 
             ])
             ->actions([
@@ -133,6 +143,16 @@ class FailureReportResource extends Resource
             'index' => Pages\ListFailureReports::route('/'),
             'create' => Pages\CreateFailureReport::route('/create'),
             'edit' => Pages\EditFailureReport::route('/{record}/edit'),
+            'view' => Pages\ViewFailureReport::route('/{record}'),
         ];
     }
+
+    public static function getEloquentQuery(): Builder
+    {
+        $user = Filament::auth()->user();
+
+        return parent::getEloquentQuery()
+            ->whereIn('location_id', $user->locations->pluck('id'));
+    }
+
 }

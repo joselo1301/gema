@@ -15,8 +15,7 @@ class AssetPolicy
      */
     public function viewAny(User $user): bool
     {
-        // El usuario puede ver assets solo si tiene el permiso y tiene al menos una locación asignada
-        return $user->can('view_any_asset') && $user->locations()->exists();
+        return $user->can('view_any_asset');
     }
 
     /**
@@ -24,13 +23,7 @@ class AssetPolicy
      */
     public function view(User $user, Asset $asset): bool
     {
-        // Verificar que el usuario tenga el permiso básico
-        if (!$user->can('view_asset')) {
-            return false;
-        }
-
-        // Verificar que el asset pertenezca a una locación asignada al usuario
-        return $user->canAccessAsset($asset);
+        return $user->can('view_asset');
     }
 
     /**
@@ -38,8 +31,7 @@ class AssetPolicy
      */
     public function create(User $user): bool
     {
-        // El usuario puede crear assets solo si tiene el permiso y tiene al menos una locación asignada
-        return $user->can('create_asset') && $user->locations()->exists();
+        return $user->can('create_asset');
     }
 
     /**
@@ -47,13 +39,7 @@ class AssetPolicy
      */
     public function update(User $user, Asset $asset): bool
     {
-        // Verificar que el usuario tenga el permiso básico
-        if (!$user->can('update_asset')) {
-            return false;
-        }
-
-        // Verificar que el asset pertenezca a una locación asignada al usuario
-        return $user->canAccessAsset($asset);
+        return $user->can('update_asset');
     }
 
     /**
@@ -61,13 +47,7 @@ class AssetPolicy
      */
     public function delete(User $user, Asset $asset): bool
     {
-        // Verificar que el usuario tenga el permiso básico
-        if (!$user->can('delete_asset')) {
-            return false;
-        }
-
-        // Verificar que el asset pertenezca a una locación asignada al usuario
-        return $user->canAccessAsset($asset);
+        return $user->can('delete_asset');
     }
 
     /**
@@ -83,13 +63,7 @@ class AssetPolicy
      */
     public function forceDelete(User $user, Asset $asset): bool
     {
-        // Verificar que el usuario tenga el permiso básico
-        if (!$user->can('force_delete_asset')) {
-            return false;
-        }
-
-        // Verificar que el asset pertenezca a una locación asignada al usuario
-        return $user->canAccessAsset($asset);
+        return $user->can('force_delete_asset');
     }
 
     /**
@@ -105,13 +79,7 @@ class AssetPolicy
      */
     public function restore(User $user, Asset $asset): bool
     {
-        // Verificar que el usuario tenga el permiso básico
-        if (!$user->can('restore_asset')) {
-            return false;
-        }
-
-        // Verificar que el asset pertenezca a una locación asignada al usuario
-        return $user->canAccessAsset($asset);
+        return $user->can('restore_asset');
     }
 
     /**
@@ -127,13 +95,7 @@ class AssetPolicy
      */
     public function replicate(User $user, Asset $asset): bool
     {
-        // Verificar que el usuario tenga el permiso básico
-        if (!$user->can('replicate_asset')) {
-            return false;
-        }
-
-        // Verificar que el asset pertenezca a una locación asignada al usuario
-        return $user->canAccessAsset($asset);
+        return $user->can('replicate_asset');
     }
 
     /**

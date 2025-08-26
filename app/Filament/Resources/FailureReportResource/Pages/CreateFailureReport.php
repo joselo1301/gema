@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\FailureReportResource\Pages;
 
 use App\Filament\Resources\FailureReportResource;
+use App\Models\Asset;
 use App\Services\FailureReportNumberService;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
@@ -24,12 +25,13 @@ class CreateFailureReport extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
-        $data['numero_reporte'] = app(FailureReportNumberService::class)
-        ->makeNumberFor(
-            (int) $data['asset_id'],
-            isset($data['created_at']) ? Carbon::parse($data['created_at']) : now()
-        );
-        
+        $asset = Asset::find($data['asset_id']);
+        $locationCode = $asset?->location->codigo;
+        $locationId = $asset?->location->id;
+        $year = Carbon::now()->format('y');
+       
+        $data['numero_reporte'] = 'RF-' . $locationCode . 'XXX-' . $year;
+        $data['location_id'] = $locationId;
         $data['report_status_id'] = 1; // Pendiente
         $data['report_followup_id'] = 1; // Ingresado
         $data['creado_por_id'] = Auth::id(); // asignar el usuario actual

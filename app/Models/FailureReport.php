@@ -100,6 +100,11 @@ class FailureReport extends Model implements HasMedia
         return $this->belongsTo(AssetState::class);
     }
 
+    public function location(): BelongsTo
+    {
+        return $this->belongsTo(Location::class);
+    }
+
     public function reportStatus(): BelongsTo
     {
         return $this->belongsTo(ReportStatus::class);

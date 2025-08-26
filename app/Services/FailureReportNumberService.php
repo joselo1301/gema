@@ -4,8 +4,8 @@
 
 namespace App\Services;
 
-use App\Models\Asset;
 use App\Models\FailureReportSequence;
+use App\Models\Location;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\DB;
 use RuntimeException;
@@ -15,15 +15,15 @@ class FailureReportNumberService
     /**
      * Genera el número en formato RF-IL01-25
      */
-    public function makeNumberFor(int $assetId, ?Carbon $fecha = null): string
+    public function makeNumberFor(int $locationId, ?Carbon $fecha = null): string
     {
         $fecha = $fecha ?? now();
 
-        // 1) Obtener locación del activo
-        /** @var \App\Models\Asset $asset */
-        $asset = Asset::with('location')->findOrFail($assetId);
+        // 1) Obtener ubicación directamente
+        /** @var \App\Models\Location $location */
+        $location = Location::findOrFail($locationId);
 
-        $loc = strtoupper($asset->location->codigo); // IL, TAC, etc.
+        $loc = strtoupper($location->codigo); // IL, TAC, etc.
         $yearFull = (int) $fecha->year;              // 2025
         $year2    = substr((string) $yearFull, -2);  // "25"
 

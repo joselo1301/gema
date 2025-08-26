@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 use App\Models\Asset;
 use App\Models\FailureReport;
+use App\Models\Location;
 use App\Models\Person;
 use App\Models\ReportFollowup;
 use App\Models\ReportStatus;
@@ -38,6 +39,9 @@ class FailureReportFactory extends Factory
             'apoyo_adicional' => $this->faker->optional()->text(200),
             'observaciones' => $this->faker->optional()->text(200),
             'asset_id' => $this->faker->randomElement(Asset::pluck('id')->toArray()),
+            'location_id' => function (array $attributes) {
+                return Asset::find($attributes['asset_id'])?->location_id;
+            },
             'report_status_id' => $this->faker->randomElement(ReportStatus::pluck('id')->toArray()),
             'report_followup_id' => $this->faker->randomElement(ReportFollowup::pluck('id')->toArray()),
             'creado_por_id' => $this->faker->randomElement(User::pluck('id')->toArray()),
@@ -53,16 +57,15 @@ class FailureReportFactory extends Factory
     public function configure(): static
     {
         return $this->afterCreating(function (FailureReport $report) {
-            // Toma 1 a 3 personas al azar (creadas por su propio factory)
-            $people = Person::factory()->count(rand(1, 3))->create();
+            // Toma de 1 a 3 personas que pertenezcan al mismo location_id
+            $personIds = Person::where('location_id', $report->location_id)
+                ->inRandomOrder()
+                ->limit(rand(1, 3))
+                ->pluck('id')
+                ->all();
 
             // Adjunta al pivot (sin atributos extra)
-            $report->people()->attach($people->pluck('id')->all());
-
-            // Si tu pivot tiene columnas extra, puedes pasarlas así:
-            // $report->people()->attach($people->pluck('id')->mapWithKeys(fn ($id) => [
-            //     $id => ['rol' => 'notificado'] // ejemplo de columna extra en pivot
-            // ])->all());
+            $report->people()->attach($personIds);
         });
     }
 }
