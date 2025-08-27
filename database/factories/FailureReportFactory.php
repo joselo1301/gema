@@ -5,6 +5,7 @@ namespace Database\Factories;
 use Illuminate\Database\Eloquent\Factories\Factory;
 use Illuminate\Support\Str;
 use App\Models\Asset;
+use App\Models\AssetState;
 use App\Models\FailureReport;
 use App\Models\Location;
 use App\Models\Person;
@@ -42,6 +43,8 @@ class FailureReportFactory extends Factory
             'location_id' => function (array $attributes) {
                 return Asset::find($attributes['asset_id'])?->location_id;
             },
+            'asset_status_on_report' => $this->faker->randomElement(AssetState::pluck('id')->toArray()),
+            'asset_status_on_close' => $this->faker->randomElement(AssetState::pluck('id')->toArray()),
             'report_status_id' => $this->faker->randomElement(ReportStatus::pluck('id')->toArray()),
             'report_followup_id' => $this->faker->randomElement(ReportFollowup::pluck('id')->toArray()),
             'creado_por_id' => $this->faker->randomElement(User::pluck('id')->toArray()),

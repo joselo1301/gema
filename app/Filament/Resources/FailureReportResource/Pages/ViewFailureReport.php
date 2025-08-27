@@ -20,7 +20,8 @@ class ViewFailureReport extends ViewRecord
     {
         return [
             Actions\EditAction::make()
-                ->form(FailureReport::getForm()),
+                ->form(FailureReport::getForm())
+                ->visible(fn () => blank($this->record->reportado_en)),
             // CommentsAction::make(),
 
             // Botón adicional: Reportar
@@ -29,23 +30,29 @@ class ViewFailureReport extends ViewRecord
                 ->icon('heroicon-m-paper-airplane')
                 ->color('info')
                 ->requiresConfirmation()
-                // Muestra el botón solo si aún no fue reportado (ajusta tu condición)
+                // Muestra el botón solo si aún no fue reportado
                 ->visible(fn () => blank($this->record->reportado_en))
                 ->action(function () {
                     $reportedId = ReportFollowup::idByClave(ReportFollowup::ESTADO_REPORTADO);
 
-                    // Actualiza el registro
+                    // Actualiza el registro de FailureReport
                     $this->record->update([
-
                         'numero_reporte' => app(FailureReportNumberService::class)
                             ->makeNumberFor(
                                 (int) $this->record->location_id,
                                 isset($this->record->created_at) ? Carbon::parse($this->record->created_at) : now()
                             ),
-                        'report_followup_id' => $reportedId,           // ⚠️ evita magic numbers: ideal usar constantes/tabla catálogos
+                        'report_followup_id' => $reportedId,
                         'reportado_por_id'   => Auth::id(),
                         'reportado_en'       => now(),
                     ]);
+
+                    // Actualiza el estado del asset relacionado
+                    if ($this->record->asset) {
+                        $this->record->asset->update([
+                            'asset_state_id' => $this->record->asset_status_on_report,
+                        ]);
+                    }
 
                     // Notifica
                     Notification::make()
@@ -56,10 +63,34 @@ class ViewFailureReport extends ViewRecord
                     $this->redirect(static::getResource()::getUrl('view', ['record' => $this->record]));
                 }),
 
+            Actions\Action::make('rechazar')
+                ->label('Rechazar')
+                ->icon('heroicon-m-x-circle')
+                ->color('danger')
+                ->requiresConfirmation()
+                ->visible(fn () => blank($this->record->aprobado_en) && filled($this->record->reportado_en))
+                ->action(function () {
+                    $reportedId = ReportFollowup::idByClave(ReportFollowup::ESTADO_INGRESADO);
+
+                    // Actualiza el registro
+                    $this->record->update([
+
+                        'report_followup_id' => $reportedId,                        
+                    ]);
+
+                    // Notifica
+                    Notification::make()
+                        ->title('Reporte de falla rechazado correctamente.')
+                        ->success()
+                        ->send();
+
+                    $this->redirect(static::getResource()::getUrl('view', ['record' => $this->record]));
+                }),
+
                 // Botón adicional: Aprobar
             Actions\Action::make('aprobar')
                 ->label('Aprobar')
-                ->icon('heroicon-m-document-check')
+                ->icon('heroicon-m-check-circle')
                 ->color('success')
                 ->requiresConfirmation()
                 ->visible(fn () => blank($this->record->aprobado_en) && filled($this->record->reportado_en))

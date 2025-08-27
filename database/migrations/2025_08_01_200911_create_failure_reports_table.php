@@ -27,6 +27,8 @@ return new class extends Migration
             $table->text('apoyo_adicional')->nullable();
             $table->text('observaciones')->nullable();
             $table->foreignId('asset_id')->constrained();
+            $table->foreignId('asset_status_on_report')->nullable()->constrained('asset_states'); // estado al reportar
+            $table->foreignId('asset_status_on_close')->nullable()->constrained('asset_states');  // estado al cerrar
             $table->foreignId('location_id')->constrained()->onDelete('restrict');
             $table->foreignId('report_status_id')->constrained()->onDelete('restrict');
             $table->foreignId('report_followup_id')->constrained()->onDelete('restrict');

@@ -22,6 +22,7 @@ use Illuminate\Support\Facades\Auth;
 
 
 
+
 class Asset extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia, LogsActivity, HasFilamentComments;
@@ -46,7 +47,6 @@ class Asset extends Model implements HasMedia
 
     }
 
-   
     /**
      * The attributes that are mass assignable.
      *
