@@ -13,7 +13,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Facades\Filament;
 use Filament\Infolists\Infolist;
-use Filament\Infolists\Components\{Grid, Section, Split as SplitInfo, ImageEntry, TextEntry, IconEntry, ColorEntry, Fieldset, SpatieMediaLibraryImageEntry, Tabs};
+use Filament\Infolists\Components\{Grid, Section, Split as SplitInfo, ImageEntry, TextEntry, IconEntry, ColorEntry, Fieldset, RepeatableEntry, SpatieMediaLibraryImageEntry, Tabs};
 
 class FailureReportResource extends Resource
 {
@@ -238,68 +238,76 @@ class FailureReportResource extends Resource
                             
                         ]),
                         
-                    Section::make(fn ($record): string => 'Activo: ' . ($record->asset?->nombre ?? ''))
-                        ->description(fn ($record) => 'Tag: ' . ($record->asset?->tag ?? ''))
-                        ->columnSpan([
-                            'md' => 3,
-                            'lg' => 1,
-                            'xl' => 1,
-                        ])
+                    Grid::make()
+                        ->columns(1)
+                        ->columnSpan(1)
                         ->schema([
-                            
-                            
-                            TextEntry::make('asset.codigo')
-                                ->label('Codigo'),
+                            Section::make(fn ($record): string => 'Activo: ' . ($record->asset?->nombre ?? ''))
+                                ->description(fn ($record) => 'Tag: ' . ($record->asset?->tag ?? ''))
+                                ->columnSpan(1)
+                                ->schema([
+                                    TextEntry::make('asset.codigo')
+                                        ->label('Codigo'),
 
-                            TextEntry::make('asset.systemsCatalog.nombre')
-                                ->label('Area / Sistema'),
+                                    TextEntry::make('asset.systemsCatalog.nombre')
+                                        ->label('Area / Sistema'),
 
-                            TextEntry::make('asset.assetClassification.nombre')
-                                ->label('Clasificación')
-                                ->formatStateUsing(function ($state, $record) {
-                                    $color = $record->asset?->assetClassification?->color ?? null;
-                                    if ($state && $color) {
-                                        return "<span style='color:{$color};font-weight:600'>{$state}</span>";
-                                    }
-                                    return $state ?? '';
-                                })
-                                ->html()
-                                ->inlineLabel(),
+                                    TextEntry::make('asset.assetClassification.nombre')
+                                        ->label('Clasificación')
+                                        ->formatStateUsing(function ($state, $record) {
+                                            $color = $record->asset?->assetClassification?->color ?? null;
+                                            if ($state && $color) {
+                                                return "<span style='color:{$color};font-weight:600'>{$state}</span>";
+                                            }
+                                            return $state ?? '';
+                                        })
+                                        ->html()
+                                        ->inlineLabel(),
 
-                           
+                                    TextEntry::make('asset.assetCriticality.nombre')
+                                        ->label('Criticidad')
+                                        ->formatStateUsing(function ($state, $record) {
+                                            $color = $record->asset?->assetCriticality?->color ?? null;
+                                            if ($state && $color) {
+                                                return "<span style='color:{$color};font-weight:600'>{$state}</span>";
+                                            }
+                                            return $state ?? '';
+                                        })
+                                        ->html()
+                                        ->inlineLabel(),
 
-                            TextEntry::make('asset.assetCriticality.nombre')
-                                ->label('Criticidad')
-                                ->formatStateUsing(function ($state, $record) {
-                                    $color = $record->asset?->assetCriticality?->color ?? null;
-                                    if ($state && $color) {
-                                        return "<span style='color:{$color};font-weight:600'>{$state}</span>";
-                                    }
-                                    return $state ?? '';
-                                })
-                                ->html()
-                                ->inlineLabel(),
+                                    TextEntry::make('asset.assetState.nombre')
+                                        ->badge()
+                                        ->color(fn ($record) => $record->asset?->assetState?->color)
+                                        ->label('Estado')
+                                        ->inlineLabel(),
 
-                            TextEntry::make('asset.assetState.nombre')
-                                ->badge()
-                                ->color(fn ($record) => $record->asset?->assetState?->color)
-                                ->label('Estado')
-                                ->inlineLabel(),
+                                    TextEntry::make('asset.parent.nombre')
+                                        ->badge()
+                                        ->label('Activo Superior')
+                                        ->visible(fn ($record) => !empty($record->asset?->asset_parent_id)),
+                                ]),
 
-                            TextEntry::make('asset.parent.nombre')
-                                ->badge()
-                                ->label('Activo Superior')
-                                
-                                ->visible(fn ($record) => !empty($record->asset?->asset_parent_id)),
-                        ]),
+                            Section::make('Personal detector')
+                                ->columnSpan(1)
+                                ->schema([
+                                    TextEntry::make('people')
+                                    ->label('Personas')
+                                    ->icon('heroicon-o-user-circle')
+                                    ->listWithLineBreaks() // una línea por persona
+                                    ->state(function ($record) {
+                                        return $record->people->map(function ($person) {
+                                            return "{$person->nombres} {$person->apellidos} – {$person->cargo} ({$person->empresa})";
+                                        });
+                                    }),
+                                    ]),
+                            ]),
 
-
-                        Section::make('Detalles del reporte de falla')
+                        Section::make('')
                         // ->description('Datos del activo reportado')
                         ->columnSpan([
-                            'md' => 3,
-                            'lg' => 2,
-                            'xl' => 2,
+                           'default' => 3,
+                           'lg' => 2,
                         ])
                         ->schema([
                             TextEntry::make('datos_generales')
@@ -338,18 +346,25 @@ class FailureReportResource extends Resource
 
                         ]),
 
-                         Section::make()
+                        Section::make('Documentos y/o imágenes')
                         // ->description('Datos del activo reportado')
                         ->columnSpan([
-                            'md' => 1,
-                            'lg' => 1,
-                            'xl' => 1,
+                            'default' => 3,
+                           'lg' => 3,
                         ])
                         ->schema([
                             
-
+                            SpatieMediaLibraryImageEntry::make('evidencias')
+                                ->label('')
+                                ->alignCenter()
+                                ->collection('failure_reports')
+                                ->size(200)
+                                ->openUrlInNewTab(true)
+                                ->url(fn ($record) => $record->getFirstMediaUrl('failure_reports')),
 
                         ]),
+
+                        
                     ]),
 
                     
