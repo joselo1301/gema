@@ -11,6 +11,7 @@ use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
+use Parallax\FilamentComments\Actions\CommentsAction;
 
 class ViewFailureReport extends ViewRecord
 {
@@ -21,8 +22,9 @@ class ViewFailureReport extends ViewRecord
         return [
             Actions\EditAction::make()
                 ->form(FailureReport::getForm())
+                ->icon('heroicon-m-pencil-square')
                 ->visible(fn () => blank($this->record->reportado_en)),
-            // CommentsAction::make(),
+            
 
             // Botón adicional: Reportar
             Actions\Action::make('reportar')
@@ -75,12 +77,14 @@ class ViewFailureReport extends ViewRecord
                     // Actualiza el registro
                     $this->record->update([
 
-                        'report_followup_id' => $reportedId,                        
+                        'report_followup_id' => $reportedId,      
+                        'reportado_por_id'   => null,
+                        'reportado_en'       => null,
                     ]);
 
                     // Notifica
                     Notification::make()
-                        ->title('Reporte de falla rechazado correctamente.')
+                        ->title('Reporte de falla rechazado.')
                         ->success()
                         ->send();
 
@@ -113,6 +117,53 @@ class ViewFailureReport extends ViewRecord
 
                     $this->redirect(static::getResource()::getUrl('view', ['record' => $this->record]));
                 }),
+
+                Actions\Action::make('cambiar_etapa')
+                    ->label('Actualizar etapa')
+                    ->icon('heroicon-m-forward')
+                    ->color('info')
+                    ->modalHeading('Actualizar etapa de seguimiento')
+                    ->modalSubmitActionLabel('Actualizar')
+                    ->form([
+                        \Filament\Forms\Components\Select::make('report_followup_id')
+                            ->label('Estado de seguimiento')
+                            ->options(ReportFollowup::pluck('nombre', 'id')->toArray())
+                            ->required(),
+                        \Filament\Forms\Components\Textarea::make('comentario')
+                            ->label('Comentario')
+                            ->required()
+                            ->rows(3),
+                    ])
+                    ->requiresConfirmation()
+                    ->visible(fn () => filled($this->record->aprobado_en))
+                    ->action(function (array $data) {
+                        // Actualiza el estado de seguimiento
+                        $this->record->update([
+                            'report_followup_id' => $data['report_followup_id'],
+                        ]);
+
+                        // Agrega el comentario usando HasFilamentComments
+                        if (method_exists($this->record, 'comments')) {
+                            $this->record->comments()->create([
+                                'body' => $data['comentario'],
+                                'commentator_id' => Auth::id(),
+                            ]);
+                        } elseif (method_exists($this->record, 'addComment')) {
+                            $this->record->addComment([
+                                'body' => $data['comentario'],
+                                'commentator_id' => Auth::id(),
+                            ]);
+                        }
+
+                        Notification::make()
+                            ->title('Etapa de seguimiento actualizada correctamente.')
+                            ->success()
+                            ->send();
+
+                        $this->redirect(static::getResource()::getUrl('view', ['record' => $this->record]));
+                    }),
+
+                    CommentsAction::make(),
         ];
 
         

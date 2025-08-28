@@ -16,7 +16,7 @@ class ListFailureReports extends ListRecords
         return [
             Actions\CreateAction::make()
                 ->label('Crear nuevo reporte')
-                ->icon('heroicon-o-plus'),
+                ->icon('heroicon-m-newspaper'),
         ];
     }
 }

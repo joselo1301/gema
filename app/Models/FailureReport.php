@@ -18,11 +18,12 @@ use Filament\Forms\Components\Wizard;
 use Filament\Forms\Components\Wizard\Step;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use Parallax\FilamentComments\Models\Traits\HasFilamentComments;
 use Spatie\MediaLibrary\HasMedia;
 
 class FailureReport extends Model implements HasMedia
 {
-    use HasFactory, InteractsWithMedia;
+    use HasFactory, InteractsWithMedia, HasFilamentComments;
 
     
 

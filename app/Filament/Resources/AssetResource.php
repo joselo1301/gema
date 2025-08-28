@@ -11,7 +11,7 @@ use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Table;
 use Filament\Infolists\Infolist;
-use Filament\Infolists\Components\{Grid, Section, Split as SplitInfo, ImageEntry, TextEntry, IconEntry, ColorEntry, Fieldset, Tabs};
+use Filament\Infolists\Components\{Grid, Section, Split as SplitInfo, ImageEntry, TextEntry, IconEntry, ColorEntry, Fieldset, SpatieMediaLibraryImageEntry, Tabs};
 use Filament\Resources\RelationManagers\RelationGroup;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Columns\ImageColumn;
@@ -210,7 +210,7 @@ class AssetResource extends Resource
                             'lg' => 12,
                             'xl' => 12,
                         ])
-                ->schema([
+            ->schema([
 
                 Grid::make()
                 ->columns(5)
@@ -247,23 +247,31 @@ class AssetResource extends Resource
                 ->extraAttributes(['class' => '!gap-y-1']) 
                 ->schema([
                     
-                    ImageEntry::make('foto')
+                    SpatieMediaLibraryImageEntry::make('foto')
+                        ->label('')
+                        ->alignCenter()
+                        ->collection('assets')
                         ->size(200)
-                        ->alignCenter()
-                        ->square()
-                        ->label('')
-                        ->state(fn ($record) => $record->getFirstMediaUrl('assets'))
-                        ->hidden(fn ($record) => blank($record->getFirstMediaUrl('assets'))),
+                        ->openUrlInNewTab(true)
+                        ->url(fn ($record) => $record->getFirstMediaUrl('assets')),
 
-                    TextEntry::make('foto')
-                        ->label('')
-                        ->badge()
-                        ->icon('heroicon-o-photo')
-                        ->alignCenter()
-                        ->url(fn ($record) => $record->getFirstMediaUrl('assets'))
-                        ->state('Ver Imagen')
-                        ->openUrlInNewTab()
-                        ->hidden(fn ($record) => blank($record->getFirstMediaUrl('assets'))),
+                    // ImageEntry::make('foto')
+                    //     ->size(200)
+                    //     ->alignCenter()
+                    //     ->square()
+                    //     ->label('')
+                    //     ->state(fn ($record) => $record->getFirstMediaUrl('assets'))
+                    //     ->hidden(fn ($record) => blank($record->getFirstMediaUrl('assets'))),
+
+                    // TextEntry::make('foto')
+                    //     ->label('')
+                    //     ->badge()
+                    //     ->icon('heroicon-o-photo')
+                    //     ->alignCenter()
+                    //     ->url(fn ($record) => $record->getFirstMediaUrl('assets'))
+                    //     ->state('Ver Imagen')
+                    //     ->openUrlInNewTab()
+                    //     ->hidden(fn ($record) => blank($record->getFirstMediaUrl('assets'))),
 
                     TextEntry::make('tag')
                         ->alignCenter()
@@ -316,6 +324,9 @@ class AssetResource extends Resource
                 ->columns(3)
                 ->schema([
                     
+                    
+
+
                     TextEntry::make('fecha_adquisicion')
                         ->label('Adquisición')
                         ->state(fn ($record) => $record->fecha_adquisicion ? $record->fecha_adquisicion->translatedFormat('d, M Y'): '-'),
