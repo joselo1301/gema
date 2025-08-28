@@ -15,6 +15,7 @@ use Filament\Facades\Filament;
 use Filament\Infolists\Infolist;
 use Filament\Infolists\Components\{Grid, Section, Split as SplitInfo, ImageEntry, TextEntry, IconEntry, ColorEntry, Fieldset, SpatieMediaLibraryImageEntry, Tabs};
 
+
 class FailureReportResource extends Resource
 {
     protected static ?string $model = FailureReport::class;
@@ -191,7 +192,8 @@ class FailureReportResource extends Resource
                                     setlocale(LC_TIME, 'es_ES.UTF-8');
                                     // Carbon para formato personalizado
                                     return \Carbon\Carbon::parse($state)
-                                        ->translatedFormat('l, d \d\e F \d\e\l Y H:i \h\r\s');
+                                        ->locale('es')
+                                        ->isoFormat('ddd DD/MMM/YYYY HH:mm [hrs]');
                                 }),
                             TextEntry::make('location.nombre')
                                 ->label('Planta/Terminal'),
@@ -294,62 +296,62 @@ class FailureReportResource extends Resource
                         ]),
 
 
-                        Section::make('Detalles del reporte de falla')
-                        // ->description('Datos del activo reportado')
-                        ->columnSpan([
-                            'md' => 3,
-                            'lg' => 2,
-                            'xl' => 2,
-                        ])
-                        ->schema([
-                            TextEntry::make('datos_generales')
-                                ->label('Datos generales'),
-                            TextEntry::make('descripcion_corta')
-                                ->label('Descripción corta'),
-                            TextEntry::make('descripcion_detallada')
-                                ->label('Descripción detallada'),
-                            TextEntry::make('causas_probables')
-                                ->label('Causas probables')
-                                ->markdown(),
-                            TextEntry::make('acciones_realizadas')
-                                ->label('Acciones realizadas')
-                                ->markdown(),
-                            TextEntry::make('afecta_operaciones')
-                                ->label('')
-                                ->color('gray')
-                                ->icon(fn ($record) => $record->afecta_operaciones ? 'heroicon-m-exclamation-circle' : 'heroicon-m-information-circle')
-                                ->iconColor(fn ($record) => $record->afecta_operaciones ? 'danger' : 'info') // icono verde o rojo
-                                ->state(fn ($record) =>
-                                    $record->afecta_operaciones
-                                        ? 'La falla afecta las operaciones'
-                                        : 'La falla no afecta las operaciones'
-                                ),
-                            TextEntry::make('afecta_medio_ambiente')
-                                ->label('')
-                                ->color('gray')
-                                ->icon(fn ($record) => $record->afecta_medio_ambiente ? 'heroicon-m-exclamation-circle' : 'heroicon-m-information-circle')
-                                ->iconColor(fn ($record) => $record->afecta_medio_ambiente ? 'danger' : 'info') // icono verde o rojo
-                                ->state(fn ($record) =>
-                                    $record->afecta_medio_ambiente
-                                        ? 'La falla afecta al medio ambiente'
-                                        : 'La falla no afecta al medio ambiente'
-                                ),
-                            
+                        
+                            Tabs::make('Tabs')
+                            ->columnSpan([
+                                        'md' => 3,
+                                        'lg' => 2,
+                                        'xl' => 2,
+                                    ])
+                            ->tabs([
+                                Tabs\Tab::make('Detalles del reporte de falla')
 
-                        ]),
+                                    
+                                ->schema([
 
-                         Section::make()
-                        // ->description('Datos del activo reportado')
-                        ->columnSpan([
-                            'md' => 1,
-                            'lg' => 1,
-                            'xl' => 1,
-                        ])
-                        ->schema([
-                            
+                                    TextEntry::make('datos_generales')
+                                        ->label('Datos generales'),
+                                    TextEntry::make('descripcion_corta')
+                                        ->label('Descripción corta'),
+                                    TextEntry::make('descripcion_detallada')
+                                        ->label('Descripción detallada'),
+                                    TextEntry::make('causas_probables')
+                                        ->label('Causas probables')
+                                        ->markdown(),
+                                    TextEntry::make('acciones_realizadas')
+                                        ->label('Acciones realizadas')
+                                        ->markdown(),
+                                    TextEntry::make('afecta_operaciones')
+                                        ->label('')
+                                        ->color('gray')
+                                        ->icon(fn ($record) => $record->afecta_operaciones ? 'heroicon-m-exclamation-circle' : 'heroicon-m-information-circle')
+                                        ->iconColor(fn ($record) => $record->afecta_operaciones ? 'danger' : 'info') // icono verde o rojo
+                                        ->state(fn ($record) =>
+                                            $record->afecta_operaciones
+                                                ? 'La falla afecta las operaciones'
+                                                : 'La falla no afecta las operaciones'
+                                        ),
+                                    TextEntry::make('afecta_medio_ambiente')
+                                        ->label('')
+                                        ->color('gray')
+                                        ->icon(fn ($record) => $record->afecta_medio_ambiente ? 'heroicon-m-exclamation-circle' : 'heroicon-m-information-circle')
+                                        ->iconColor(fn ($record) => $record->afecta_medio_ambiente ? 'danger' : 'info') // icono verde o rojo
+                                        ->state(fn ($record) =>
+                                            $record->afecta_medio_ambiente
+                                                ? 'La falla afecta al medio ambiente'
+                                                : 'La falla no afecta al medio ambiente'
+                                        ),
+                                
 
+                                ]),
 
-                        ]),
+                            Tabs\Tab::make('Evidencias Fotográficas')
+                                ->schema([
+                                ]),        
+                            ]),
+
+                      
+
                     ]),
 
                     
