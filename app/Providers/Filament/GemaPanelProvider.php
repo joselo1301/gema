@@ -13,7 +13,6 @@ use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
 use Filament\Support\Facades\FilamentView;
 use Filament\Widgets;
-use Filament\Navigation\MenuItem;
 use Filament\Navigation\NavigationGroup;
 use Illuminate\Auth\Middleware\EnsureEmailIsVerified;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
@@ -24,6 +23,9 @@ use Illuminate\Session\Middleware\StartSession;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Rmsramos\Activitylog\ActivitylogPlugin;
+use Illuminate\Support\Facades\Vite;
+use Filament\View\PanelsRenderHook; 
+
 
 class GemaPanelProvider extends PanelProvider
 {
@@ -118,6 +120,13 @@ class GemaPanelProvider extends PanelProvider
                     ->collapsed(false),
             ])
             ;
+            
+            return $panel
+            
+            ->renderHook(
+                PanelsRenderHook::HEAD_END,     // o STYLES_BEFORE / SCRIPTS_BEFORE según prefieras
+                fn (): string => Vite::withEntryPoints(['resources/js/app.js'])->toHtml(),
+            );
     }
 
     public function register(): void

@@ -13,7 +13,7 @@ use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Filament\Facades\Filament;
 use Filament\Infolists\Infolist;
-use Filament\Infolists\Components\{Grid, Section, Split as SplitInfo, ImageEntry, TextEntry, IconEntry, ColorEntry, Fieldset, RepeatableEntry, SpatieMediaLibraryImageEntry, Tabs};
+use Filament\Infolists\Components\{Grid, Section, Split as SplitInfo, ImageEntry, TextEntry, IconEntry, ColorEntry, Fieldset, RepeatableEntry, SpatieMediaLibraryImageEntry, Tabs, ViewEntry};
 
 class FailureReportResource extends Resource
 {
@@ -289,11 +289,12 @@ class FailureReportResource extends Resource
                                 ]),
 
                             Section::make('Personal detector')
+                                
                                 ->columnSpan(1)
                                 ->schema([
                                     TextEntry::make('people')
-                                    ->label('Personas')
-                                    ->icon('heroicon-o-user-circle')
+                                    ->label('')
+                                    ->icon('heroicon-o-user-circle')                                    
                                     ->listWithLineBreaks() // una línea por persona
                                     ->state(function ($record) {
                                         return $record->people->map(function ($person) {
@@ -354,14 +355,13 @@ class FailureReportResource extends Resource
                         ])
                         ->schema([
                             
-                            SpatieMediaLibraryImageEntry::make('evidencias')
-                                ->label('')
-                                ->alignCenter()
-                                ->collection('failure_reports')
-                                ->size(200)
-                                ->openUrlInNewTab(true)
-                                ->url(fn ($record) => $record->getFirstMediaUrl('failure_reports')),
-
+                            ViewEntry::make('gallery')
+                            ->label('')
+                            ->view('infolists.entries.glightbox-gallery')
+                            ->viewData([
+                                'collection' => 'failure_reports', 
+                                
+                            ]),
                         ]),
 
                         

@@ -11,7 +11,7 @@ use Filament\Tables\Columns\Layout\Stack;
 use Filament\Tables\Columns\Layout\Split;
 use Filament\Tables\Table;
 use Filament\Infolists\Infolist;
-use Filament\Infolists\Components\{Grid, Section, Split as SplitInfo, ImageEntry, TextEntry, IconEntry, ColorEntry, Fieldset, SpatieMediaLibraryImageEntry, Tabs};
+use Filament\Infolists\Components\{Grid, Section, Split as SplitInfo, ImageEntry, TextEntry, IconEntry, ColorEntry, Fieldset, SpatieMediaLibraryImageEntry, Tabs, ViewEntry};
 use Filament\Resources\RelationManagers\RelationGroup;
 use Filament\Support\Enums\FontWeight;
 use Filament\Tables\Columns\ImageColumn;
@@ -247,13 +247,21 @@ class AssetResource extends Resource
                 ->extraAttributes(['class' => '!gap-y-1']) 
                 ->schema([
                     
-                    SpatieMediaLibraryImageEntry::make('foto')
-                        ->label('')
-                        ->alignCenter()
-                        ->collection('assets')
-                        ->size(200)
-                        ->openUrlInNewTab(true)
-                        ->url(fn ($record) => $record->getFirstMediaUrl('assets')),
+                    ViewEntry::make('gallery')
+                            ->label('')
+                            ->view('infolists.entries.glightbox-gallery')
+                            ->viewData([
+                                'collection' => 'assets',
+                                'center' => true,
+                                'sinAdjuntos' => '',
+                            ]),
+                    // SpatieMediaLibraryImageEntry::make('foto')
+                    //     ->label('')
+                    //     ->alignCenter()
+                    //     ->collection('assets')
+                    //     ->size(200)
+                    //     ->openUrlInNewTab(true)
+                    //     ->url(fn ($record) => $record->getFirstMediaUrl('assets')),
 
                     // ImageEntry::make('foto')
                     //     ->size(200)

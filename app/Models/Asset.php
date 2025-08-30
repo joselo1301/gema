@@ -184,10 +184,9 @@ class Asset extends Model implements HasMedia
                         ->schema([
                             SpatieMediaLibraryFileUpload::make('foto')
                                 ->collection('assets')
+                                
                                 ->maxSize(2048) 
                                 ->imageEditor()
-                                ->previewable()
-                                ->image() 
                                 ->maxFiles(1)
                                 ->columnSpanFull(),
 
