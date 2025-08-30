@@ -2,7 +2,8 @@
 
 namespace App\Models;
 
-use BladeUI\Heroicons\BladeHeroiconsServiceProvider;
+
+
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -18,6 +19,7 @@ use Filament\Forms\Components\Wizard;
 use Filament\Forms\Components\Wizard\Step;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use Illuminate\Support\Facades\Auth;
 use Parallax\FilamentComments\Models\Traits\HasFilamentComments;
 use Spatie\MediaLibrary\HasMedia;
 
@@ -25,7 +27,17 @@ class FailureReport extends Model implements HasMedia
 {
     use HasFactory, InteractsWithMedia, HasFilamentComments;
 
-    
+    public function addSystemComment(string $message, ?int $userId = null): void
+    {
+        $userId ??= Auth::user()?->id;
+
+        $this->filamentComments()->create([
+            'comment' => $message,
+            'user_id' => $userId,
+            'subject_type' => static::class,  // Agregamos el tipo del modelo
+            'subject_id' => $this->id,        // Agregamos el ID del modelo
+        ]);
+    }
 
     /**
      * The attributes that are mass assignable.
@@ -154,6 +166,8 @@ class FailureReport extends Model implements HasMedia
         // ->withTimestamps(); // solo si agregaste timestamps en la pivot
     }
     
+
+
 
     public static function getForm(): array
     {

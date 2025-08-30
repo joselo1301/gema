@@ -34,9 +34,9 @@ $galleryId = class_basename($getRecord()) . '-' . $getRecord()->getKey();
                    data-gallery="{{ $galleryId }}"
                    data-type="external"
                    data-width="100%" data-height="90vh">
-                    <div class="rounded-xl w-full h-32 bg-gray-100 border flex items-center justify-center">
+                    <div class="rounded-xl w-full h-32 bg-gray-100 border flex items-center justify-center dark:bg-gray-800 dark:border-gray-700">
                         
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 90 100" class="h-30 w-20 text-red-600">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="-10 -15 90 100" class="h-full w-30">
                         <g>
                             <path fill="#8C181A" d="M5.1,0C2.3,0,0,2.3,0,5.1v53.8C0,61.7,2.3,64,5.1,64h45.8c2.8,0,5.1-2.3,5.1-5.1V20.3L37.1,0H5.1z"/>
                             <path fill="#6B0D12" d="M56,20.4v1H43.2c0,0-6.3-1.3-6.1-6.7c0,0,0.2,5.7,6,5.7H56z"/>

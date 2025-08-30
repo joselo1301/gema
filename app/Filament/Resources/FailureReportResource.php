@@ -239,12 +239,18 @@ class FailureReportResource extends Resource
                         ]),
                         
                     Grid::make()
-                        ->columns(1)
-                        ->columnSpan(1)
+                        ->columns(2)
+                        ->columnSpan([
+                           'default' => 3,
+                           'lg' => 1,
+                        ])
                         ->schema([
                             Section::make(fn ($record): string => 'Activo: ' . ($record->asset?->nombre ?? ''))
                                 ->description(fn ($record) => 'Tag: ' . ($record->asset?->tag ?? ''))
-                                ->columnSpan(1)
+                                ->columnSpan([
+                                'default' => 1,
+                                'lg' => 2,
+                                ])
                                 ->schema([
                                     TextEntry::make('asset.codigo')
                                         ->label('Codigo'),
@@ -288,9 +294,12 @@ class FailureReportResource extends Resource
                                         ->visible(fn ($record) => !empty($record->asset?->asset_parent_id)),
                                 ]),
 
-                            Section::make('Personal detector')
+                                Section::make('Personal detector')
                                 
-                                ->columnSpan(1)
+                                ->columnSpan([
+                                'default' => 1,
+                                'lg' => 2,
+                                ])
                                 ->schema([
                                     TextEntry::make('people')
                                     ->label('')
