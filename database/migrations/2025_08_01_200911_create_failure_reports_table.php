@@ -15,7 +15,7 @@ return new class extends Migration
 
         Schema::create('failure_reports', function (Blueprint $table) {
             $table->id();
-            $table->string('numero_reporte')->unique();
+            $table->string('numero_reporte')->nullable()->unique();
             $table->dateTime('fecha_ocurrencia');
             $table->text('datos_generales');
             $table->string('descripcion_corta');

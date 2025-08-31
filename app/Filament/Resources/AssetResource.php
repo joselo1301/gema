@@ -176,6 +176,7 @@ class AssetResource extends Resource
 
                 ActivityLogTimelineTableAction::make('Historial')
                     ->withRelations(['profile', 'address'])
+                    ->icon('heroicon-s-clock')
                     ->timelineIconColors([
                         'created' => 'success',
                         'updated' => 'info',                       
@@ -196,6 +197,14 @@ class AssetResource extends Resource
             'xl' => 3,
             ]); 
     }
+
+
+
+
+
+
+
+
 
     public static function infolist(Infolist $infolist): Infolist
     {
@@ -255,32 +264,7 @@ class AssetResource extends Resource
                                 'center' => true,
                                 'sinAdjuntos' => '',
                             ]),
-                    // SpatieMediaLibraryImageEntry::make('foto')
-                    //     ->label('')
-                    //     ->alignCenter()
-                    //     ->collection('assets')
-                    //     ->size(200)
-                    //     ->openUrlInNewTab(true)
-                    //     ->url(fn ($record) => $record->getFirstMediaUrl('assets')),
-
-                    // ImageEntry::make('foto')
-                    //     ->size(200)
-                    //     ->alignCenter()
-                    //     ->square()
-                    //     ->label('')
-                    //     ->state(fn ($record) => $record->getFirstMediaUrl('assets'))
-                    //     ->hidden(fn ($record) => blank($record->getFirstMediaUrl('assets'))),
-
-                    // TextEntry::make('foto')
-                    //     ->label('')
-                    //     ->badge()
-                    //     ->icon('heroicon-o-photo')
-                    //     ->alignCenter()
-                    //     ->url(fn ($record) => $record->getFirstMediaUrl('assets'))
-                    //     ->state('Ver Imagen')
-                    //     ->openUrlInNewTab()
-                    //     ->hidden(fn ($record) => blank($record->getFirstMediaUrl('assets'))),
-
+                    
                     TextEntry::make('tag')
                         ->alignCenter()
                         ->size('xs')

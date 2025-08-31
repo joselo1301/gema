@@ -20,12 +20,14 @@ use Filament\Forms\Components\Wizard\Step;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Illuminate\Support\Facades\Auth;
+use Spatie\Activitylog\Traits\LogsActivity;
+use Spatie\Activitylog\LogOptions;
 use Parallax\FilamentComments\Models\Traits\HasFilamentComments;
 use Spatie\MediaLibrary\HasMedia;
 
 class FailureReport extends Model implements HasMedia
 {
-    use HasFactory, InteractsWithMedia, HasFilamentComments;
+    use HasFactory, InteractsWithMedia, LogsActivity, HasFilamentComments;
 
     public function addSystemComment(string $message, ?int $userId = null): void
     {
@@ -37,6 +39,57 @@ class FailureReport extends Model implements HasMedia
             'subject_type' => static::class,  // Agregamos el tipo del modelo
             'subject_id' => $this->id,        // Agregamos el ID del modelo
         ]);
+    }
+
+    public function getActivitylogOptions(): LogOptions
+    {
+        return LogOptions::defaults()
+            ->useLogName('Reporte de Falla')                         // canal
+            ->logOnly([
+                'numero_reporte',
+                'fecha_ocurrencia',
+                'datos_generales',
+                'descripcion_corta',
+                'descripcion_detallada',
+                'causas_probables',
+                'acciones_realizadas',
+                'afecta_operaciones',
+                'afecta_medio_ambiente',
+                'apoyo_adicional',
+                'observaciones',
+                'asset_id.nombre',
+                'asset_status_on_report.nombre',
+                'asset_status_on_close.nombre',
+                'location_id.nombre',
+                'report_status_id.nombre',
+                'report_followup_id.nombre', //muestra el nomnre no el codigo
+                'creado_por_id.name',
+                'reportado_por_id.name',
+                'reportado_en',
+                'aprobado_por_id.name',
+                'aprobado_en',
+                'ejecutado_por_id.name',
+                'actualizado_por_id.name',
+                'approved_snapshot',
+                'approved_hash',
+                'created_at',
+                'updated_at'
+
+                ])
+            // ->logOnly(['numero_reporte', 'tag', 'ubicacion', 'assetState.nombre'])          // campos que SÍ auditas
+            ->logOnlyDirty()                               // solo si realmente cambiaron
+            ->dontLogIfAttributesChangedOnly(['updated_at']) // si SOLO cambió updated_at, no loguear
+            ->dontSubmitEmptyLogs()
+            ->setDescriptionForEvent(function (string $eventName) {
+                return match ($eventName) {
+                    'created'  => 'Creado',
+                    'updated'  => 'Actualizado',
+                    'deleted'  => 'Eliminado',
+                    'restored' => 'Restaurado',
+                    default    => ucfirst($eventName),
+                };
+            });
+
     }
 
     /**
@@ -108,13 +161,13 @@ class FailureReport extends Model implements HasMedia
         return $this->belongsTo(Asset::class);
     }
 
-   public function assetStateReport(): BelongsTo
+   public function asset_status_on_report(): BelongsTo
     {
         // 👇 clave foránea personalizada
         return $this->belongsTo(AssetState::class, 'asset_status_on_report');
     }
 
-    public function assetStateClose(): BelongsTo
+    public function asset_status_on_close(): BelongsTo
     {
         // 👇 clave foránea personalizada
         return $this->belongsTo(AssetState::class, 'asset_status_on_close');

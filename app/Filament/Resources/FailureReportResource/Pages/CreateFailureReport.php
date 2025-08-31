@@ -30,7 +30,7 @@ class CreateFailureReport extends CreateRecord
         $locationId = $asset?->location->id;
         $year = Carbon::now()->format('y');
        
-        $data['numero_reporte'] = 'RF-' . $locationCode . 'XXX-' . $year;
+        // $data['numero_reporte'] = 'RF-' . $locationCode . '(pendiente)-' . $year;
         $data['location_id'] = $locationId;
         $data['report_status_id'] = 1; // Pendiente
         $data['report_followup_id'] = 1; // Ingresado

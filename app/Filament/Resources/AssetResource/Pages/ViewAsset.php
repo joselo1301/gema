@@ -31,7 +31,7 @@ class ViewAsset extends ViewRecord
 
     public function getContentTabLabel(): ?string
     {
-        return 'Datos'; // Renombra la pestaña del contenido
+        return 'Activo'; // Renombra la pestaña del contenido
     }
 
     public function getContentTabIcon(): ?string

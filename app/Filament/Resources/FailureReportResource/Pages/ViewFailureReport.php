@@ -15,6 +15,7 @@ use Parallax\FilamentComments\Actions\CommentsAction;
 use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Rmsramos\Activitylog\ActivitylogPlugin;
 
 
 class ViewFailureReport extends ViewRecord
@@ -49,14 +50,9 @@ class ViewFailureReport extends ViewRecord
                 ->action(function (array $data) {
                     $reportedId = ReportFollowup::idByClave(ReportFollowup::ESTADO_REPORTADO);
 
-                    // 1) Actualiza FailureReport
-                    $numeroReporte = app(FailureReportNumberService::class)->makeNumberFor(
-                        (int) $this->record->location_id,
-                        isset($this->record->created_at) ? Carbon::parse($this->record->created_at) : now()
-                    );
+                   
 
                     $this->record->update([
-                        'numero_reporte' => $numeroReporte,
                         'report_followup_id' => $reportedId,
                         'reportado_por_id'   => Auth::id(),
                         'reportado_en'       => now(),
@@ -78,8 +74,7 @@ class ViewFailureReport extends ViewRecord
 
                     // 5) Notifica y redirige
                     \Filament\Notifications\Notification::make()
-                        ->title('Reporte de falla enviado correctamente.')
-                        ->body("Se generó el reporte #{$numeroReporte}")
+                        ->title('Reporte de falla enviado correctamente.')                        
                         ->success()
                         ->send();
 
@@ -136,7 +131,7 @@ class ViewFailureReport extends ViewRecord
                 }),
 
                 // Botón adicional: Aprobar
-            Actions\Action::make('aprobar')
+            Action::make('aprobar')
                 ->label('Aprobar')
                 ->icon('heroicon-m-check-circle')
                 ->color('success')
@@ -147,17 +142,21 @@ class ViewFailureReport extends ViewRecord
                 ->form([
                     Textarea::make('comentario')
                         ->label('Comentario')
-                        ->placeholder('')
-                        ->required()
+                        ->placeholder('')                        
                         ->rows(4)
                         ->maxLength(1000),
                 ])
                 ->action(function (array $data) {
                     $reportedId = ReportFollowup::idByClave(ReportFollowup::ESTADO_NOTIFICADO);
 
-                    // Actualiza el registro
-                    $this->record->update([
+                    // 1) Actualiza FailureReport
+                    $numeroReporte = app(FailureReportNumberService::class)->makeNumberFor(
+                        (int) $this->record->location_id,
+                        isset($this->record->created_at) ? Carbon::parse($this->record->created_at) : now()
+                    );
 
+                    $this->record->update([
+                        'numero_reporte' => $numeroReporte,
                         'report_followup_id' => $reportedId,
                         'aprobado_por_id'   => Auth::id(),
                         'aprobado_en'       => now(),
@@ -172,55 +171,76 @@ class ViewFailureReport extends ViewRecord
                     // Notifica
                     Notification::make()
                         ->title('Reporte de falla aprobado correctamente.')
+                        ->body("Se asignó el número de reporte {$numeroReporte}")
                         ->success()
                         ->send();
 
                     $this->redirect(static::getResource()::getUrl('view', ['record' => $this->record]));
                 }),
 
-                Actions\Action::make('cambiar_etapa')
-                    ->label('Actualizar etapa')
-                    ->icon('heroicon-m-forward')
-                    ->color('info')
-                    ->modalHeading('Actualizar etapa de seguimiento')
-                    ->modalSubmitActionLabel('Actualizar')
-                    ->form([
-                        Select::make('report_followup_id')
-                            ->label('Estado de seguimiento')
-                            ->options(ReportFollowup::whereNotIn('id', [1, 2, 3])->pluck('nombre', 'id')->toArray())
-                            ->required(),
-                        Textarea::make('comentario')
-                            ->label('Comentario')
-                            ->required()
-                            ->rows(3),
-                    ])
-                    ->requiresConfirmation()
-                    ->visible(fn () => filled($this->record->aprobado_en))
-                    ->action(function (array $data) {
-                        // Actualiza el estado de seguimiento
-                        $this->record->update([
-                            'report_followup_id' => $data['report_followup_id'],
-                        ]);
+            Action::make('cambiar_etapa')
+                ->label('Actualizar etapa')
+                ->icon('heroicon-m-forward')
+                ->color('info')
+                ->modalHeading('Actualizar etapa de seguimiento')
+                ->modalSubmitActionLabel('Actualizar')
+                ->form([
+                    Select::make('report_followup_id')
+                        ->label('Estado de seguimiento')
+                        ->options(ReportFollowup::whereNotIn('id', [1, 2, 3])->pluck('nombre', 'id')->toArray())
+                        ->required(),
+                    Textarea::make('comentario')
+                        ->label('Comentario')
+                        ->required()
+                        ->rows(3),
+                ])
+                ->requiresConfirmation()
+                ->visible(fn () => filled($this->record->aprobado_en))
+                ->action(function (array $data) {
+                    // Actualiza el estado de seguimiento
+                    $this->record->update([
+                        'report_followup_id' => $data['report_followup_id'],
+                    ]);
 
-                       // 3) Agrega comentario del usuario usando el método personalizado
-                        $comentarioUsuario = trim($data['comentario'] ?? '');
-                        if ($comentarioUsuario !== '') {
-                            $this->record->addSystemComment('Etapa actualizada "' . ReportFollowup::find($data['report_followup_id'])->nombre . '": ' . $comentarioUsuario, Auth::id());
-                        }
+                    // 3) Agrega comentario del usuario usando el método personalizado
+                    $comentarioUsuario = trim($data['comentario'] ?? '');
+                    if ($comentarioUsuario !== '') {
+                        $this->record->addSystemComment('Etapa actualizada "' . ReportFollowup::find($data['report_followup_id'])->nombre . '": ' . $comentarioUsuario, Auth::id());
+                    }
 
-                        Notification::make()
-                            ->title('Etapa de seguimiento actualizada correctamente.')
-                            ->success()
-                            ->send();
+                    Notification::make()
+                        ->title('Etapa de seguimiento actualizada correctamente.')
+                        ->success()
+                        ->send();
 
-                        $this->redirect(static::getResource()::getUrl('view', ['record' => $this->record]));
-                    }),
+                    $this->redirect(static::getResource()::getUrl('view', ['record' => $this->record]));
+                }),
 
-                    CommentsAction::make(),
+            
+
+            CommentsAction::make(),
+
+
         ];
 
         
     }
+    
+    
+    public function hasCombinedRelationManagerTabsWithContent(): bool
+    {
+        return true; // Si es false, las pestañas se muestran separadas
+    }
 
+    // Personaliza la etiqueta de la pestaña de contenido principal
+    public function getContentTabLabel(): ?string
+    {
+        return 'Reporte de Falla'; // Renombra la pestaña del contenido
+    }
+
+    public function getContentTabIcon(): ?string
+    {
+        return 'heroicon-m-rectangle-stack'; // Icono opcional
+    }
    
 }

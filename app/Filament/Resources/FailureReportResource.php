@@ -14,6 +14,10 @@ use Illuminate\Database\Eloquent\Builder;
 use Filament\Facades\Filament;
 use Filament\Infolists\Infolist;
 use Filament\Infolists\Components\{Grid, Section, Split as SplitInfo, ImageEntry, TextEntry, IconEntry, ColorEntry, Fieldset, RepeatableEntry, SpatieMediaLibraryImageEntry, Tabs, ViewEntry};
+use Filament\Resources\RelationManagers\RelationGroup;
+use Rmsramos\Activitylog\Actions\ActivityLogTimelineTableAction;
+use Parallax\FilamentComments\Tables\Actions\CommentsAction;
+use Rmsramos\Activitylog\RelationManagers\ActivitylogRelationManager;
 
 class FailureReportResource extends Resource
 {
@@ -36,6 +40,7 @@ class FailureReportResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
+            ->defaultSort('created_at', 'desc')
             ->columns([
                 Tables\Columns\TextColumn::make('numero_reporte')
                     ->label('N° Reporte')
@@ -149,7 +154,21 @@ class FailureReportResource extends Resource
                 
             ])
             ->actions([
-                // Tables\Actions\EditAction::make(),
+                ActivityLogTimelineTableAction::make('Bitácora')
+                    ->label('')
+                    ->tooltip('Bitácora')
+                    ->withRelations(['profile', 'address'])
+                    ->icon('heroicon-s-eye')
+                    ->timelineIconColors([
+                        'created' => 'success',
+                        'updated' => 'info',                       
+                    ])
+                    ->limit(10),
+
+                CommentsAction::make()
+                    ->label('')
+                    ->tooltip('Comentarios')
+                ,
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -177,8 +196,8 @@ class FailureReportResource extends Resource
                     //     ->size('lg'), // Tamaños disponibles: 'sm', 'md', 'lg', 'xl'
                    
 
-                    Section::make(fn ($record): string => 'Reporte N° ' . ($record->numero_reporte ?? ''))
-                        // ->description('Datos generales del reporte')
+                    Section::make(fn ($record): string => 'Reporte N° ' . ($record->numero_reporte ?? ' ***Número se asigna al aprobar***'))
+                        // ->description('Datos generales del reporte')                        
                         ->columnSpanFull()
                         ->columns(4)
                         ->schema([
@@ -384,8 +403,14 @@ class FailureReportResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
-        ];
+            RelationGroup::make('Bitácora', [
+                ActivitylogRelationManager::class,
+            ])
+            ->icon('heroicon-m-eye'),
+
+           
+        ];  
+
     }
 
     public static function getPages(): array
