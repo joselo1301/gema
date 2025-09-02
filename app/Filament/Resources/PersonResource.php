@@ -61,7 +61,9 @@ class PersonResource extends Resource
                 Tables\Filters\TrashedFilter::make(),
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()
+                    // ->slideOver()
+                    ,
                 Tables\Actions\RestoreAction::make(),
             ])
             ->bulkActions([
@@ -69,6 +71,7 @@ class PersonResource extends Resource
                     Tables\Actions\DeleteBulkAction::make(),                    
                 ]),
             ]);
+            
     }
 
     public static function getRelations(): array
@@ -82,8 +85,8 @@ class PersonResource extends Resource
     {
         return [
             'index' => Pages\ListPeople::route('/'),
-            'create' => Pages\CreatePerson::route('/create'),
-            'edit' => Pages\EditPerson::route('/{record}/edit'),
+            // 'create' => Pages\CreatePerson::route('/create'),
+            // 'edit' => Pages\EditPerson::route('/{record}/edit'),
         ];
     }
 

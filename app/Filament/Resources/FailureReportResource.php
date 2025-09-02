@@ -113,7 +113,7 @@ class FailureReportResource extends Resource
                         HTML;
                     }),
 
-                    
+                         
                     
                 Tables\Columns\TextColumn::make('creadoPor.name')
                     ->toggleable(isToggledHiddenByDefault: true)
@@ -142,14 +142,17 @@ class FailureReportResource extends Resource
             ->filters([
                 Tables\Filters\SelectFilter::make('reportStatus_id')
                     ->label('Estado de reporte')
-                    ->relationship('reportStatus', 'nombre'),
+                    ->relationship('reportStatus', 'nombre' , fn ($query) => $query->orderBy('orden')),
                 // Filtro por Sistema
                 Tables\Filters\SelectFilter::make('reportFollowup_id')
                     ->label('Etapa de Reporte')
-                    ->relationship('reportFollowup', 'nombre'),
+                    ->relationship('reportFollowup', 'nombre', fn ($query) => $query->orderBy('orden')),
                 Tables\Filters\SelectFilter::make('location_id')
                     ->label('Ubicación')
-                    ->relationship('location', 'nombre')                    
+                    ->relationship('location', 'nombre', function ($query) {
+                        $user = Filament::auth()->user();
+                        return $query->whereIn('id', $user->locations->pluck('id'))->orderBy('nombre');
+                    })
                     ->visible(fn () => Filament::auth()->user()->locations->count() > 1),
                 
             ])
