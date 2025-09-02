@@ -161,7 +161,8 @@ class FailureReport extends Model implements HasMedia
         return $this->belongsTo(Asset::class);
     }
 
-   public function asset_status_on_report(): BelongsTo
+    
+    public function asset_status_on_report(): BelongsTo
     {
         // 👇 clave foránea personalizada
         return $this->belongsTo(AssetState::class, 'asset_status_on_report');
@@ -230,6 +231,7 @@ class FailureReport extends Model implements HasMedia
                     ->columns(3)
                     ->schema([
 
+                  
                     Select::make('asset_id')
                         ->columnSpan(2)
                         ->label('Activo')
@@ -359,7 +361,7 @@ class FailureReport extends Model implements HasMedia
 
                         Select::make('asset_status_on_report')
                             ->label('Estado del activo')
-                            ->relationship('assetStateReport', 'nombre', fn ($query) => $query->orderBy('orden'))
+                            ->relationship('asset_status_on_report', 'nombre', fn ($query) => $query->orderBy('orden'))
                             ->required()
                             ->helperText('El estado del activo cambiará únicamente cuando se remita el reporte de falla, no al guardar.'),
                         

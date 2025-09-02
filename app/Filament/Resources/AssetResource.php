@@ -152,7 +152,11 @@ class AssetResource extends Resource
                 // Filtro por Ubicación
                 Tables\Filters\SelectFilter::make('location_id')
                     ->label('Planta o Terminal')
-                    ->relationship('location', 'nombre'),
+                    ->relationship('location', 'nombre', function ($query) {
+                        $user = Filament::auth()->user();
+                        return $query->whereIn('id', $user->locations->pluck('id'))->orderBy('nombre');
+                    })
+                ->visible(fn () => Filament::auth()->user()->locations->count() > 1),
                 // Filtro por Sistema
                 Tables\Filters\SelectFilter::make('systems_catalog_id')
                     ->label('Sistema')

@@ -109,12 +109,7 @@ class ViewFailureReport extends ViewRecord
                         'reportado_en'       => null,
                     ]);
 
-                    // 2) Actualiza estado del Asset (si aplica)
-                    if ($this->record->asset) {
-                        $this->record->asset->update([
-                            'asset_state_id' => $this->record->asset_status_on_report,
-                        ]);
-                    }
+                   
 
                      // 3) Agrega comentario del usuario usando el método personalizado
                     $comentarioUsuario = trim($data['comentario'] ?? '');
@@ -162,6 +157,8 @@ class ViewFailureReport extends ViewRecord
                         'aprobado_en'       => now(),
                     ]);
 
+                    
+
                     // 3) Agrega comentario del usuario usando el método personalizado
                     $comentarioUsuario = trim($data['comentario'] ?? '');
                     if ($comentarioUsuario !== '') {
@@ -188,24 +185,60 @@ class ViewFailureReport extends ViewRecord
                     Select::make('report_followup_id')
                         ->label('Estado de seguimiento')
                         ->options(ReportFollowup::whereNotIn('id', [1, 2, 3])->pluck('nombre', 'id')->toArray())
-                        ->required(),
+                        ->required()
+                        ->reactive(), // <-- Agrega esto para que el siguiente campo se actualice dinámicamente
+                    Select::make('asset_status_on_close')
+                        ->label('Estado del activo al cierre')
+                        ->relationship('asset_status_on_close', 'nombre', fn ($query) => $query->orderBy('orden'))
+                        ->visible(fn ($get) => in_array((int)$get('report_followup_id'), [13, 14, 15]))
+                        ->required(fn ($get) => in_array((int)$get('report_followup_id'), [13, 14, 15])),
                     Textarea::make('comentario')
                         ->label('Comentario')
                         ->required()
                         ->rows(3),
                 ])
                 ->requiresConfirmation()
-                ->visible(fn () => filled($this->record->aprobado_en))
+                ->visible(fn () => filled($this->record->aprobado_en) && blank($this->record->asset_status_on_close))
                 ->action(function (array $data) {
+                    $nuevoEstadoId = $data['report_followup_id'];
+                    $comentarioUsuario = trim($data['comentario'] ?? '');
+
                     // Actualiza el estado de seguimiento
                     $this->record->update([
-                        'report_followup_id' => $data['report_followup_id'],
+                        'report_followup_id' => $nuevoEstadoId,                        
                     ]);
 
-                    // 3) Agrega comentario del usuario usando el método personalizado
-                    $comentarioUsuario = trim($data['comentario'] ?? '');
+                   
+                   
+                   
+                    // Acciones específicas según el estado seleccionado
+                    switch ($nuevoEstadoId) {
+                        case ReportFollowup::idByClave(ReportFollowup::ESTADO_EN_EJECUCION):
+                            $this->record->update([
+                                'report_status_id' => 2
+                            ]);
+                            break;
+                        case ReportFollowup::idByClave(ReportFollowup::ESTADO_EJECUTADO):
+                        case ReportFollowup::idByClave(ReportFollowup::ESTADO_OBSERVADO):
+                        case ReportFollowup::idByClave(ReportFollowup::ESTADO_NO_CORRESPONDE):
+                            // Ejemplo: Marcar el asset como "Operativo"
+                            $this->record->update([
+                                'report_status_id' => 3
+                            ]);
+                            if ($this->record->asset) {
+                                $this->record->asset->update([
+                                    'asset_state_id' => $this->record->asset_status_on_close,
+                                ]);
+                            }
+                            break;
+                        
+                        // Puedes agregar más casos según tus necesidades
+                    }
+
+                    // Agrega comentario del usuario usando el método personalizado
                     if ($comentarioUsuario !== '') {
-                        $this->record->addSystemComment('Etapa actualizada "' . ReportFollowup::find($data['report_followup_id'])->nombre . '": ' . $comentarioUsuario, Auth::id());
+                        $nombreEstado = ReportFollowup::find($nuevoEstadoId)?->nombre ?? '';
+                        $this->record->addSystemComment('Etapa actualizada "' . $nombreEstado . '": ' . $comentarioUsuario, Auth::id());
                     }
 
                     Notification::make()
