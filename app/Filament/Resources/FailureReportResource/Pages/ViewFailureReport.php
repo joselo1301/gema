@@ -22,6 +22,8 @@ class ViewFailureReport extends ViewRecord
 {
     protected static string $resource = FailureReportResource::class;
 
+   
+
     protected function getHeaderActions(): array
     {
         return [
@@ -50,34 +52,26 @@ class ViewFailureReport extends ViewRecord
                 ->action(function (array $data) {
                     $reportedId = ReportFollowup::idByClave(ReportFollowup::ESTADO_REPORTADO);
 
-                   
+                    // Actualiza el modelo usando Eloquent y registra actividad si es necesario
+                    $this->record->report_followup_id = $reportedId;
+                    $this->record->reportado_por_id = Auth::id();
+                    $this->record->reportado_en = now();
+                    $this->record->actualizado_por_id = Auth::id(); 
+                    $this->record->save();
 
-                    $this->record->update([
-                        'report_followup_id' => $reportedId,
-                        'reportado_por_id'   => Auth::id(),
-                        'reportado_en'       => now(),
-                    ]);
-
-                    
-
-                    // 3) Agrega comentario del usuario usando el método personalizado
+                    // Agrega comentario del usuario usando el método personalizado
                     $comentarioUsuario = trim($data['comentario'] ?? '');
                     if ($comentarioUsuario !== '') {
                         $this->record->addSystemComment('Reporte de falla reportado: ' . $comentarioUsuario, Auth::id());
                     }
 
-                    // 4) Agrega comentario automático del sistema
-                    // $this->record->addSystemComment(
-                    //     "Reporte #{$numeroReporte} enviado automáticamente por el sistema. Usuario: " . Auth::user()->name,
-                    //     Auth::id()
-                    // );
-
-                    // 5) Notifica y redirige
-                    \Filament\Notifications\Notification::make()
+                    // Notifica
+                    Notification::make()
                         ->title('Reporte de falla enviado correctamente.')                        
                         ->success()
                         ->send();
 
+                    // Redirige
                     $this->redirect(static::getResource()::getUrl('view', ['record' => $this->record]));
                 }),
 
@@ -98,30 +92,29 @@ class ViewFailureReport extends ViewRecord
                         ->rows(4)
                         ->maxLength(1000),
                 ])
+
                 ->action(function (array $data) {
                     $reportedId = ReportFollowup::idByClave(ReportFollowup::ESTADO_INGRESADO);
 
-                    // Actualiza el registro
-                    $this->record->update([
-
-                        'report_followup_id' => $reportedId,      
-                        'reportado_por_id'   => null,
-                        'reportado_en'       => null,
-                    ]);
-
-                   
-
-                     // 3) Agrega comentario del usuario usando el método personalizado
+                    // Actualiza el modelo usando Eloquent y registra actividad si es necesario
+                    $this->record->report_followup_id = $reportedId;
+                    $this->record->reportado_por_id = null;
+                    $this->record->reportado_en = null;
+                    $this->record->actualizado_por_id = Auth::id(); 
+                    $this->record->save();
+                    
+                     // Agrega comentario del usuario usando el método personalizado
                     $comentarioUsuario = trim($data['comentario'] ?? '');
                     if ($comentarioUsuario !== '') {
                         $this->record->addSystemComment('Reporte de falla rechazado: ' . $comentarioUsuario, Auth::id());
                     }
-                    // Notifica
+                    // Notificación
                     Notification::make()
                         ->title('Reporte de falla rechazado.')
                         ->success()
                         ->send();
 
+                    // Redirige
                     $this->redirect(static::getResource()::getUrl('view', ['record' => $this->record]));
                 }),
 
@@ -144,34 +137,53 @@ class ViewFailureReport extends ViewRecord
                 ->action(function (array $data) {
                     $reportedId = ReportFollowup::idByClave(ReportFollowup::ESTADO_NOTIFICADO);
 
-                    // 1) Actualiza FailureReport
+                    // Genera el correlativo del reporte de falla
                     $numeroReporte = app(FailureReportNumberService::class)->makeNumberFor(
                         (int) $this->record->location_id,
                         isset($this->record->created_at) ? Carbon::parse($this->record->created_at) : now()
                     );
 
-                    $this->record->update([
-                        'numero_reporte' => $numeroReporte,
-                        'report_followup_id' => $reportedId,
-                        'aprobado_por_id'   => Auth::id(),
-                        'aprobado_en'       => now(),
-                    ]);
+                    // Actualiza el modelo usando Eloquent y registra actividad si es necesario
+                    $this->record->numero_reporte = $numeroReporte;
+                    $this->record->report_followup_id = $reportedId;
+                    $this->record->aprobado_por_id = Auth::id();
+                    $this->record->aprobado_en = now();
+                    $this->record->actualizado_por_id = Auth::id(); 
+                    $this->record->save();
 
-                    
+                    // Cambia el estado del activo y lo iguala al indicado en el reporte
+                    $this->record->asset->asset_state_id = $this->record->asset_status_on_report;
+                    $this->record->asset->save();
 
-                    // 3) Agrega comentario del usuario usando el método personalizado
+                    // Registrar log manual del cambio de estado del asset
+                    activity()
+                        ->useLog('Activo: Cambio de estado')
+                        ->event('updated')
+                        ->performedOn($this->record->asset)
+                        ->causedBy(Auth::user())
+                        ->withProperties([
+                            'Estado de activo' => optional($this->record->assetStatusOnReport)->nombre,
+                            'Numero de Reporte de falla' => $this->record->numero_reporte,
+                        ])
+                        ->log('Cambio de estado del activo por emisión de reporte de falla');
+
+                    // Agrega comentario del usuario usando el método personalizado
                     $comentarioUsuario = trim($data['comentario'] ?? '');
                     if ($comentarioUsuario !== '') {
                         $this->record->addSystemComment('Reporte de falla aprobado: ' . $comentarioUsuario, Auth::id());
                     }
 
-                    // Notifica
+                    // Servicio de notificacio por email
+
+
+                    // Notificación
                     Notification::make()
                         ->title('Reporte de falla aprobado correctamente.')
                         ->body("Se asignó el número de reporte {$numeroReporte}")
                         ->success()
                         ->send();
 
+                    // Redirige a la vista del registro
                     $this->redirect(static::getResource()::getUrl('view', ['record' => $this->record]));
                 }),
 
@@ -189,55 +201,62 @@ class ViewFailureReport extends ViewRecord
                         ->reactive(), // <-- Agrega esto para que el siguiente campo se actualice dinámicamente
                     Select::make('asset_status_on_close')
                         ->label('Estado del activo al cierre')
-                        ->relationship('asset_status_on_close', 'nombre', fn ($query) => $query->orderBy('orden'))
+                        ->relationship('assetStatusOnClose', 'nombre', fn ($query) => $query->orderBy('orden'))
                         ->visible(fn ($get) => in_array((int)$get('report_followup_id'), [13, 14, 15]))
                         ->required(fn ($get) => in_array((int)$get('report_followup_id'), [13, 14, 15])),
                     Textarea::make('comentario')
-                        ->label('Comentario')
-                        ->required()
+                        ->label('Comentario')                        
                         ->rows(3),
                 ])
                 ->requiresConfirmation()
                 ->visible(fn () => filled($this->record->aprobado_en) && blank($this->record->asset_status_on_close))
                 ->action(function (array $data) {
-                    $nuevoEstadoId = $data['report_followup_id'];
+                    $reportedId = $data['report_followup_id'];
                     $comentarioUsuario = trim($data['comentario'] ?? '');
+                    $assetStatusOnClose = $data['asset_status_on_close'] ?? null;
 
                     // Actualiza el estado de seguimiento
-                    $this->record->update([
-                        'report_followup_id' => $nuevoEstadoId,                        
-                    ]);
-
-                   
-                   
-                   
-                    // Acciones específicas según el estado seleccionado
-                    switch ($nuevoEstadoId) {
+                    $this->record->report_followup_id = $reportedId;
+                    switch ($reportedId) {
                         case ReportFollowup::idByClave(ReportFollowup::ESTADO_EN_EJECUCION):
-                            $this->record->update([
-                                'report_status_id' => 2
-                            ]);
+                            $this->record->report_status_id = 2;
+                            
                             break;
                         case ReportFollowup::idByClave(ReportFollowup::ESTADO_EJECUTADO):
                         case ReportFollowup::idByClave(ReportFollowup::ESTADO_OBSERVADO):
                         case ReportFollowup::idByClave(ReportFollowup::ESTADO_NO_CORRESPONDE):
-                            // Ejemplo: Marcar el asset como "Operativo"
-                            $this->record->update([
-                                'report_status_id' => 3
-                            ]);
-                            if ($this->record->asset) {
-                                $this->record->asset->update([
-                                    'asset_state_id' => $this->record->asset_status_on_close,
-                                ]);
-                            }
+                            
+                            $this->record->report_status_id = 3;
+                            $this->record->asset_status_on_close = $assetStatusOnClose;
+                            
+
+                            // Cambia el estado del activo y lo iguala al indicado en el reporte
+                            $this->record->asset->asset_state_id = $assetStatusOnClose;
+                            $this->record->asset->save(); 
+                            
+                             // Registrar log manual del cambio de estado del asset
+                            activity()
+                                ->useLog('Activo: Cambio de estado')
+                                ->event('updated')
+                                ->performedOn($this->record->asset)
+                                ->causedBy(Auth::user())
+                                ->withProperties([
+                                    'Estado de activo' => optional($this->record->assetStatusOnClose)->nombre,
+                                    'R.Falla Numero' => $this->record->numero_reporte,
+                                    'R.Falla Etapa' => optional($this->record->reportFollowup)->nombre,
+                                    'R.Falla Estado' => optional($this->record->reportStatus)->nombre,
+                                ])
+                                ->log('Cambio de estado del activo por cierre de reporte de falla');
+
                             break;
                         
                         // Puedes agregar más casos según tus necesidades
                     }
+                    $this->record->save();
 
-                    // Agrega comentario del usuario usando el método personalizado
+                   // Agrega comentario del usuario usando el método personalizado
                     if ($comentarioUsuario !== '') {
-                        $nombreEstado = ReportFollowup::find($nuevoEstadoId)?->nombre ?? '';
+                        $nombreEstado = ReportFollowup::find($reportedId)?->nombre ?? '';
                         $this->record->addSystemComment('Etapa actualizada "' . $nombreEstado . '": ' . $comentarioUsuario, Auth::id());
                     }
 

@@ -162,13 +162,13 @@ class FailureReport extends Model implements HasMedia
     }
 
     
-    public function asset_status_on_report(): BelongsTo
+    public function assetStatusOnReport(): BelongsTo
     {
         // 👇 clave foránea personalizada
         return $this->belongsTo(AssetState::class, 'asset_status_on_report');
     }
 
-    public function asset_status_on_close(): BelongsTo
+    public function assetStatusOnClose(): BelongsTo
     {
         // 👇 clave foránea personalizada
         return $this->belongsTo(AssetState::class, 'asset_status_on_close');
@@ -361,9 +361,9 @@ class FailureReport extends Model implements HasMedia
 
                         Select::make('asset_status_on_report')
                             ->label('Estado del activo')
-                            ->relationship('asset_status_on_report', 'nombre', fn ($query) => $query->orderBy('orden'))
+                            ->relationship('assetStatusOnReport', 'nombre', fn ($query) => $query->orderBy('orden'))
                             ->required()
-                            ->helperText('El estado del activo cambiará únicamente cuando se remita el reporte de falla, no al guardar.'),
+                            ->helperText('El estado del activo cambiará únicamente cuando se apruebe el reporte de falla.'),
                         
                             SpatieMediaLibraryFileUpload::make('evidencias')
                             ->label('Imágenes o documentos')

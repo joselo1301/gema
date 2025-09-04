@@ -19,6 +19,8 @@ use Rmsramos\Activitylog\Actions\ActivityLogTimelineTableAction;
 use Parallax\FilamentComments\Tables\Actions\CommentsAction;
 use Rmsramos\Activitylog\RelationManagers\ActivitylogRelationManager;
 
+use function Laravel\Prompts\text;
+
 class FailureReportResource extends Resource
 {
     protected static ?string $model = FailureReport::class;
@@ -316,8 +318,7 @@ class FailureReportResource extends Resource
                                         ->visible(fn ($record) => !empty($record->asset?->asset_parent_id)),
                                 ]),
 
-                                Section::make('Personal detector')
-                                
+                            Section::make('Personal detector')
                                 ->columnSpan([
                                 'default' => 1,
                                 'lg' => 2,
@@ -333,6 +334,26 @@ class FailureReportResource extends Resource
                                         });
                                     }),
                                     ]),
+
+                             Section::make('Estado del activo')
+                                ->columnSpan([
+                                'default' => 1,
+                                'lg' => 2,
+                                ])
+                                ->schema([
+                                    TextEntry::make('assetStatusOnReport.nombre')
+                                        ->badge()
+                                        ->color(fn ($record) => $record->assetStatusOnReport?->color)
+                                        ->label('Al reportar')
+                                        ->inlineLabel(),
+
+                                    TextEntry::make('assetStatusOnClose.nombre')
+                                        ->visible(fn ($record) => !empty($record->assetStatusOnClose))
+                                        ->badge()
+                                        ->color(fn ($record) => $record->assetStatusOnClose?->color)
+                                        ->label('Al cerrar')
+                                        ->inlineLabel(),
+                                    ]),
                             ]),
 
                         Section::make('')
@@ -347,7 +368,8 @@ class FailureReportResource extends Resource
                             TextEntry::make('descripcion_corta')
                                 ->label('Descripción corta'),
                             TextEntry::make('descripcion_detallada')
-                                ->label('Descripción detallada'),
+                                ->label('Descripción detallada')
+                                ->prose(),
                             TextEntry::make('causas_probables')
                                 ->label('Causas probables')
                                 ->markdown(),
@@ -355,6 +377,7 @@ class FailureReportResource extends Resource
                                 ->label('Acciones realizadas')
                                 ->markdown(),
                             TextEntry::make('afecta_operaciones')
+                                ->alignEnd()
                                 ->label('')
                                 ->color('gray')
                                 ->icon(fn ($record) => $record->afecta_operaciones ? 'heroicon-m-exclamation-circle' : 'heroicon-m-information-circle')
@@ -365,6 +388,7 @@ class FailureReportResource extends Resource
                                         : 'La falla no afecta las operaciones'
                                 ),
                             TextEntry::make('afecta_medio_ambiente')
+                                ->alignEnd()
                                 ->label('')
                                 ->color('gray')
                                 ->icon(fn ($record) => $record->afecta_medio_ambiente ? 'heroicon-m-exclamation-circle' : 'heroicon-m-information-circle')
@@ -375,6 +399,7 @@ class FailureReportResource extends Resource
                                         : 'La falla no afecta al medio ambiente'
                                 ),
                             
+
 
                         ]),
 
@@ -395,7 +420,53 @@ class FailureReportResource extends Resource
                             ]),
                         ]),
 
-                        
+                        Section::make('Usuarios')
+                            ->description('Registro de creación y modificaciones')
+                            ->columns(2) // distribuye en 2 columnas, puedes usar 1 si prefieres en lista vertical
+                            ->collapsible() // opcional: que se pueda contraer
+                            ->collapsed() // inicia contraído
+                            
+                            
+                            ->schema([
+                                TextEntry::make('creadoPor.name') // relación createdBy → User
+                                    ->label('Creado por')                                    
+                                    ->inlineLabel(),
+                                    
+                                TextEntry::make('created_at')
+                                    ->label('Creado el')
+                                    ->dateTime('d/m/Y H:i')
+                                    ->inlineLabel(),
+
+                                TextEntry::make('reportadoPor.name') // relación reportedBy → User
+                                    ->label('Reportado por')
+                                    ->inlineLabel(),
+                                
+                                TextEntry::make('reportado_en') // campo fecha de reporte
+                                    ->label('Reportado el')
+                                    ->dateTime('d/m/Y H:i')
+                                    ->inlineLabel(),
+
+                                TextEntry::make('aprobadoPor.name')
+                                    ->label('Aprobado por')
+                                    ->inlineLabel(),
+
+                                TextEntry::make('aprobado_en') // fecha de aprobación
+                                    ->label('Aprobado el')
+                                    ->dateTime('d/m/Y H:i')
+                                    ->inlineLabel(),
+
+                                TextEntry::make('actualizadoPor.name')
+                                    ->label('Modificado por')
+                                    ->inlineLabel(),
+
+                                TextEntry::make('updated_at')
+                                    ->label('Última modificación')
+                                    ->dateTime('d/m/Y H:i')
+                                    ->inlineLabel(),
+
+                                
+                            ]),
+
                     ]),
 
                     
