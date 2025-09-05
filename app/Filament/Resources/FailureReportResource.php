@@ -18,18 +18,42 @@ use Filament\Resources\RelationManagers\RelationGroup;
 use Rmsramos\Activitylog\Actions\ActivityLogTimelineTableAction;
 use Parallax\FilamentComments\Tables\Actions\CommentsAction;
 use Rmsramos\Activitylog\RelationManagers\ActivitylogRelationManager;
+use BezhanSalleh\FilamentShield\Contracts\HasShieldPermissions;
 
 use function Laravel\Prompts\text;
 
-class FailureReportResource extends Resource
+class FailureReportResource extends Resource implements HasShieldPermissions
 {
     protected static ?string $model = FailureReport::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-bell-alert';
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
+    
     protected static ?string $navigationLabel = 'Reportes de falla';
     protected static ?string $modelLabel = 'Reporte de falla';
     protected static ?string $pluralModelLabel = 'Reportes de falla';
 
+
+    public static function getPermissionPrefixes(): array
+    {
+        return [
+            'view',
+            'view_any',
+            'create',
+            'update',
+            'reportar',
+            'aprobar',
+            'rechazar',
+            'cambiar_etapa',
+            'restore',
+            'restore_any',
+            'replicate',
+            'reorder',
+            'delete',
+            'delete_any',
+            'force_delete',
+            'force_delete_any',
+        ];
+    }
 
     public static function form(Form $form): Form
     {
@@ -269,15 +293,26 @@ class FailureReportResource extends Resource
                            'lg' => 1,
                         ])
                         ->schema([
-                            Section::make(fn ($record): string => 'Activo: ' . ($record->asset?->nombre ?? ''))
-                                ->description(fn ($record) => 'Tag: ' . ($record->asset?->tag ?? ''))
+                            Section::make('Datos del Activo')
+                                // ->description(fn ($record) => 'Tag: ' . ($record->asset?->tag ?? ''))
                                 ->columnSpan([
                                 'default' => 1,
                                 'lg' => 2,
                                 ])
                                 ->schema([
-                                    TextEntry::make('asset.codigo')
-                                        ->label('Codigo'),
+
+                                    TextEntry::make('asset.nombre')
+                                        ->label('')
+                                        ->badge()
+                                        ->helperText(fn ($record) => $record->asset?->tag ? 'Tag: ' . $record->asset->tag : null)
+                                        ->url(fn ($record) => $record->asset
+                                            ? AssetResource::getUrl('view', ['record' => $record->asset])
+                                            : null
+                                        )                                        
+                                        ->openUrlInNewTab(),
+
+                                    // TextEntry::make('asset.codigo')
+                                    //     ->label('Codigo'),
 
                                     TextEntry::make('asset.systemsCatalog.nombre')
                                         ->label('Area / Sistema'),
@@ -480,11 +515,8 @@ class FailureReportResource extends Resource
             RelationGroup::make('Bitácora', [
                 ActivitylogRelationManager::class,
             ])
-            ->icon('heroicon-m-eye'),
-
-           
+            ->icon('heroicon-m-eye'), 
         ];  
-
     }
 
     public static function getPages(): array

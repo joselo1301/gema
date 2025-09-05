@@ -22,8 +22,6 @@ class ViewFailureReport extends ViewRecord
 {
     protected static string $resource = FailureReportResource::class;
 
-   
-
     protected function getHeaderActions(): array
     {
         return [
@@ -35,6 +33,7 @@ class ViewFailureReport extends ViewRecord
 
             // Botón adicional: Reportar
             Action::make('reportar')
+                ->authorize(fn () => Auth::user()->can('reportar', $this->record))
                 ->label('Reportar')
                 ->icon('heroicon-m-paper-airplane')
                 ->color('info')
@@ -77,6 +76,7 @@ class ViewFailureReport extends ViewRecord
 
 
             Action::make('rechazar')
+                ->authorize(fn () => Auth::user()->can('rechazar', $this->record))
                 ->label('Rechazar')
                 ->icon('heroicon-m-x-circle')
                 ->color('danger')
@@ -120,6 +120,7 @@ class ViewFailureReport extends ViewRecord
 
                 // Botón adicional: Aprobar
             Action::make('aprobar')
+                ->authorize(fn () => Auth::user()->can('aprobar', $this->record))
                 ->label('Aprobar')
                 ->icon('heroicon-m-check-circle')
                 ->color('success')
@@ -188,6 +189,7 @@ class ViewFailureReport extends ViewRecord
                 }),
 
             Action::make('cambiar_etapa')
+                ->authorize(fn () => Auth::user()->can('cambiarEtapa', $this->record))
                 ->label('Actualizar etapa')
                 ->icon('heroicon-m-forward')
                 ->color('info')

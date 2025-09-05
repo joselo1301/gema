@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Filament\Forms;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Grid;
+use Filament\Forms\Components\Hidden;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -280,7 +281,32 @@ class FailureReport extends Model implements HasMedia
                                 ($record->cargo ? " — {$record->cargo}" : '') .
                                 ($record->empresa ? " ({$record->empresa})" : '')
                         )
-                        ->createOptionForm(fn ($get) => Person::getForm($get('asset_id') ? Asset::find($get('asset_id'))->location_id : null))
+                        ->createOptionForm(function ($get) {
+                            $asset = $get('asset_id') ? Asset::find($get('asset_id')) : null;
+                            $locationId = $asset?->location_id;
+
+                            return [
+                                Hidden::make('location_id')
+                                    ->default($locationId)
+                                    ->dehydrated(), // <- importante: se envía al modelo
+                                TextInput::make('nombres')->required(),
+                                TextInput::make('apellidos')->required(),
+                                TextInput::make('cargo'),
+                                TextInput::make('empresa'),
+                            ];
+                        })
+                        // ->createOptionAction(function (\Filament\Actions\Action $action) {
+                        //     return $action
+                        //         // seguridad extra si quieres validar:
+                        //         ->mutateFormDataUsing(function (array $data, $livewire) {
+                        //             if (blank($data['location_id'] ?? null)) {
+                        //                 // si no hay asset elegido, evita crear sin ubicación
+                        //                 throw \Filament\Support\Exceptions\Halt::make()
+                        //                     ->withMessage('Primero selecciona un Activo para asignar la ubicación del personal.');
+                        //             }
+                        //             return $data;
+                        //         });
+                        // })
                         ->preload()
                         ->searchable()
                         ->required(),
