@@ -12,6 +12,8 @@ use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Forms\Components\Fieldset;
 use Filament\Forms\Components\Split;
+use Filament\Forms\Components\Tabs;
+use Filament\Forms\Components\Tabs\Tab;
 use Filament\Forms\Components\Wizard;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -32,12 +34,14 @@ class UserResource extends Resource
             ->schema([
                 
 
-                Wizard::make([
-                     
-                    Wizard\Step::make('Datos basicos')
-                        
-                        ->schema([
-                            Fieldset::make('Datos principales')
+                Tabs::make()
+                    
+                    ->tabs([
+                        Tab::make('Datos basicos')
+                            ->icon('heroicon-m-user')
+                            
+                            ->schema([
+                                Fieldset::make('Datos principales')
                             ->columns(3)
                             ->schema([
                                 Forms\Components\TextInput::make('name')
@@ -72,7 +76,8 @@ class UserResource extends Resource
                                         ->default(false),
                                 ]),
                         ]),
-                    Wizard\Step::make('Centros de trabajo')
+                    Tab::make('Centros de trabajo')
+                        ->icon('heroicon-m-building-office-2')
                         ->schema([
                             Forms\Components\CheckboxList::make('locations')
                                 ->label('Plantas o Terminales')
@@ -85,7 +90,8 @@ class UserResource extends Resource
                                 ->columns(2)
                                 ->helperText('Selecciona uno o varios centros de trabajo a los que puede pertenecer el usuario'),
                         ]),
-                    Wizard\Step::make('Roles')
+                    Tab::make('Roles')
+                        ->icon('heroicon-m-shield-check')
                         ->schema([
                             Forms\Components\CheckboxList::make('roles')
                                 ->relationship('roles', 'name')
@@ -94,7 +100,7 @@ class UserResource extends Resource
                                 ->searchable(),
                         ]),
                     ]),
-  
+                    
             ]);
     }
 
