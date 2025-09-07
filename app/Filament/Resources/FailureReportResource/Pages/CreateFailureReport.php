@@ -7,6 +7,9 @@ use App\Models\Asset;
 use Filament\Actions;
 use Filament\Resources\Pages\CreateRecord;
 use Illuminate\Support\Facades\Auth;
+use App\Mail\FailureReportMail;
+use App\Models\User;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Carbon;
 
 class CreateFailureReport extends CreateRecord
@@ -35,5 +38,37 @@ class CreateFailureReport extends CreateRecord
         return $data;
 
        
+    }
+
+    protected function afterCreate(): void
+    {
+        $reporte = $this->record;
+
+        // Destinatarios (ajusta según tu lógica)
+        $to = User::whereHas('roles', function ($query) {
+            $query->where('name', 'Supervisor Operativo');
+            })
+            ->whereHas('locations', function ($query) use ($reporte) {
+            $query->where('locations.id', $reporte->location_id);
+            })
+            ->pluck('email')
+            ->all();
+        $cc = User::whereHas('roles', function ($query) {
+            $query->where('name', 'Coordinador Operativo');
+            })
+            ->whereHas('locations', function ($query) use ($reporte) {
+            $query->where('locations.id', $reporte->location_id);
+            })
+            ->pluck('email')
+            ->all();
+
+        // Enviar mailable
+        Mail::to($to)
+            ->cc($cc)
+            ->queue(new FailureReportMail(
+                evento: 'creado',
+                reporte: $reporte,
+                actor: Auth::user()
+            ));
     }
 }

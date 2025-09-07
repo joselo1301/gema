@@ -2,24 +2,32 @@
 
 namespace App\Mail;
 
+use App\Filament\Resources\FailureReportResource;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Mail\Mailable;
 use Illuminate\Mail\Mailables\Content;
 use Illuminate\Mail\Mailables\Envelope;
 use Illuminate\Queue\SerializesModels;
+use App\Models\FailureReport;
+use App\Models\User;
+use Illuminate\Mail\Mailables\Address;
 
-class FailureReportMail extends Mailable
+
+
+class FailureReportMail extends Mailable implements ShouldQueue
 {
     use Queueable, SerializesModels;
 
     /**
      * Create a new message instance.
      */
-    public function __construct()
-    {
-        //
-    }
+    public function __construct(
+        public string $evento,                // 'creado' | 'reportado' | 'aprobado' | 'estado_cambiado'
+        public FailureReport $reporte,
+        public ?User $actor = null,           // quién ejecutó la acción
+        public array $extra = []              // datos adicionales si los necesitas
+    ){}
 
     /**
      * Get the message envelope.
@@ -27,7 +35,7 @@ class FailureReportMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'Failure Report Mail',
+            subject: $this->asunto(),
         );
     }
 
@@ -36,8 +44,20 @@ class FailureReportMail extends Mailable
      */
     public function content(): Content
     {
+        $url = FailureReportResource::getUrl(
+        'view',
+        ['record' => $this->reporte],
+        panel: 'gema', // <-- ajusta si tu panel tiene otro ID
+        );
+
         return new Content(
-            markdown: 'emails.failure-reports.base',
+            markdown: "emails.failure-reports.{$this->evento}",
+            with: [
+                'reporte' => $this->reporte,
+                'actor'   => $this->actor,
+                'estado'  => $this->extra['estado'] ?? $this->reporte->reportFollowup?->nombre,
+                'url'     => $url,
+            ],
         );
     }
 
@@ -49,5 +69,17 @@ class FailureReportMail extends Mailable
     public function attachments(): array
     {
         return [];
+    }
+
+     private function asunto(): string
+    {
+        $num = $this->reporte->numero_reporte ?? 'Reporte de Falla';
+        return match ($this->evento) {
+            'creado'         => "GEMA | RF {$num} creado",
+            'reportado'      => "GEMA | RF {$num} reportado",
+            'aprobado'       => "GEMA | RF {$num} aprobado",
+            'estado_cambiado'=> "GEMA | RF {$num} cambio de estado",
+            default          => "GEMA | RF {$num}",
+        };
     }
 }

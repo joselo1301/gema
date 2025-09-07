@@ -236,7 +236,15 @@ class FailureReport extends Model implements HasMedia
                     Select::make('asset_id')
                         ->columnSpan(2)
                         ->label('Activo')
-                        ->relationship('asset', 'nombre')
+                       
+                        ->relationship('asset', 'id', function ($query, $state, $get) {
+                            $user = Auth::user();
+                            if ($user) {
+                                $query->whereHas('location.users', function ($q) use ($user) {
+                                    $q->where('users.id', $user->id);
+                                });
+                            }
+                        })
                         ->getOptionLabelFromRecordUsing(function ($record) {
                             $locationName = $record->location?->nombre ?? '';
                             return "{$record->nombre} ({$record->tag}) - {$locationName}";

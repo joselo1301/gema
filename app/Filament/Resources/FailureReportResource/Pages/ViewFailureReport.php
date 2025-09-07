@@ -16,6 +16,8 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Rmsramos\Activitylog\ActivitylogPlugin;
+use App\Mail\FailureReportMail;
+use Illuminate\Support\Facades\Mail;
 
 
 class ViewFailureReport extends ViewRecord
@@ -51,17 +53,34 @@ class ViewFailureReport extends ViewRecord
                 ->action(function (array $data) {
                     $reportedId = ReportFollowup::idByClave(ReportFollowup::ESTADO_REPORTADO);
 
+                    $reporte = $this->record;
+
                     // Actualiza el modelo usando Eloquent y registra actividad si es necesario
-                    $this->record->report_followup_id = $reportedId;
-                    $this->record->reportado_por_id = Auth::id();
-                    $this->record->reportado_en = now();
-                    $this->record->actualizado_por_id = Auth::id(); 
-                    $this->record->save();
+                    $reporte->report_followup_id = $reportedId;
+                    $reporte->reportado_por_id = Auth::id();
+                    $reporte->reportado_en = now();
+                    $reporte->actualizado_por_id = Auth::id();
+                    $reporte->save();
 
                     // Agrega comentario del usuario usando el método personalizado
                     $comentarioUsuario = trim($data['comentario'] ?? '');
                     if ($comentarioUsuario !== '') {
-                        $this->record->addSystemComment('Reporte de falla reportado: ' . $comentarioUsuario, Auth::id());
+                        $reporte->addSystemComment('Reporte de falla reportado: ' . $comentarioUsuario, Auth::id());
+
+                        
+                        // // Destinatarios
+                        // $to = [$reporte->responsable?->email ?? 'soporte@gema.test'];
+                        // $cc = $reporte->centro?->jefes?->pluck('email')->all() ?? [];
+
+                        // // Envía correo
+                        // Mail::to($to)
+                        //     ->cc($cc)
+                        //     ->queue(new FailureReportMail(
+                        //         evento: 'reportado',
+                        //         reporte: $reporte,
+                        //         actor: Auth::user()
+                        //     ));
+
                     }
 
                     // Notifica
