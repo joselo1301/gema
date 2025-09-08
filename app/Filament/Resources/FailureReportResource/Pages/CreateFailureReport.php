@@ -46,7 +46,7 @@ class CreateFailureReport extends CreateRecord
 
         // Destinatarios (ajusta según tu lógica)
         $to = User::whereHas('roles', function ($query) {
-            $query->where('name', 'Supervisor Operativo');
+            $query->where('name', 'Supervisor Mantenimiento');
             })
             ->whereHas('locations', function ($query) use ($reporte) {
             $query->where('locations.id', $reporte->location_id);
@@ -54,7 +54,7 @@ class CreateFailureReport extends CreateRecord
             ->pluck('email')
             ->all();
         $cc = User::whereHas('roles', function ($query) {
-            $query->where('name', 'Coordinador Operativo');
+            $query->where('name', 'Mecanico');
             })
             ->whereHas('locations', function ($query) use ($reporte) {
             $query->where('locations.id', $reporte->location_id);
@@ -71,4 +71,36 @@ class CreateFailureReport extends CreateRecord
                 actor: Auth::user()
             ));
     }
+
+    //  protected function afterCreate(): void
+    // {
+    //     $reporte = $this->record;
+
+    //     // Destinatarios (ajusta según tu lógica)
+    //     $to = User::whereHas('roles', function ($query) {
+    //         $query->where('name', 'Supervisor Operativo');
+    //         })
+    //         ->whereHas('locations', function ($query) use ($reporte) {
+    //         $query->where('locations.id', $reporte->location_id);
+    //         })
+    //         ->pluck('email')
+    //         ->all();
+    //     $cc = User::whereHas('roles', function ($query) {
+    //         $query->where('name', 'Coordinador Operativo');
+    //         })
+    //         ->whereHas('locations', function ($query) use ($reporte) {
+    //         $query->where('locations.id', $reporte->location_id);
+    //         })
+    //         ->pluck('email')
+    //         ->all();
+
+    //     // Enviar mailable
+    //     Mail::to($to)
+    //         ->cc($cc)
+    //         ->queue(new FailureReportMail(
+    //             evento: 'creado',
+    //             reporte: $reporte,
+    //             actor: Auth::user()
+    //         ));
+    // }
 }

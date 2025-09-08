@@ -1,12 +1,11 @@
 <x-mail::message>
-# Introduction
+# @yield('titulo', 'Notificación de GEMA')
 
-The body of your message.
+@yield('contenido')
 
-<x-mail::button :url="''">
-Button Text
-</x-mail::button>
+Saludos,<br>
+**{{ config('app.name') }} - Sistema de Gestión de Mantenimiento**
 
-Thanks,<br>
-{{ config('app.name') }}
+---
+<small>Este es un mensaje automático del sistema GEMA. No responda a este correo.</small>
 </x-mail::message>
