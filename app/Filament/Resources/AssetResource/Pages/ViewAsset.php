@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\AssetResource\Pages;
 
 use App\Filament\Resources\AssetResource;
+use App\Filament\Resources\AssetResource\Forms\AssetForm;
 use App\Models\Asset;
 use Filament\Actions;
 use Filament\Resources\Pages\ViewRecord;
@@ -18,7 +19,7 @@ class ViewAsset extends ViewRecord
     {
         return [
             Actions\EditAction::make()
-                ->form(Asset::getForm()),
+                ->form(AssetForm::getForm()),
             CommentsAction::make(),
         ];
     }

@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\FailureReportResource\Pages;
 
 use App\Filament\Resources\FailureReportResource;
+use App\Filament\Resources\FailureReportResource\Forms\FailureReportForm;
 use App\Models\FailureReport;
 use App\Models\ReportFollowup;
 use App\Services\FailureReportNumberService;
@@ -28,7 +29,7 @@ class ViewFailureReport extends ViewRecord
     {
         return [
             Actions\EditAction::make()
-                ->form(FailureReport::getForm())
+                ->form(FailureReportForm::getForm())
                 ->icon('heroicon-m-pencil-square')
                 ->visible(fn () => blank($this->record->reportado_en)),
             
