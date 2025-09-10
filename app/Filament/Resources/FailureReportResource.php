@@ -97,7 +97,7 @@ class FailureReportResource extends Resource implements HasShieldPermissions
         $query = parent::getEloquentQuery()
         ->whereIn('location_id', $user->locations->pluck('id'));
 
-        if (! $user->hasAnyRole(['Mecanico', 'Supervisor de Mantenimiento'])) {
+        if (! $user->hasAnyRole(['Mecanico', 'Supervisor Mantenimiento'])) {
             $query->excludeFollowupId(1);
         }
 

@@ -143,32 +143,6 @@ class FailureReport extends Model implements HasMedia
         ];
     }
 
-    protected $casts = [
-        'approved_snapshot' => 'array',
-    ];
-
-    public function approvedSnapshotPayload(): array
-    {
-        // Lista de campos que te interesa guardar en la foto
-        return Arr::only(
-            $this->toArray(), // convierte el modelo a arreglo
-            [
-                'id',
-                'numero_reporte',
-                'asset_id',
-                'location_id',
-                'report_followup_id',
-                'asset_status_on_report',
-                'asset_status_on_close',
-                'reportado_por_id',
-                'reportado_en',
-                'aprobado_por_id',
-                'aprobado_en',
-                // agrega aquí otros campos propios de tu flujo
-            ]
-        );
-    }
-
     public function asset(): BelongsTo
     {
         return $this->belongsTo(Asset::class);

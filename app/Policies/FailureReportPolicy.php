@@ -105,4 +105,24 @@ class FailureReportPolicy
     {
         return $user->can('reorder_failure::report');
     }
+
+     public function reportar(User $user)
+    {
+        return $user->can('reportar_failure::report');
+    }
+
+    public function rechazar(User $user)
+    {
+        return $user->can('rechazar_failure::report');
+    }
+
+    public function aprobar(User $user)
+    {
+        return $user->can('aprobar_failure::report');
+    }
+    
+    public function cambiarEtapa(User $user)
+    {
+        return $user->can('cambiar_etapa_failure::report');
+    }
 }

@@ -75,11 +75,11 @@ class FailureReportMail extends Mailable implements ShouldQueue
     {
         $num = $this->reporte->numero_reporte ?? 'Reporte de Falla';
         return match ($this->evento) {
-            'creado'         => "GEMA | RF {$num} creado",
-            'reportado'      => "GEMA | RF {$num} reportado",
-            'aprobado'       => "GEMA | RF {$num} aprobado",
-            'estado_cambiado'=> "GEMA | RF {$num} cambio de estado",
-            default          => "GEMA | RF {$num}",
+            'creado'         => "GEMA | {$num} creado",
+            'reportado'      => "GEMA | {$num} reportado",
+            'aprobado'       => "GEMA | {$num} aprobado",
+            'estado_cambiado'=> "GEMA | {$num} cambio de estado",
+            default          => "GEMA | {$num}",
         };
     }
 }

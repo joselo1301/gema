@@ -7,6 +7,7 @@ use App\Filament\Resources\FailureReportResource\Forms\FailureReportForm;
 use App\Models\FailureReport;
 use App\Models\ReportFollowup;
 use App\Services\FailureReportNumberService;
+use App\Services\FailureReportNotificationService;
 use Filament\Actions;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
@@ -17,8 +18,6 @@ use Filament\Actions\Action;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Rmsramos\Activitylog\ActivitylogPlugin;
-use App\Mail\FailureReportMail;
-use Illuminate\Support\Facades\Mail;
 
 
 class ViewFailureReport extends ViewRecord
@@ -67,22 +66,16 @@ class ViewFailureReport extends ViewRecord
                     $comentarioUsuario = trim($data['comentario'] ?? '');
                     if ($comentarioUsuario !== '') {
                         $reporte->addSystemComment('Reporte de falla reportado: ' . $comentarioUsuario, Auth::id());
-
-                        
-                        // // Destinatarios
-                        // $to = [$reporte->responsable?->email ?? 'soporte@gema.test'];
-                        // $cc = $reporte->centro?->jefes?->pluck('email')->all() ?? [];
-
-                        // // Envía correo
-                        // Mail::to($to)
-                        //     ->cc($cc)
-                        //     ->queue(new FailureReportMail(
-                        //         evento: 'reportado',
-                        //         reporte: $reporte,
-                        //         actor: Auth::user()
-                        //     ));
-
                     }
+
+                    // Enviar notificación por email
+                    $notificationService = new FailureReportNotificationService();
+                    $notificationService->notifyReportReported(
+                        reporte: $reporte,
+                        toRoles: ['Supervisor Operativo'],
+                        ccRoles: ['Supervisor Mantenimiento'],
+                        actor: Auth::user()
+                    );
 
                     // Notifica
                     Notification::make()
@@ -90,6 +83,9 @@ class ViewFailureReport extends ViewRecord
                         ->success()
                         ->send();
 
+                    
+
+                        
                     // Redirige
                     $this->redirect(static::getResource()::getUrl('view', ['record' => $this->record]));
                 }),
@@ -194,8 +190,19 @@ class ViewFailureReport extends ViewRecord
                         $this->record->addSystemComment('Reporte de falla aprobado: ' . $comentarioUsuario, Auth::id());
                     }
 
-                    // Servicio de notificacio por email
-
+                    // Servicio de notificacion por email
+                    $notificationService = new FailureReportNotificationService();
+                    $notificationService->notifyReportApproved(
+                        reporte: $this->record,
+                        toRoles: ['Supervisor Jpcm'],
+                        ccRoles: [  'Supervisor Operativo',
+                                    'Supervisor Mantenimiento',
+                                    'Mecanico',
+                                    'Coordinador Operativo'
+                            ],
+                        actor: Auth::user()
+                        
+                    );
 
                     // Notificación
                     Notification::make()
@@ -281,6 +288,23 @@ class ViewFailureReport extends ViewRecord
                         $nombreEstado = ReportFollowup::find($reportedId)?->nombre ?? '';
                         $this->record->addSystemComment('Etapa actualizada "' . $nombreEstado . '": ' . $comentarioUsuario, Auth::id());
                     }
+
+                    // Enviar notificación de cambio de estado
+                    $notificationService = new FailureReportNotificationService();
+                    $estadoAnterior = $this->record->getOriginal('report_followup_id');
+                    $estadoNuevo = $reportedId;
+                    
+                    $notificationService->notifyStatusChanged(
+                        reporte: $this->record,
+                        toRoles: ['Supervisor Mantenimiento'],
+                        ccRoles: ['Mecanico'],
+                        actor: Auth::user(),
+                        extra: [
+                            'estado_anterior' => ReportFollowup::find($estadoAnterior)?->nombre ?? '',
+                            'estado_nuevo' => ReportFollowup::find($estadoNuevo)?->nombre ?? '',
+                            'comentario' => $comentarioUsuario
+                        ]
+                    );
 
                     Notification::make()
                         ->title('Etapa de seguimiento actualizada correctamente.')

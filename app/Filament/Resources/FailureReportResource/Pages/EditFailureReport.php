@@ -3,6 +3,7 @@
 namespace App\Filament\Resources\FailureReportResource\Pages;
 
 use App\Filament\Resources\FailureReportResource;
+use App\Services\FailureReportNotificationService;
 use Filament\Actions;
 use Filament\Resources\Pages\EditRecord;
 use Illuminate\Support\Facades\Auth;
@@ -17,6 +18,18 @@ class EditFailureReport extends EditRecord
         return $data;
         
     }
+
+    // protected function afterSave(): void
+    // {
+    //     // Enviar notificación de actualización
+    //     $notificationService = new FailureReportNotificationService();
+    //     $notificationService->notifyReportUpdated(
+    //         reporte: $this->record,
+    //         toRoles: ['Supervisor Mantenimiento'],
+    //         ccRoles: ['Mecanico'],
+    //         actor: Auth::user()
+    //     );
+    // }
     
     protected function getHeaderActions(): array
     {
