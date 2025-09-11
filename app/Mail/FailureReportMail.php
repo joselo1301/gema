@@ -73,13 +73,15 @@ class FailureReportMail extends Mailable implements ShouldQueue
 
      private function asunto(): string
     {
-        $num = $this->reporte->numero_reporte ?? 'Reporte de Falla';
+        $num = mb_strtoupper($this->reporte->numero_reporte ?? 'Reporte de Falla');
+        $location = $this->reporte->location->nombre;
         return match ($this->evento) {
-            'creado'         => "GEMA | {$num} creado",
-            'reportado'      => "GEMA | {$num} reportado",
-            'aprobado'       => "GEMA | {$num} aprobado",
-            'estado_cambiado'=> "GEMA | {$num} cambio de estado",
-            default          => "GEMA | {$num}",
+            'creado'         => "GEMA | Nuevo {$num} creado | {$location}",
+            'reportado'      => "GEMA | {$num} remitido para revisión | {$location}",
+            'rechazado'      => "GEMA | {$num} rechazado | {$location}",
+            'aprobado'       => "GEMA | {$num} notificado a JPCM | {$location}",
+            'estado_cambiado'=> "GEMA | {$num} cambio de estado | {$location}",
+            default          => "GEMA | {$num} | {$location}",
         };
     }
 }

@@ -1,11 +1,11 @@
 @extends('emails.failure-reports.base')
 
 @section('titulo')
-Reporte de Falla - {{ $reporte->numero_reporte }} | {{ $reporte->location->nombre }}
+Nuevo REPORTE DE FALLA - {{ $reporte->numero_reporte }} notificado a JPCM | {{ $reporte->location->nombre }}
 @endsection
 
 @section('contenido')
-<p>Srs. JPCM, se notifica un nuevo reporte de falla en {{ $reporte->location->nombre}}.</p>
+<p>Se notifica la emisión de un nuevo reporte de falla. {{ $extra['comentario'] }}</p>
 
 <h3>Detalles del Reporte:</h3>
 <ul>

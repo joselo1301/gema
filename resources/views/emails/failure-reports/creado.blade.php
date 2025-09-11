@@ -1,9 +1,9 @@
 @extends('emails.failure-reports.base')
 
-@section('titulo', 'Reporte de Falla creado' . ' | ' . $reporte->location->nombre)
+@section('titulo', 'Nuevo REPORTE DE FALLA creado' . ' | ' . $reporte->location->nombre)
 
 @section('contenido')
-<p>Se ha creado un nuevo reporte de falla en {{ $reporte->location->nombre}} </p>
+{{-- <p>El reporte de falla se mantiene en etapa "Ingresado" hasta que se ejecute la acción de reportar.</p> --}}
 
 <h3>Detalles del Reporte:</h3>
 <ul>

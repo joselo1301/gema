@@ -49,6 +49,16 @@ class FailureReportNotificationService
         $this->sendNotification('estado_cambiado', $reporte, $toRoles, $ccRoles, $actor, $extra);
     }
 
+    public function notifyReportRejected(
+        FailureReport $reporte, 
+        array $toRoles, 
+        array $ccRoles = [], 
+        ?User $actor = null, 
+        array $extra = []
+    ): void {
+        $this->sendNotification('rechazado', $reporte, $toRoles, $ccRoles, $actor, $extra);
+    }
+    
     /**
      * Envía notificación cuando se aprueba un reporte
      */
@@ -170,6 +180,8 @@ class FailureReportNotificationService
             ->unique() // Eliminar duplicados
             ->values() // Reindexar el array
             ->toArray();
+            
+        
     }
 
     /**
