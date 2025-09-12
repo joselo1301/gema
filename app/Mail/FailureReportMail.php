@@ -80,7 +80,7 @@ class FailureReportMail extends Mailable implements ShouldQueue
             'reportado'      => "GEMA | {$num} remitido para revisión | {$location}",
             'rechazado'      => "GEMA | {$num} rechazado | {$location}",
             'aprobado'       => "GEMA | {$num} notificado a JPCM | {$location}",
-            'estado_cambiado'=> "GEMA | {$num} cambio de estado | {$location}",
+            'cambio_etapa'   => "GEMA | Actualización {$num} | {$location}",
             default          => "GEMA | {$num} | {$location}",
         };
     }

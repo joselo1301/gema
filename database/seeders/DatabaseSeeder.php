@@ -36,7 +36,6 @@ class DatabaseSeeder extends Seeder
             PersonSeeder::class,
             FailureReportSeeder::class,
             LocationUserSeeder::class,
-
             ShieldSeeder::class
         ]);
 

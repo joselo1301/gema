@@ -47,7 +47,7 @@ class ViewFailureReport extends ViewRecord
                 ->form([
                     Textarea::make('comentario')
                         ->label('Comentario')
-                        ->placeholder('Ej.: Se validó la información y se procede a reportar.')
+                        // ->placeholder('Ej.: Se validó la información y se procede a reportar.')
                         ->rows(4)
                         ->maxLength(1000),
                 ])
@@ -73,19 +73,23 @@ class ViewFailureReport extends ViewRecord
                     $notificationService = new FailureReportNotificationService();
                     $notificationService->notifyReportReported(
                         reporte: $reporte,
-                        toRoles: ['Supervisor Operativo'],
-                        ccRoles: ['Supervisor Mantenimiento'],
+                        toRoles: ['AprobadorRF'],
+                        ccRoles: ['ReportanteRF'],
                         actor: Auth::user(),
                         extra: ['comentario' => $comentarioUsuario]
                     );
-
+                    
                     // Notifica
                     Notification::make()
                         ->title('Reporte de falla enviado correctamente.')                        
                         ->success()
                         ->send();
+
+                   
+                    
                     // Redirige
                     $this->redirect(static::getResource()::getUrl('view', ['record' => $this->record]));
+
                 }),
 
 
@@ -97,10 +101,10 @@ class ViewFailureReport extends ViewRecord
                 ->visible(fn () => blank($this->record->aprobado_en) && filled($this->record->reportado_en))
                 ->requiresConfirmation()
                 ->modalHeading('Rechazar reporte de falla')
-                ->modalDescription('Antes de rechazar, dejar un comentario para el registro.')
+                ->modalDescription('Detalla el motivo por el cual se rechaza el reporte.')
                 ->form([
                     Textarea::make('comentario')
-                        ->label('Comentario')
+                        ->label('Motivo')
                         ->placeholder('')
                         ->required()
                         ->rows(4)
@@ -130,8 +134,8 @@ class ViewFailureReport extends ViewRecord
                     $notificationService = new FailureReportNotificationService();
                     $notificationService->notifyReportRejected(
                         reporte: $reporte,
-                        toRoles: ['Supervisor Mantenimiento'],
-                        ccRoles: ['Mecanico'],
+                        toRoles: ['ReportanteRF'],
+                        ccRoles: ['CreadorRF'],
                         actor: Auth::user(),
                         extra: ['comentario' => $comentarioUsuario]
                         
@@ -145,6 +149,8 @@ class ViewFailureReport extends ViewRecord
                         ->send();
                     
                     $this->redirect(static::getResource()::getUrl('index'));
+
+                                      
                 }),
 
                 // Botón adicional: Aprobar
@@ -209,11 +215,11 @@ class ViewFailureReport extends ViewRecord
                     $notificationService = new FailureReportNotificationService();
                     $notificationService->notifyReportApproved(
                         reporte: $reporte,
-                        toRoles: ['Supervisor Jpcm'],
-                        ccRoles: [  'Supervisor Operativo',
-                                    'Supervisor Mantenimiento',
-                                    'Mecanico',
-                                    'Coordinador Operativo'
+                        toRoles: ['GestorRF'],
+                        ccRoles: [  'AprobadorRF',
+                                    'ReportanteRF',
+                                    'CreadorRF',
+                                    'ObservadorRF'
                             ],
                         actor: Auth::user(),
                         extra: ['comentario' => $comentarioUsuario]
@@ -310,10 +316,12 @@ class ViewFailureReport extends ViewRecord
                     $estadoAnterior = $this->record->getOriginal('report_followup_id');
                     $estadoNuevo = $reportedId;
                     
+dd($estadoAnterior, $estadoNuevo);   
+
                     $notificationService->notifyStatusChanged(
                         reporte: $this->record,
-                        toRoles: ['Supervisor Mantenimiento'],
-                        ccRoles: ['Supervisor Operativo','Supervisor Jpcm','Mecanico','Coordinador Operativo'],
+                        toRoles: ['ReportanteRF','GestorRF'],
+                        ccRoles: ['AprobadorRF','CreadorRF','ObservadorRF'],
                         actor: Auth::user(),
                         extra: [
                             'estado_anterior' => ReportFollowup::find($estadoAnterior)?->nombre ?? '',

@@ -6,14 +6,13 @@ Actualización de estado del REPORTE DE FALLA - {{ $reporte->numero_reporte }} |
 
 @section('contenido')
 
-<p><strong>Estado anterior:</strong> {{ $extra['estado_anterior'] }}</p>
-<p><strong>Nuevo estado:</strong> {{ $extra['estado_nuevo'] }}</p>
-
 <p>{{ $extra['comentario'] }}</p>
 
 <h3>Detalles del Reporte:</h3>
 <ul>
-    <li><strong>Número de Reporte:</strong> '{{ $reporte->numero_reporte }}'</li>
+    <li><strong>Número de Reporte:</strong> {{ $reporte->numero_reporte }}</li>
+    <li><strong>Estado anterior:</strong> {{ $extra['estado_anterior'] }}</li>
+    <li><strong>Nuevo estado:</strong> {{ $extra['estado_nuevo'] }}</li>
     <li><strong>Asset:</strong> {{ $reporte->asset->nombre ?? 'N/A' }}</li>
     <li><strong>Ubicación:</strong> {{ $reporte->location->nombre ?? 'N/A' }}</li>
     <li><strong>Datos generales:</strong> {{ $reporte->datos_generales ?? 'N/A' }}</li>

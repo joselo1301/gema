@@ -5,6 +5,8 @@ REPORTE DE FALLA rechazado | {{ $reporte->location->nombre }}
 @endsection
 
 @section('contenido')
+<strong>Motivo:</strong>
+<br>
 <p>{{ $extra['comentario'] }}</p>
 
 <h3>Detalles del Reporte:</h3>
@@ -15,8 +17,6 @@ REPORTE DE FALLA rechazado | {{ $reporte->location->nombre }}
     <li><strong>Datos generales:</strong> {{ $reporte->datos_generales ?? 'N/A' }}</li>
     <li><strong>Descripción Corta:</strong> {{ $reporte->descripcion_corta }}</li>
     <li><strong>Fecha de ocurrencia:</strong> {{ $reporte->fecha_ocurrencia->format('d/m/Y H:i') }}</li>
-    <li><strong>Reportado por:</strong> {{ $reporte->reportadoPor->name}}</li>
-    <li><strong>Cargo:</strong> {{ $reporte->reportadoPor->puesto . ' - ' . $reporte->reportadoPor->empresa }}</li>    
     <li><strong>Rechazado por:</strong> {{ $reporte->actualizadoPor->name}}</li>
     <li><strong>Cargo:</strong> {{ $reporte->actualizadoPor->puesto . ' - ' . $reporte->actualizadoPor->empresa }}</li>    
 </ul>

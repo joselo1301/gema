@@ -46,7 +46,7 @@ class FailureReportNotificationService
         ?User $actor = null, 
         array $extra = []
     ): void {
-        $this->sendNotification('estado_cambiado', $reporte, $toRoles, $ccRoles, $actor, $extra);
+        $this->sendNotification('cambio_etapa', $reporte, $toRoles, $ccRoles, $actor, $extra);
     }
 
     public function notifyReportRejected(
@@ -97,12 +97,13 @@ class FailureReportNotificationService
         array $extra = []
     ): void {
         try {
+            
             // Validar que se especificaron roles
             if (empty($toRoles) && empty($ccRoles)) {
                 Log::warning("No se especificaron roles para notificación del reporte ID: {$reporte->id}");
                 return;
             }
-
+            
             // Obtener destinatarios principales (TO)
             $to = !empty($toRoles) ? $this->getRecipientsByRoles($reporte, $toRoles) : [];
             
@@ -142,7 +143,7 @@ class FailureReportNotificationService
                 actor: $actor,
                 extra: $extra
             ));
-
+            // dump($evento);
             Log::info("Notificación enviada para reporte ID: {$reporte->id}, evento: {$evento}", [
                 'to_roles' => $toRoles,
                 'cc_roles' => $ccRoles
@@ -181,7 +182,7 @@ class FailureReportNotificationService
             ->values() // Reindexar el array
             ->toArray();
             
-        
+            
     }
 
     /**

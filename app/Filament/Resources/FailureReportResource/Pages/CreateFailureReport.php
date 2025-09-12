@@ -42,8 +42,8 @@ class CreateFailureReport extends CreateRecord
         $notificationService = new FailureReportNotificationService();
         $notificationService->notifyReportCreated(
             reporte: $this->record,
-            toRoles: ['Supervisor Mantenimiento'],
-            ccRoles: ['Mecanico'],
+            toRoles: ['ReportanteRF'],
+            ccRoles: ['CreadorRF'],
             actor: Auth::user()
         );
     }
