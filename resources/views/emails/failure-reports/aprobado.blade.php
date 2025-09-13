@@ -1,8 +1,6 @@
 @extends('emails.failure-reports.base')
 
-@section('titulo')
-Nuevo REPORTE DE FALLA - {{ $reporte->numero_reporte }} notificado a JPCM | {{ $reporte->location->nombre }}
-@endsection
+@section('titulo', 'NUEVO REPORTE DE FALLA ' . $reporte->numero_reporte . ' | ' . $reporte->location->nombre)
 
 @section('contenido')
 <p>Se notifica la emisión de un nuevo reporte de falla. {{ $extra['comentario'] }}</p>
@@ -15,10 +13,15 @@ Nuevo REPORTE DE FALLA - {{ $reporte->numero_reporte }} notificado a JPCM | {{ $
     <li><strong>Datos generales:</strong> {{ $reporte->datos_generales ?? 'N/A' }}</li>
     <li><strong>Descripción Corta:</strong> {{ $reporte->descripcion_corta }}</li>
     <li><strong>Fecha de ocurrencia:</strong> {{ $reporte->fecha_ocurrencia->format('d/m/Y H:i') }}</li>
-    <li><strong>Reportado por:</strong> {{ $reporte->reportadoPor->name}}</li>
-    <li><strong>Cargo:</strong> {{ $reporte->reportadoPor->puesto . ' - ' . $reporte->reportadoPor->empresa }}</li>    
-    <li><strong>Aprobado por:</strong> {{ $reporte->aprobadoPor->name}}</li>
-    <li><strong>Cargo:</strong> {{ $reporte->aprobadoPor->puesto . ' - ' . $reporte->aprobadoPor->empresa }}</li>    
 </ul>
+<small>
+    <strong>Reportado por:</strong>
+    {{ $reporte->reportadoPor->name ?? 'N/A' }} 
+    <em> - {{ $reporte->reportadoPor->puesto ?? '' }} {{ $reporte->reportadoPor->empresa ?? '' }}</em>
+    <br> 
+    <strong>Notificado por:</strong>
+    {{ $reporte->aprobadoPor->name ?? 'N/A' }} 
+    <em>- {{ $reporte->aprobadoPor->puesto ?? '' }} {{ $reporte->aprobadoPor->empresa ?? '' }}</em>
+</small>
 
 @endsection

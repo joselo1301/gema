@@ -76,11 +76,11 @@ class FailureReportMail extends Mailable implements ShouldQueue
         $num = mb_strtoupper($this->reporte->numero_reporte ?? 'Reporte de Falla');
         $location = $this->reporte->location->nombre;
         return match ($this->evento) {
-            'creado'         => "GEMA | Nuevo {$num} creado | {$location}",
-            'reportado'      => "GEMA | {$num} remitido para revisión | {$location}",
-            'rechazado'      => "GEMA | {$num} rechazado | {$location}",
-            'aprobado'       => "GEMA | {$num} notificado a JPCM | {$location}",
-            'cambio_etapa'   => "GEMA | Actualización {$num} | {$location}",
+            'creado'         => "GEMA | REPORTE DE FALLA INGRESADO | {$location}",
+            'reportado'      => "GEMA | REPORTE DE FALLA REMITIDO PARA APROBACIÓN | {$location}",
+            'rechazado'      => "GEMA | REPORTE DE FALLA RECHAZADO | {$location}",
+            'aprobado'       => "GEMA | NUEVO REPORTE DE FALLA {$num} | {$location}",
+            'cambio_etapa'   => "GEMA | ESTADO DE REPORTE DE FALLA {$num} ACTUALIZADO | {$location}",
             default          => "GEMA | {$num} | {$location}",
         };
     }

@@ -6,6 +6,7 @@ use App\Filament\Resources\FailureReportResource;
 use App\Filament\Resources\FailureReportResource\Forms\FailureReportForm;
 use App\Models\FailureReport;
 use App\Models\ReportFollowup;
+use App\Models\User;
 use App\Services\FailureReportNumberService;
 use App\Services\FailureReportNotificationService;
 use Filament\Actions;
@@ -28,6 +29,7 @@ class ViewFailureReport extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
+
             Actions\EditAction::make()
                 ->form(FailureReportForm::getForm())
                 ->icon('heroicon-m-pencil-square')
@@ -41,9 +43,12 @@ class ViewFailureReport extends ViewRecord
                 ->icon('heroicon-m-paper-airplane')
                 ->color('info')
                 ->visible(fn () => blank($this->record->reportado_en))
-                ->requiresConfirmation()
                 ->modalHeading('Confirmar envío del reporte de falla')
                 ->modalDescription('Antes de enviar, puedes dejar un comentario para el registro.')
+                ->modalSubmitActionLabel('Reportar')
+                ->modalAlignment('center')
+                ->modalFooterActionsAlignment('right')
+                ->modalIcon('heroicon-m-paper-airplane')
                 ->form([
                     Textarea::make('comentario')
                         ->label('Comentario')
@@ -52,6 +57,7 @@ class ViewFailureReport extends ViewRecord
                         ->maxLength(1000),
                 ])
                 ->action(function (array $data) {
+
                     $reportedId = ReportFollowup::idByClave(ReportFollowup::ESTADO_REPORTADO);
 
                     $reporte = $this->record;
@@ -84,8 +90,6 @@ class ViewFailureReport extends ViewRecord
                         ->title('Reporte de falla enviado correctamente.')                        
                         ->success()
                         ->send();
-
-                   
                     
                     // Redirige
                     $this->redirect(static::getResource()::getUrl('view', ['record' => $this->record]));
@@ -99,9 +103,12 @@ class ViewFailureReport extends ViewRecord
                 ->icon('heroicon-m-x-circle')
                 ->color('danger')
                 ->visible(fn () => blank($this->record->aprobado_en) && filled($this->record->reportado_en))
-                ->requiresConfirmation()
                 ->modalHeading('Rechazar reporte de falla')
                 ->modalDescription('Detalla el motivo por el cual se rechaza el reporte.')
+                ->modalSubmitActionLabel('Rechazar')
+                ->modalAlignment('center')
+                ->modalFooterActionsAlignment('right')
+                ->modalIcon('heroicon-m-x-circle')
                 ->form([
                     Textarea::make('comentario')
                         ->label('Motivo')
@@ -117,6 +124,10 @@ class ViewFailureReport extends ViewRecord
 
                     $reporte = $this->record;
 
+                    $reportado_por_nombre_old = $reporte->reportadoPor->name;
+                    $reportado_por_puesto_old = $reporte->reportadoPor->puesto;
+                    $reportado_por_empresa_old = $reporte->reportadoPor->empresa;
+                    
                     // Actualiza el modelo usando Eloquent y registra actividad si es necesario
                     $reporte->report_followup_id = $reportedId;
                     $reporte->reportado_por_id = null;
@@ -137,11 +148,14 @@ class ViewFailureReport extends ViewRecord
                         toRoles: ['ReportanteRF'],
                         ccRoles: ['CreadorRF'],
                         actor: Auth::user(),
-                        extra: ['comentario' => $comentarioUsuario]
+                        extra: ['comentario' => $comentarioUsuario,
+                            'reportado_por_nombre' => $reportado_por_nombre_old,
+                            'reportado_por_puesto' => $reportado_por_puesto_old,
+                            'reportado_por_empresa' => $reportado_por_empresa_old,
+                        ]
                         
                     );
 
-                  
                     // Notificación
                     Notification::make()
                         ->title('Reporte de falla rechazado.')
@@ -149,20 +163,21 @@ class ViewFailureReport extends ViewRecord
                         ->send();
                     
                     $this->redirect(static::getResource()::getUrl('index'));
-
                                       
                 }),
 
-                // Botón adicional: Aprobar
             Action::make('aprobar')
                 ->authorize(fn () => Auth::user()->can('aprobar', $this->record))
                 ->label('Aprobar')
                 ->icon('heroicon-m-check-circle')
                 ->color('success')
-                ->requiresConfirmation()
                 ->visible(fn () => blank($this->record->aprobado_en) && filled($this->record->reportado_en))
                 ->modalHeading('Aprobar reporte de falla')
                 ->modalDescription('Antes de aprobar, puede dejar un comentario para el registro.')
+                ->modalSubmitActionLabel('Aprobar')
+                ->modalAlignment('center')
+                ->modalFooterActionsAlignment('right')
+                ->modalIcon('heroicon-m-check-circle')
                 ->form([
                     Textarea::make('comentario')
                         ->label('Comentario')
@@ -216,11 +231,7 @@ class ViewFailureReport extends ViewRecord
                     $notificationService->notifyReportApproved(
                         reporte: $reporte,
                         toRoles: ['GestorRF'],
-                        ccRoles: [  'AprobadorRF',
-                                    'ReportanteRF',
-                                    'CreadorRF',
-                                    'ObservadorRF'
-                            ],
+                        ccRoles: ['AprobadorRF', 'ReportanteRF', 'CreadorRF', 'ObservadorRF'],
                         actor: Auth::user(),
                         extra: ['comentario' => $comentarioUsuario]
                        
@@ -244,58 +255,62 @@ class ViewFailureReport extends ViewRecord
                 ->color('info')
                 ->modalHeading('Actualizar etapa de seguimiento')
                 ->modalSubmitActionLabel('Actualizar')
+                ->modalAlignment('center')
+                ->modalFooterActionsAlignment('right')
+                ->modalIcon('heroicon-m-forward')
                 ->form([
                     Select::make('report_followup_id')
                         ->label('Estado de seguimiento')
                         ->options(ReportFollowup::whereNotIn('id', [1, 2, 3])->pluck('nombre', 'id')->toArray())
                         ->required()
-                        ->reactive(), // <-- Agrega esto para que el siguiente campo se actualice dinámicamente
+                        ->reactive()
+                        ->default($this->record->report_followup_id), // Muestra el valor actual
                     Select::make('asset_status_on_close')
                         ->label('Estado del activo al cierre')
                         ->relationship('assetStatusOnClose', 'nombre', fn ($query) => $query->orderBy('orden'))
                         ->visible(fn ($get) => in_array((int)$get('report_followup_id'), [13, 14, 15]))
                         ->required(fn ($get) => in_array((int)$get('report_followup_id'), [13, 14, 15])),
                     Textarea::make('comentario')
-                        ->label('Comentario')                        
-                        ->rows(3),
+                        ->label('Nota')                        
+                        ->rows(3)
+                        ->required(),
                 ])
-                ->requiresConfirmation()
+                
                 ->visible(fn () => filled($this->record->aprobado_en) && blank($this->record->asset_status_on_close))
                 ->action(function (array $data) {
+                    $reporte = $this->record;
                     $reportedId = $data['report_followup_id'];
                     $comentarioUsuario = trim($data['comentario'] ?? '');
                     $assetStatusOnClose = $data['asset_status_on_close'] ?? null;
+                    $estadoAnterior = $reporte->report_followup_id;
 
                     // Actualiza el estado de seguimiento
-                    $this->record->report_followup_id = $reportedId;
+                    $reporte->report_followup_id = $reportedId;
                     switch ($reportedId) {
                         case ReportFollowup::idByClave(ReportFollowup::ESTADO_EN_EJECUCION):
-                            $this->record->report_status_id = 2;
+                            $reporte->report_status_id = 2;
                             
                             break;
                         case ReportFollowup::idByClave(ReportFollowup::ESTADO_EJECUTADO):
                         case ReportFollowup::idByClave(ReportFollowup::ESTADO_OBSERVADO):
                         case ReportFollowup::idByClave(ReportFollowup::ESTADO_NO_CORRESPONDE):
                             
-                            $this->record->report_status_id = 3;
-                            $this->record->asset_status_on_close = $assetStatusOnClose;
+                            $reporte->report_status_id = 3;
+                            $reporte->asset_status_on_close = $assetStatusOnClose;
+                            $reporte->asset->asset_state_id = $assetStatusOnClose;
                             
-
-                            // Cambia el estado del activo y lo iguala al indicado en el reporte
-                            $this->record->asset->asset_state_id = $assetStatusOnClose;
-                            $this->record->asset->save(); 
                             
                              // Registrar log manual del cambio de estado del asset
                             activity()
                                 ->useLog('Activo: Cambio de estado')
                                 ->event('updated')
-                                ->performedOn($this->record->asset)
+                                ->performedOn($reporte->asset)
                                 ->causedBy(Auth::user())
                                 ->withProperties([
-                                    'Estado de activo' => optional($this->record->assetStatusOnClose)->nombre,
-                                    'R.Falla Numero' => $this->record->numero_reporte,
-                                    'R.Falla Etapa' => optional($this->record->reportFollowup)->nombre,
-                                    'R.Falla Estado' => optional($this->record->reportStatus)->nombre,
+                                    'Estado de activo' => optional($reporte->assetStatusOnClose)->nombre,
+                                    'R.Falla Numero' => $reporte->numero_reporte,
+                                    'R.Falla Etapa' => optional($reporte->reportFollowup)->nombre,
+                                    'R.Falla Estado' => optional($reporte->reportStatus)->nombre,
                                 ])
                                 ->log('Cambio de estado del activo por cierre de reporte de falla');
 
@@ -303,23 +318,22 @@ class ViewFailureReport extends ViewRecord
                         
                         // Puedes agregar más casos según tus necesidades
                     }
-                    $this->record->save();
+                    $reporte->actualizado_por_id = Auth::id();
+                    $reporte->save();
 
                    // Agrega comentario del usuario usando el método personalizado
                     if ($comentarioUsuario !== '') {
                         $nombreEstado = ReportFollowup::find($reportedId)?->nombre ?? '';
-                        $this->record->addSystemComment('Etapa actualizada "' . $nombreEstado . '": ' . $comentarioUsuario, Auth::id());
+                        $reporte->addSystemComment('Etapa actualizada "' . $nombreEstado . '": ' . $comentarioUsuario, Auth::id());
                     }
 
                     // Servicio de notificacion por email
                     $notificationService = new FailureReportNotificationService();
-                    $estadoAnterior = $this->record->getOriginal('report_followup_id');
+                    
                     $estadoNuevo = $reportedId;
                     
-dd($estadoAnterior, $estadoNuevo);   
-
                     $notificationService->notifyStatusChanged(
-                        reporte: $this->record,
+                        reporte: $reporte,
                         toRoles: ['ReportanteRF','GestorRF'],
                         ccRoles: ['AprobadorRF','CreadorRF','ObservadorRF'],
                         actor: Auth::user(),
@@ -336,7 +350,7 @@ dd($estadoAnterior, $estadoNuevo);
                         ->success()
                         ->send();
 
-                    $this->redirect(static::getResource()::getUrl('view', ['record' => $this->record]));
+                    $this->redirect(static::getResource()::getUrl('view', ['record' => $reporte]));
                 }),
 
             

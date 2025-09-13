@@ -143,6 +143,8 @@ class FailureReportNotificationService
                 actor: $actor,
                 extra: $extra
             ));
+
+            
             // dump($evento);
             Log::info("Notificación enviada para reporte ID: {$reporte->id}, evento: {$evento}", [
                 'to_roles' => $toRoles,
@@ -159,6 +161,8 @@ class FailureReportNotificationService
             ]);
         }
     }
+
+
 
     /**
      * Obtiene destinatarios personalizados basados en roles y ubicación

@@ -3,12 +3,14 @@
 
 @yield('contenido')
 
+
 <p>
     <x-mail::button :url="$url">
         Ver Reporte
     </x-mail::button>  
 </p>
 
+<br>
 Saludos,<br>
 **{{ config('app.name') }} - Sistema de Gestión de Mantenimiento**
 
