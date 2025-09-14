@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Carbon;
 use Parallax\FilamentComments\Actions\CommentsAction;
 use Filament\Actions\Action;
+use Filament\Actions\StaticAction;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Components\TextEntry;
@@ -52,10 +53,16 @@ class ViewFailureReport extends ViewRecord
                 ->form([
                     Textarea::make('comentario')
                         ->label('Comentario')
-                        // ->placeholder('Ej.: Se validó la información y se procede a reportar.')
-                        ->rows(4)
-                        ->maxLength(1000),
+                        // ->placeholder('Ej.: Se validó la información y se procede a reportar.')                        
+                        ->maxLength(250)
+                        ->helperText('Opcional, máximo 250 caracteres.'),
                 ])
+                ->modalSubmitAction(fn (StaticAction $action) =>
+                    $action->extraAttributes([
+                        'wire:loading.attr'  => 'disabled',      // deshabilita mientras ejecuta
+                        'wire:loading.class' => 'opacity-70',    // feedback visual opcional
+                    ])
+                )
                 ->action(function (array $data) {
 
                     $reportedId = ReportFollowup::idByClave(ReportFollowup::ESTADO_REPORTADO);
@@ -94,7 +101,8 @@ class ViewFailureReport extends ViewRecord
                     // Redirige
                     $this->redirect(static::getResource()::getUrl('view', ['record' => $this->record]));
 
-                }),
+                })
+                ,
 
 
             Action::make('rechazar')

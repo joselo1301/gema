@@ -13,11 +13,13 @@ use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 
 
+
 class User extends Authenticatable implements CanResetPasswordContract
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, HasRoles, Notifiable, CanResetPassword, SoftDeletes;
 
+    
     /**
      * The attributes that are mass assignable.
      *
@@ -40,7 +42,7 @@ class User extends Authenticatable implements CanResetPasswordContract
         'password',
         'remember_token',
     ];
-
+    
     /**
      * Get the attributes that should be cast.
      *

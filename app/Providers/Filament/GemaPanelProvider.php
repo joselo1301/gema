@@ -2,11 +2,14 @@
 
 namespace App\Providers\Filament;
 
+use App\Filament\Pages\Settings;
+use App\Models\User;
 use Filament\Http\Middleware\Authenticate;
 use BezhanSalleh\FilamentShield\FilamentShieldPlugin;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
+use Filament\Navigation\MenuItem;
 use Filament\Pages;
 use Filament\Panel;
 use Filament\PanelProvider;
@@ -24,8 +27,8 @@ use Illuminate\Support\Facades\Blade;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Rmsramos\Activitylog\ActivitylogPlugin;
 use Illuminate\Support\Facades\Vite;
-use Filament\View\PanelsRenderHook; 
-
+use Filament\View\PanelsRenderHook;
+use Illuminate\Support\Facades\Auth;
 
 class GemaPanelProvider extends PanelProvider
 {
@@ -56,6 +59,7 @@ class GemaPanelProvider extends PanelProvider
             ])
             ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\\Filament\\Widgets')
             ->widgets([
+                \App\Filament\Widgets\UserInfoWidget::class,
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
             ])
@@ -122,14 +126,21 @@ class GemaPanelProvider extends PanelProvider
                     ->icon('heroicon-o-user-group')
                     ->collapsed(false),
             ])
-            ;
-            
-            return $panel
-            
             ->renderHook(
-                PanelsRenderHook::HEAD_END,     // o STYLES_BEFORE / SCRIPTS_BEFORE según prefieras
+                PanelsRenderHook::USER_MENU_BEFORE,
+                fn (): string => view('filament.components.user-info')->render(),
+            )
+            ->renderHook(
+                PanelsRenderHook::HEAD_END,
                 fn (): string => Vite::withEntryPoints(['resources/js/app.js'])->toHtml(),
-            );
+            )
+            ->userMenuItems([
+                'profile' => MenuItem::make()
+                    ->label(fn() => 'Ver mi perfil')
+                    // ->icon('heroicon-o-user-circle')
+                    ->url(fn() => \App\Filament\Pages\UserProfile::getUrl())
+                    ->sort(-2),
+            ]);
     }
 
     public function register(): void

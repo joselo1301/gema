@@ -1,0 +1,39 @@
+/* Estilos personalizados para la información del usuario */
+.user-info-topbar {
+    background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+    border-bottom: 2px solid #e2e8f0;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+.dark .user-info-topbar {
+    background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+    border-bottom: 2px solid #374151;
+}
+
+.user-info-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background-color: #dbeafe;
+    color: #1e40af;
+}
+
+.dark .user-info-badge {
+    background-color: #1e3a8a;
+    color: #93c5fd;
+}
+
+.user-info-separator {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background-color: #6b7280;
+    margin: 0 0.5rem;
+}
+
+.dark .user-info-separator {
+    background-color: #9ca3af;
+}

@@ -106,7 +106,7 @@ class FailureReportPolicy
         return $user->can('reorder_failure::report');
     }
 
-     public function reportar(User $user)
+    public function reportar(User $user)
     {
         return $user->can('reportar_failure::report');
     }

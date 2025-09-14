@@ -11,13 +11,13 @@ class ShieldSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1) Genera permisos y políticas para TODOS tus Resources/Pages/Widgets
-        Artisan::call('shield:generate', [
-            '--all'           => true,
-            '--panel'         => 'gema',          // tu panel ID
-            '--no-interaction'=> true,
-        ]);
-        $this->command->info('✔️ shield:generate ejecutado');
+        // // 1) Genera permisos y políticas para TODOS tus Resources/Pages/Widgets
+        // Artisan::call('shield:generate', [
+        //     '--all'           => true,
+        //     '--panel'         => 'gema',          // tu panel ID
+        //     '--no-interaction'=> true,
+        // ]);
+        // $this->command->info('✔️ shield:generate ejecutado');
 
         // 2) Asigna super-admin al usuario #1 en el panel "gema"
         Artisan::call('shield:super-admin', [
@@ -29,7 +29,7 @@ class ShieldSeeder extends Seeder
 
         
         $roles = [
-            'Mecanico' => [
+            'CreadorRF' => [
                 'view_any_failure::report',
                 'view_failure::report',
                 'create_failure::report',
@@ -39,7 +39,7 @@ class ShieldSeeder extends Seeder
                 'view_any_asset',
                 'view_asset'
             ],
-            'Supervisor Mantenimiento' => [
+            'ReportanteRF' => [
                 'view_any_failure::report',
                 'view_failure::report',
                 'create_failure::report',
@@ -50,7 +50,7 @@ class ShieldSeeder extends Seeder
                 'view_any_asset',
                 'view_asset'
             ],
-            'Supervisor Operativo' => [
+            'AprobadorRF' => [
                 'view_any_failure::report',
                 'view_failure::report',
                 'aprobar_failure::report',
@@ -59,13 +59,13 @@ class ShieldSeeder extends Seeder
                 'view_any_asset',
                 'view_asset'
          ],
-            'Coordinador Operativo' => [
+            'ObservadorRF' => [
                 'view_any_failure::report',
                 'view_failure::report',
                 'view_any_asset',
                 'view_asset'
             ],
-            'Supervisor JPCM' => [
+            'GestorRF' => [
                 'view_any_failure::report',
                 'view_failure::report',
                 'cambiar_etapa_failure::report',
