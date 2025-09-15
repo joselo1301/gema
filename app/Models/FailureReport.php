@@ -37,50 +37,11 @@ class FailureReport extends Model implements HasMedia
     {
         return LogOptions::defaults()
             ->useLogName('Reporte de Falla')                         // canal
-            ->logOnly([
-                'numero_reporte',
-                'fecha_ocurrencia',
-                'datos_generales',
-                'descripcion_corta',
-                'descripcion_detallada',
-                'causas_probables',
-                'acciones_realizadas',
-                'afecta_operaciones',
-                'afecta_medio_ambiente',
-                'apoyo_adicional',
-                'observaciones',
-                'asset.nombre',
-                'asset_status_on_report.nombre',
-                'asset_status_on_close.nombre',
-                'location.nombre',
-                'reportStatus.nombre',
-                'reportFollowup.nombre', 
-                'creadoPor.name',
-                'reportadoPor.name',
-                'reportado_en',
-                'aprobadoPor.name',
-                'aprobado_en',
-                'ejecutadoPor.name',
-                'actualizadoPor.name',
-                'approved_snapshot',
-                'approved_hash',
-                'created_at',
-                'updated_at'
-
-                ])
-            // ->logOnly(['numero_reporte', 'tag', 'ubicacion', 'assetState.nombre'])          // campos que SÍ auditas
             ->logOnlyDirty()                               // solo si realmente cambiaron
             ->dontLogIfAttributesChangedOnly(['updated_at']) // si SOLO cambió updated_at, no loguear
             ->dontSubmitEmptyLogs()
-            ->setDescriptionForEvent(function (string $eventName) {
-                return match ($eventName) {
-                    'created'  => 'Creado',
-                    'updated'  => 'Actualizado',
-                    'deleted'  => 'Eliminado',
-                    'restored' => 'Restaurado',
-                    default    => ucfirst($eventName),
-                };
-            });
+            ;
+            
 
     }
 

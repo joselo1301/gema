@@ -50,7 +50,8 @@ class FailureReportForm
                     DateTimePicker::make('fecha_ocurrencia')
                         ->columnSpan(1)
                         ->label('Fecha y hora de ocurrencia')
-                        ->required(),
+                        ->required()
+                        ->seconds(false),
 
                         Textarea::make('datos_generales')
                         ->columnSpanFull()

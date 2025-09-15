@@ -98,10 +98,8 @@ class GemaPanelProvider extends PanelProvider
                     ->navigationIcon('heroicon-o-eye')
                     ->navigationItem(true)              // mostrar en menú
                     ->navigationSort(30)               // posición opcional
-                    
                     ->isRestoreActionHidden(true)
-                    ->isResourceActionHidden(true)
-                                                      ,
+                    ->isResourceActionHidden(true),
             ])
             ->authMiddleware([
                 Authenticate::class,

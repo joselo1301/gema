@@ -156,10 +156,11 @@ class AssetTable
 
                 ActivityLogTimelineTableAction::make('Historial')
                     ->withRelations(['profile', 'address'])
-                    ->icon('heroicon-s-clock')
+                    ->icon('heroicon-s-eye')
                     ->timelineIconColors([
                         'created' => 'success',
-                        'updated' => 'info',                       
+                        'updated' => 'info',
+                        'restored' => 'warning',                       
                     ])
                     ->limit(10),
 

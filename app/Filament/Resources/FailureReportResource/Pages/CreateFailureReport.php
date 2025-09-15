@@ -39,6 +39,7 @@ class CreateFailureReport extends CreateRecord
 
     protected function afterCreate(): void
     {
+
         $notificationService = new FailureReportNotificationService();
         $notificationService->notifyReportCreated(
             reporte: $this->record,
@@ -46,7 +47,20 @@ class CreateFailureReport extends CreateRecord
             ccRoles: ['CreadorRF'],
             actor: Auth::user()
         );
+        
+        $reporte = $this->record;
+        activity()
+            ->useLog('Reporte de falla: creado')
+            ->event('created')
+            ->performedOn($reporte)
+            ->causedBy(Auth::user())
+            ->withProperties([
+                'Fecha y hora de Ocurrencia' => optional($reporte->fecha_ocurrencia)->format('Y-m-d H:i'),
+                'Activo' => $reporte->asset->nombre,
+                'Estado del activo al reportar' =>  $reporte->assetStatusOnReport->nombre,                       
+            ])
+            ->log('Se registró un nuevo reporte de falla');
     }
 
-    
+   
 }

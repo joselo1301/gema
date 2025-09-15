@@ -17,12 +17,13 @@ class FailureReportTable
             ->columns([
                 Tables\Columns\TextColumn::make('numero_reporte')
                     ->label('N° Reporte')
-                    ->description(fn ($record): string => $record->asset?->nombre ?? '')
                     ->sortable()
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('asset.nombre')
-                    ->toggleable(isToggledHiddenByDefault: true)
+                    // ->toggleable(isToggledHiddenByDefault: true)
+                    ->description(fn ($record): string => $record->descripcion_corta ?? '')
+                    ->wrap()
                     ->searchable(),
 
                 Tables\Columns\TextColumn::make('fecha_ocurrencia')
@@ -30,9 +31,10 @@ class FailureReportTable
                     ->sortable(),
 
                 Tables\Columns\TextColumn::make('descripcion_corta')
+                    ->toggleable(isToggledHiddenByDefault: true)    
                     ->label('Descripción Corta')
-                    ->wrap()
-                    ->lineClamp(2)
+                    //                     ->wrap()
+                    // ->lineClamp(2)
                     
                     ->searchable(),
 
@@ -131,14 +133,15 @@ class FailureReportTable
                 
             ])
             ->actions([
-                ActivityLogTimelineTableAction::make('Bitácora')
-                    ->label('')
-                    ->tooltip('Bitácora')
+                ActivityLogTimelineTableAction::make('Historial')
+                    ->label('Historial')
+                    ->tooltip('Historial')
                     ->withRelations(['profile', 'address'])
                     ->icon('heroicon-s-eye')
                     ->timelineIconColors([
                         'created' => 'success',
-                        'updated' => 'info',                       
+                        'updated' => 'info',
+                        'restored' => 'warning',                       
                     ])
                     ->limit(10),
 

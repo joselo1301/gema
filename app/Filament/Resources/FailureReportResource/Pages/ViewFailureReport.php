@@ -21,6 +21,7 @@ use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Infolists\Components\TextEntry;
 use Rmsramos\Activitylog\ActivitylogPlugin;
+use Barryvdh\Debugbar\Facades\Debugbar;
 
 
 class ViewFailureReport extends ViewRecord
@@ -53,7 +54,7 @@ class ViewFailureReport extends ViewRecord
                 ->form([
                     Textarea::make('comentario')
                         ->label('Comentario')
-                        // ->placeholder('Ej.: Se validó la información y se procede a reportar.')                        
+                        ->placeholder('Ej.: Se validó la información y se procede a reportar.')
                         ->maxLength(250)
                         ->helperText('Opcional, máximo 250 caracteres.'),
                 ])
@@ -68,7 +69,7 @@ class ViewFailureReport extends ViewRecord
                     $reportedId = ReportFollowup::idByClave(ReportFollowup::ESTADO_REPORTADO);
 
                     $reporte = $this->record;
-
+                    
                     // Actualiza el modelo usando Eloquent y registra actividad si es necesario
                     $reporte->report_followup_id = $reportedId;
                     $reporte->reportado_por_id = Auth::id();
@@ -81,6 +82,17 @@ class ViewFailureReport extends ViewRecord
                     if ($comentarioUsuario !== '') {
                         $reporte->addSystemComment('Reporte de falla reportado: ' . $comentarioUsuario, Auth::id());
                     }
+
+                    activity()
+                        ->useLog('Reporte de falla: reportado')
+                        ->event('updated')
+                        ->performedOn($reporte)
+                        ->causedBy(Auth::user())
+                        ->withProperties([
+                            'Etapa' => $reporte->reportFollowup->nombre,
+                            'Comentario' => $comentarioUsuario,
+                        ])
+                        ->log('Reporte de falla enviado para aprobación.');
 
                     // Enviar notificación por email
                     $notificationService = new FailureReportNotificationService();
@@ -100,9 +112,7 @@ class ViewFailureReport extends ViewRecord
                     
                     // Redirige
                     $this->redirect(static::getResource()::getUrl('view', ['record' => $this->record]));
-
-                })
-                ,
+                }),
 
 
             Action::make('rechazar')
@@ -117,13 +127,14 @@ class ViewFailureReport extends ViewRecord
                 ->modalAlignment('center')
                 ->modalFooterActionsAlignment('right')
                 ->modalIcon('heroicon-m-x-circle')
+                
                 ->form([
                     Textarea::make('comentario')
                         ->label('Motivo')
-                        ->placeholder('')
-                        ->required()
-                        ->rows(4)
-                        ->maxLength(1000),
+                        ->placeholder('Ej.: La información proporcionada es insuficiente o incorrecta.')
+                        ->required()                        
+                        ->maxLength(250)
+                        ->helperText('Máximo 250 caracteres.'),
                     
                 ])
 
@@ -149,6 +160,17 @@ class ViewFailureReport extends ViewRecord
                         $reporte->addSystemComment('Reporte de falla rechazado: ' . $comentarioUsuario, Auth::id());
                     }
 
+                    activity()
+                        ->useLog('Reporte de falla: rechazado')
+                        ->event('restored')
+                        ->performedOn($reporte)
+                        ->causedBy(Auth::user())
+                        ->withProperties([
+                            'Etapa' => $reporte->reportFollowup->nombre,
+                            'Motivo' => $comentarioUsuario,
+                        ])
+                        ->log('Reporte de falla rechazado.');
+
                     // Servicio de notificacion por email
                     $notificationService = new FailureReportNotificationService();
                     $notificationService->notifyReportRejected(
@@ -164,6 +186,8 @@ class ViewFailureReport extends ViewRecord
                         
                     );
 
+                    
+
                     // Notificación
                     Notification::make()
                         ->title('Reporte de falla rechazado.')
@@ -172,7 +196,8 @@ class ViewFailureReport extends ViewRecord
                     
                     $this->redirect(static::getResource()::getUrl('index'));
                                       
-                }),
+                })
+                ,
 
             Action::make('aprobar')
                 ->authorize(fn () => Auth::user()->can('aprobar', $this->record))
@@ -189,10 +214,11 @@ class ViewFailureReport extends ViewRecord
                 ->form([
                     Textarea::make('comentario')
                         ->label('Comentario')
-                        ->placeholder('')                        
-                        ->rows(4)
-                        ->maxLength(1000),
+                        ->placeholder('Ej.: Se validó la información y se procede a reportar.')
+                        ->maxLength(250)
+                        ->helperText('Máximo 250 caracteres.'),
                 ])
+                
                 ->action(function (array $data) {
                     $reportedId = ReportFollowup::idByClave(ReportFollowup::ESTADO_NOTIFICADO);
 
@@ -223,7 +249,8 @@ class ViewFailureReport extends ViewRecord
                         ->performedOn($reporte->asset)
                         ->causedBy(Auth::user())
                         ->withProperties([
-                            'Estado de activo' => optional($reporte->assetStatusOnReport)->nombre,
+                            'Estado de activo (anterior)' => optional($reporte->asset->assetState)->nombre,
+                            'Estado de activo (nuevo)' => optional($reporte->assetStatusOnReport)->nombre,
                             'Numero de Reporte de falla' => $reporte->numero_reporte,
                         ])
                         ->log('Cambio de estado del activo por emisión de reporte de falla');
@@ -280,10 +307,11 @@ class ViewFailureReport extends ViewRecord
                         ->required(fn ($get) => in_array((int)$get('report_followup_id'), [13, 14, 15])),
                     Textarea::make('comentario')
                         ->label('Nota')                        
-                        ->rows(3)
+                        ->placeholder('Ej.: Se inicia la ejecución del trabajo.')
+                        ->maxLength(250)
+                        ->helperText('Opcional, máximo 250 caracteres.')
                         ->required(),
-                ])
-                
+                ])                
                 ->visible(fn () => filled($this->record->aprobado_en) && blank($this->record->asset_status_on_close))
                 ->action(function (array $data) {
                     $reporte = $this->record;
